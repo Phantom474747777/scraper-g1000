@@ -1,6 +1,8 @@
 # LLM-Powered Web Scraper with Crawl4AI  
 
-This project is an AI-enhanced web scraper built with **Crawl4AI**. It leverages **large language models (LLMs)** like OpenAI's GPT, Claude, and DeepSeek to intelligently extract **local business data** from YellowPages. All collected data is saved in structured **CSV files** for easy analysis.  
+This project is an AI-enhanced web scraper built with **Crawl4AI**. It leverages **LLMs** like OpenAI's GPT, Claude, and DeepSeek to intelligently extract **local business data** from YellowPages. All collected data is saved in structured **CSV files** for easy analysis.  
+
+### 👉 **[Check Out This Tutorial: Scrape Any Website Fast and Cheap with Crawl4AI!](https://dev.to/kaymen99/scrape-any-website-fast-and-cheap-with-crawl4ai-3fj1) 🚀**
 
 ## 🌟 Features  
 
