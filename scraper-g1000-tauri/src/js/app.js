@@ -534,10 +534,11 @@ async function performExport() {
   }
 
   try {
-    // Generate filename
-    let scopeName = scope === 'all' ? 'all_leads' : scope === 'selected' ? 'selected_leads' : 'current_view';
-    const timestamp = new Date().toISOString().split('T')[0];
-    const filename = `${currentProfileData.name}_${scopeName}_${timestamp}`;
+    // Generate filename with better organization
+    let scopeName = scope === 'all' ? 'AllLeads' : scope === 'selected' ? 'Selected' : 'CurrentView';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+    const timeStr = new Date().toISOString().split('T')[1].split('.')[0].replace(/:/g, '');
+    const filename = `${currentProfileData.name}_${scopeName}_${timestamp}_${timeStr}`;
 
     const result = await apiCall(`/api/leads/${currentProfileId}/export`, 'POST', {
       leadIds,
@@ -550,31 +551,46 @@ async function performExport() {
       return;
     }
 
-    // Decode base64 file data
-    const binaryString = atob(result.fileData);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    // Use PyWebView's save dialog if available (desktop app)
+    if (window.pywebview && window.pywebview.api) {
+      const saveResult = await window.pywebview.api.save_file(
+        result.fileData,
+        filename,
+        format
+      );
+
+      if (saveResult.success) {
+        closeExportModal();
+        showToast(`Exported ${result.count} leads to ${saveResult.path}`, 'success');
+      } else if (saveResult.error !== 'User cancelled') {
+        showToast('Export failed: ' + saveResult.error, 'error');
+      } else {
+        // User cancelled - just close modal
+        closeExportModal();
+      }
+    } else {
+      // Fallback to browser download (when running in browser)
+      const binaryString = atob(result.fileData);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const mimeType = format === 'xlsx'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : 'text/csv';
+      const blob = new Blob([bytes], { type: mimeType });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = result.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      closeExportModal();
+      showToast(`Exported ${result.count} leads to ${result.filename}`, 'success');
     }
-
-    // Create blob with correct MIME type
-    const mimeType = format === 'xlsx'
-      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      : 'text/csv';
-    const blob = new Blob([bytes], { type: mimeType });
-
-    // Create download link
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = result.filename;
-
-    // Trigger download
-    a.click();
-    URL.revokeObjectURL(url);
-
-    closeExportModal();
-    showToast(`Exported ${result.count} leads to ${result.filename}`, 'success');
 
   } catch (error) {
     console.error('[Export] Error:', error);
