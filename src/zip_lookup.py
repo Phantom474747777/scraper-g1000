@@ -137,6 +137,11 @@ def get_offline_zips_in_radius(city: str, state: str, radius_miles: int) -> List
         ("valrico", "fl"): (27.9475, -82.2390),
         ("seffner", "fl"): (28.0017, -82.2756),
         ("odessa", "fl"): (28.1836, -82.5643),
+        ("largo", "fl"): (27.9097, -82.7740),
+        ("clearwater", "fl"): (27.9658, -82.7598),
+        ("st. petersburg", "fl"): (27.7731, -82.6790),
+        ("saint petersburg", "fl"): (27.7731, -82.6790),
+        ("lakeland", "fl"): (28.0394, -81.9498),
     }
     
     city_key = (city.lower(), state.lower())
@@ -323,6 +328,124 @@ def get_florida_zips_nearby(lat: float, lng: float, radius: int) -> List[Dict]:
         {"zip": "34240", "city": "Sarasota", "lat": 27.2878, "lng": -82.5515},
         {"zip": "34241", "city": "Sarasota", "lat": 27.2642, "lng": -82.4737},
         {"zip": "34243", "city": "Sarasota", "lat": 27.4028, "lng": -82.4515},
+
+        # Orlando/Orange County (East, ~85-100 miles from Tampa)
+        {"zip": "32801", "city": "Orlando", "lat": 28.5383, "lng": -81.3792},
+        {"zip": "32803", "city": "Orlando", "lat": 28.5728, "lng": -81.3683},
+        {"zip": "32804", "city": "Orlando", "lat": 28.5561, "lng": -81.4089},
+        {"zip": "32805", "city": "Orlando", "lat": 28.5050, "lng": -81.4367},
+        {"zip": "32806", "city": "Orlando", "lat": 28.5217, "lng": -81.3498},
+        {"zip": "32807", "city": "Orlando", "lat": 28.5639, "lng": -81.3267},
+        {"zip": "32808", "city": "Orlando", "lat": 28.6000, "lng": -81.4231},
+        {"zip": "32809", "city": "Orlando", "lat": 28.4694, "lng": -81.3837},
+        {"zip": "32810", "city": "Orlando", "lat": 28.6089, "lng": -81.3456},
+        {"zip": "32811", "city": "Orlando", "lat": 28.5289, "lng": -81.4539},
+        {"zip": "32812", "city": "Orlando", "lat": 28.4906, "lng": -81.3284},
+        {"zip": "32814", "city": "Orlando", "lat": 28.5556, "lng": -81.3823},
+        {"zip": "32817", "city": "Orlando", "lat": 28.5803, "lng": -81.2534},
+        {"zip": "32818", "city": "Orlando", "lat": 28.5975, "lng": -81.4817},
+        {"zip": "32819", "city": "Orlando", "lat": 28.4633, "lng": -81.4695},
+        {"zip": "32820", "city": "Orlando", "lat": 28.5742, "lng": -81.2284},
+        {"zip": "32821", "city": "Orlando", "lat": 28.4169, "lng": -81.4695},
+        {"zip": "32822", "city": "Orlando", "lat": 28.4997, "lng": -81.2851},
+        {"zip": "32824", "city": "Orlando", "lat": 28.4078, "lng": -81.2865},
+        {"zip": "32825", "city": "Orlando", "lat": 28.5519, "lng": -81.2062},
+        {"zip": "32826", "city": "Orlando", "lat": 28.5417, "lng": -81.1373},
+        {"zip": "32827", "city": "Orlando", "lat": 28.4117, "lng": -81.2448},
+        {"zip": "32828", "city": "Orlando", "lat": 28.5592, "lng": -81.1645},
+        {"zip": "32829", "city": "Orlando", "lat": 28.4917, "lng": -81.1645},
+        {"zip": "32832", "city": "Orlando", "lat": 28.3914, "lng": -81.3620},
+        {"zip": "32833", "city": "Orlando", "lat": 28.5317, "lng": -81.0923},
+        {"zip": "32835", "city": "Orlando", "lat": 28.5611, "lng": -81.4973},
+        {"zip": "32836", "city": "Orlando", "lat": 28.4464, "lng": -81.4723},
+        {"zip": "32837", "city": "Orlando", "lat": 28.3878, "lng": -81.4220},
+        {"zip": "32839", "city": "Orlando", "lat": 28.4883, "lng": -81.4428},
+
+        # Kissimmee/Osceola County
+        {"zip": "34741", "city": "Kissimmee", "lat": 28.2919, "lng": -81.4076},
+        {"zip": "34743", "city": "Kissimmee", "lat": 28.3353, "lng": -81.5973},
+        {"zip": "34744", "city": "Kissimmee", "lat": 28.3522, "lng": -81.4598},
+        {"zip": "34746", "city": "Kissimmee", "lat": 28.2683, "lng": -81.4478},
+        {"zip": "34747", "city": "Kissimmee", "lat": 28.2556, "lng": -81.5795},
+        {"zip": "34758", "city": "Kissimmee", "lat": 28.1928, "lng": -81.5456},
+        {"zip": "34759", "city": "Kissimmee", "lat": 28.2336, "lng": -81.3478},
+        {"zip": "34769", "city": "St. Cloud", "lat": 28.2489, "lng": -81.2812},
+        {"zip": "34771", "city": "St. Cloud", "lat": 28.1917, "lng": -81.2926},
+
+        # Winter Haven/Polk County (East)
+        {"zip": "33880", "city": "Winter Haven", "lat": 28.0222, "lng": -81.7328},
+        {"zip": "33881", "city": "Winter Haven", "lat": 28.0353, "lng": -81.6881},
+        {"zip": "33884", "city": "Winter Haven", "lat": 27.9961, "lng": -81.6998},
+        {"zip": "33897", "city": "Davenport", "lat": 28.1614, "lng": -81.6018},
+        {"zip": "33896", "city": "Davenport", "lat": 28.2364, "lng": -81.6312},
+
+        # Ocala/Marion County (North, ~80-100 miles)
+        {"zip": "34470", "city": "Ocala", "lat": 29.1872, "lng": -82.1401},
+        {"zip": "34471", "city": "Ocala", "lat": 29.1594, "lng": -82.1840},
+        {"zip": "34472", "city": "Ocala", "lat": 29.2386, "lng": -82.1706},
+        {"zip": "34473", "city": "Ocala", "lat": 29.0764, "lng": -82.0679},
+        {"zip": "34474", "city": "Ocala", "lat": 29.1094, "lng": -82.1962},
+        {"zip": "34475", "city": "Ocala", "lat": 29.1711, "lng": -82.0673},
+        {"zip": "34476", "city": "Ocala", "lat": 29.2542, "lng": -82.1401},
+        {"zip": "34479", "city": "Ocala", "lat": 29.0853, "lng": -82.2340},
+        {"zip": "34480", "city": "Ocala", "lat": 29.1281, "lng": -81.9962},
+        {"zip": "34481", "city": "Ocala", "lat": 29.0208, "lng": -82.1790},
+        {"zip": "34482", "city": "Ocala", "lat": 29.0569, "lng": -82.0145},
+        {"zip": "34491", "city": "Summerfield", "lat": 28.9997, "lng": -82.0145},
+
+        # Brooksville/Hernando County (North)
+        {"zip": "34601", "city": "Brooksville", "lat": 28.5553, "lng": -82.3790},
+        {"zip": "34602", "city": "Brooksville", "lat": 28.5331, "lng": -82.4484},
+        {"zip": "34604", "city": "Brooksville", "lat": 28.6028, "lng": -82.4718},
+        {"zip": "34606", "city": "Spring Hill", "lat": 28.4794, "lng": -82.5290},
+        {"zip": "34607", "city": "Spring Hill", "lat": 28.4603, "lng": -82.5951},
+        {"zip": "34608", "city": "Spring Hill", "lat": 28.5011, "lng": -82.5654},
+        {"zip": "34609", "city": "Spring Hill", "lat": 28.4633, "lng": -82.6082},
+        {"zip": "34610", "city": "Spring Hill", "lat": 28.4461, "lng": -82.5151},
+        {"zip": "34613", "city": "Brooksville", "lat": 28.5736, "lng": -82.5340},
+        {"zip": "34614", "city": "Brooksville", "lat": 28.6194, "lng": -82.4040},
+
+        # Inverness/Citrus County (North)
+        {"zip": "34446", "city": "Inverness", "lat": 28.8361, "lng": -82.3301},
+        {"zip": "34450", "city": "Inverness", "lat": 28.8211, "lng": -82.3754},
+        {"zip": "34452", "city": "Inverness", "lat": 28.8094, "lng": -82.4462},
+        {"zip": "34453", "city": "Inverness", "lat": 28.7942, "lng": -82.3051},
+        {"zip": "34461", "city": "Beverly Hills", "lat": 28.9133, "lng": -82.4557},
+        {"zip": "34465", "city": "Crystal River", "lat": 28.9025, "lng": -82.5943},
+
+        # Bartow/Polk County (Southeast)
+        {"zip": "33830", "city": "Bartow", "lat": 27.8964, "lng": -81.8432},
+        {"zip": "33831", "city": "Bartow", "lat": 27.8653, "lng": -81.7893},
+        {"zip": "33896", "city": "Davenport", "lat": 28.2364, "lng": -81.6312},
+
+        # Sebring/Highlands County (Southeast, ~85-100 miles)
+        {"zip": "33870", "city": "Sebring", "lat": 27.4956, "lng": -81.4409},
+        {"zip": "33872", "city": "Sebring", "lat": 27.4506, "lng": -81.4106},
+        {"zip": "33875", "city": "Sebring", "lat": 27.5283, "lng": -81.3801},
+        {"zip": "33876", "city": "Sebring", "lat": 27.5539, "lng": -81.4562},
+
+        # Arcadia/DeSoto County (South)
+        {"zip": "34266", "city": "Arcadia", "lat": 27.2158, "lng": -81.8584},
+        {"zip": "34269", "city": "Arcadia", "lat": 27.1875, "lng": -81.7920},
+
+        # Venice/South Sarasota County
+        {"zip": "34285", "city": "Venice", "lat": 27.1131, "lng": -82.3873},
+        {"zip": "34292", "city": "Venice", "lat": 27.0681, "lng": -82.4268},
+        {"zip": "34293", "city": "Venice", "lat": 27.1394, "lng": -82.3465},
+
+        # Port Charlotte/Charlotte County (South, ~90-100 miles)
+        {"zip": "33948", "city": "Port Charlotte", "lat": 26.9764, "lng": -82.0906},
+        {"zip": "33952", "city": "Port Charlotte", "lat": 26.9903, "lng": -82.1065},
+        {"zip": "33953", "city": "Port Charlotte", "lat": 26.9942, "lng": -82.0387},
+        {"zip": "33954", "city": "Port Charlotte", "lat": 27.0089, "lng": -82.1598},
+        {"zip": "33980", "city": "Port Charlotte", "lat": 26.9169, "lng": -82.0743},
+        {"zip": "33981", "city": "Port Charlotte", "lat": 26.9506, "lng": -82.0373},
+        {"zip": "33983", "city": "Punta Gorda", "lat": 26.9298, "lng": -82.0454},
+
+        # Haines City/Polk County
+        {"zip": "33844", "city": "Haines City", "lat": 28.1139, "lng": -81.6176},
+        {"zip": "33845", "city": "Haines City", "lat": 28.0947, "lng": -81.6562},
+        {"zip": "33859", "city": "Frostproof", "lat": 27.7456, "lng": -81.5301},
     ]
     
     # Calculate distance for each ZIP
