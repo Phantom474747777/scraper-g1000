@@ -1139,8 +1139,8 @@ body::before {
 }
 
 .toast.success {
-  border-color: rgba(75, 192, 192, 0.5);
-  background: linear-gradient(135deg, rgba(75, 192, 192, 0.15) 0%, rgba(20, 20, 20, 0.95) 50%);
+  border-color: rgba(34, 197, 94, 0.5);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(20, 20, 20, 0.95) 50%);
 }
 
 .toast.error {

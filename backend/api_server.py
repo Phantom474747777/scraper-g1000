@@ -376,7 +376,7 @@ def bulk_update_lead_status(profile_id):
 
 @app.route('/api/leads/<profile_id>/export', methods=['POST'])
 def export_leads(profile_id):
-    """Export leads to CSV or XLSX format"""
+    """Export leads to CSV or XLSX format and save to file"""
     try:
         profile = profile_manager.get_profile(profile_id)
         if not profile:
@@ -385,6 +385,7 @@ def export_leads(profile_id):
         data = request.json
         lead_ids = data.get('leadIds')  # None for all leads
         file_format = data.get('format', 'csv')
+        filename = data.get('filename', 'leads_export')
 
         db = LeadsDatabase(profile.get_database_path())
         all_leads = db.get_all_leads()
@@ -396,12 +397,12 @@ def export_leads(profile_id):
         else:
             filtered_leads = all_leads
 
-        # Prepare CSV data
+        # Prepare data
         headers = ['ID', 'Name', 'Phone', 'Address', 'Website', 'Email', 'Category', 'ZIP Code', 'Status']
-        csv_rows = [headers]
+        rows = []
 
         for lead in filtered_leads:
-            csv_rows.append([
+            rows.append([
                 str(lead[0]),  # ID
                 lead[1],  # Name
                 lead[2],  # Phone
@@ -413,10 +414,70 @@ def export_leads(profile_id):
                 lead[8] if len(lead) > 8 else 'New'  # Status
             ])
 
-        # Return CSV data as JSON (frontend will handle file creation)
+        # Create file based on format
+        import os
+        import tempfile
+
+        if file_format == 'xlsx':
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, PatternFill
+
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Leads"
+
+            # Add headers with styling
+            ws.append(headers)
+            for cell in ws[1]:
+                cell.font = Font(bold=True, size=12)
+                cell.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+
+            # Add data rows
+            for row in rows:
+                ws.append(row)
+
+            # Auto-adjust column widths
+            for column in ws.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column_letter].width = adjusted_width
+
+            # Save to temp file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+            wb.save(temp_file.name)
+            temp_file.close()
+
+            file_path = temp_file.name
+
+        else:  # CSV
+            import csv
+            temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='', encoding='utf-8')
+            writer = csv.writer(temp_file)
+            writer.writerow(headers)
+            writer.writerows(rows)
+            temp_file.close()
+
+            file_path = temp_file.name
+
+        # Read file and return as base64
+        import base64
+        with open(file_path, 'rb') as f:
+            file_data = base64.b64encode(f.read()).decode('utf-8')
+
+        # Clean up temp file
+        os.unlink(file_path)
+
         return jsonify({
             'success': True,
-            'data': csv_rows,
+            'fileData': file_data,
+            'filename': f"{filename}.{file_format}",
             'count': len(filtered_leads),
             'format': file_format
         }), 200

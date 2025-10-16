@@ -534,9 +534,15 @@ async function performExport() {
   }
 
   try {
+    // Generate filename
+    let scopeName = scope === 'all' ? 'all_leads' : scope === 'selected' ? 'selected_leads' : 'current_view';
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `${currentProfileData.name}_${scopeName}_${timestamp}`;
+
     const result = await apiCall(`/api/leads/${currentProfileId}/export`, 'POST', {
       leadIds,
-      format
+      format,
+      filename
     });
 
     if (!result.success) {
@@ -544,35 +550,31 @@ async function performExport() {
       return;
     }
 
-    // Generate file
-    const csvData = result.data;
-    const csvContent = csvData.map(row => row.join(',')).join('\n');
-
-    let blob, ext;
-    if (format === 'xlsx') {
-      // For XLSX, we'd need a library like SheetJS, for now just use CSV
-      blob = new Blob([csvContent], { type: 'text/csv' });
-      ext = 'csv';
-      showToast('XLSX format coming soon - exported as CSV', 'info');
-    } else {
-      blob = new Blob([csvContent], { type: 'text/csv' });
-      ext = 'csv';
+    // Decode base64 file data
+    const binaryString = atob(result.fileData);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
     }
 
+    // Create blob with correct MIME type
+    const mimeType = format === 'xlsx'
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : 'text/csv';
+    const blob = new Blob([bytes], { type: mimeType });
+
+    // Create download link
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
+    a.download = result.filename;
 
-    // Generate filename
-    let scopeName = scope === 'all' ? 'all_leads' : scope === 'selected' ? 'selected_leads' : 'current_view';
-    const timestamp = new Date().toISOString().split('T')[0];
-    a.download = `${currentProfileData.name}_${scopeName}_${timestamp}.${ext}`;
-
+    // Trigger download
     a.click();
     URL.revokeObjectURL(url);
 
     closeExportModal();
-    showToast(`Exported ${result.count} leads successfully`, 'success');
+    showToast(`Exported ${result.count} leads to ${result.filename}`, 'success');
 
   } catch (error) {
     console.error('[Export] Error:', error);

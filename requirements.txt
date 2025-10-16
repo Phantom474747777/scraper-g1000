@@ -1,3 +1,8 @@
 Crawl4AI==0.4.247
 python-dotenv==1.0.1
 pydantic==2.10.6
+InquirerPy==0.3.4
+geopy==2.4.1
+requests>=2.31.0
+nest-asyncio>=1.5.6
+beautifulsoup4>=4.12.0
