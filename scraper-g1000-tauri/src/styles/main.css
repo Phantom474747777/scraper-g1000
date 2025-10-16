@@ -658,9 +658,7 @@ body::before {
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   padding: 1.5rem 3rem;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
   position: sticky;
   top: 73px;
   z-index: 99;
