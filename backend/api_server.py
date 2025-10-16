@@ -352,7 +352,8 @@ def get_leads(profile_id):
                     'email': lead[5],
                     'category': lead[6] if len(lead) > 6 else 'N/A',
                     'zipCode': lead[7] if len(lead) > 7 else 'N/A',
-                    'status': lead[8] if len(lead) > 8 else 'New'  # status from database
+                    'status': lead[8] if len(lead) > 8 else 'New',  # status from database
+                    'city': lead[9] if len(lead) > 9 else None  # city/location from database
                 }
                 for lead in leads
             ]
@@ -645,6 +646,18 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
             add_log(f"[INFO] Saving leads to database...", 'info')
             scraping_state['progress'] = 90
 
+            # Look up city name from ZIP code
+            import pgeocode
+            city_name = None
+            try:
+                nomi = pgeocode.Nominatim('US')
+                zip_data = nomi.query_postal_code(zip_code)
+                if zip_data is not None and not zip_data.isna().all():
+                    city_name = str(zip_data.place_name) if hasattr(zip_data, 'place_name') else None
+                    add_log(f"[INFO] City: {city_name}", 'info')
+            except Exception as e:
+                add_log(f"[WARNING] Could not lookup city for ZIP {zip_code}: {e}", 'info')
+
             db = LeadsDatabase(profile.get_database_path())
             saved_count = 0
             for lead in leads:
@@ -655,7 +668,8 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
                     email=lead.get('email'),
                     website=lead.get('website'),
                     category=category,
-                    zip_code=zip_code
+                    zip_code=zip_code,
+                    location=city_name
                 )
                 if success:
                     saved_count += 1

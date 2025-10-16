@@ -508,10 +508,14 @@ async function loadLeadsDashboard() {
         const contactedCount = zipLeads.filter(lead => lead.status === 'Contacted').length;
         const archivedCount = zipLeads.filter(lead => lead.status === 'Archived').length;
 
+        // Get city name from first lead with this ZIP
+        const cityName = zipLeads.length > 0 && zipLeads[0].city ? zipLeads[0].city : null;
+        const displayName = cityName ? `${cityName} (${zip})` : `ZIP ${zip}`;
+
         return `
           <div class="zip-card" onclick="showFilteredLeads({type: 'zip', value: '${zip}'})">
             <div class="zip-card-header">
-              <div class="zip-code">ZIP ${zip}</div>
+              <div class="zip-code">${displayName}</div>
             </div>
             <div class="zip-count">${count}</div>
             <div class="zip-breakdown">
@@ -587,7 +591,11 @@ async function showFilteredLeads(filter) {
   console.log('[Filter] Showing filtered leads:', filter);
   currentFilter = filter;
 
-  // Update breadcrumb
+  // Fetch leads first to get city names
+  const data = await apiCall(`/api/leads/${currentProfileId}`);
+  const allLeads = data.success ? data.leads : [];
+
+  // Update breadcrumb with city names
   const breadcrumb = document.getElementById('breadcrumb');
   switch (filter.type) {
     case 'all':
@@ -597,13 +605,17 @@ async function showFilteredLeads(filter) {
       breadcrumb.textContent = `Status: ${filter.value}`;
       break;
     case 'zip':
-      breadcrumb.textContent = `ZIP: ${filter.value}`;
+      const zipLead = allLeads.find(lead => lead.zipCode === filter.value);
+      const cityName = zipLead && zipLead.city ? zipLead.city : null;
+      breadcrumb.textContent = cityName ? `${cityName} (${filter.value})` : `ZIP ${filter.value}`;
       break;
     case 'category':
       breadcrumb.textContent = `Category: ${filter.value}`;
       break;
     case 'combined':
-      breadcrumb.textContent = `ZIP ${filter.zip} • ${filter.category}`;
+      const combLead = allLeads.find(lead => lead.zipCode === filter.zip);
+      const combCity = combLead && combLead.city ? combLead.city : null;
+      breadcrumb.textContent = combCity ? `${combCity} • ${filter.category}` : `ZIP ${filter.zip} • ${filter.category}`;
       break;
     default:
       breadcrumb.textContent = 'All Leads';
@@ -941,13 +953,25 @@ function setupBreadcrumb() {
         html += `<span>Status: ${currentFilter.value}</span>`;
         break;
       case 'zip':
-        html += `<span>ZIP ${currentFilter.value}</span>`;
+        if (window.currentAllLeads && window.currentAllLeads.length > 0) {
+          const zipLead = window.currentAllLeads.find(lead => lead.zipCode === currentFilter.value);
+          const cityName = zipLead && zipLead.city ? zipLead.city : null;
+          html += cityName ? `<span>${cityName} (${currentFilter.value})</span>` : `<span>ZIP ${currentFilter.value}</span>`;
+        } else {
+          html += `<span>ZIP ${currentFilter.value}</span>`;
+        }
         break;
       case 'category':
         html += `<span>${currentFilter.value}</span>`;
         break;
       case 'combined':
-        html += `<span>ZIP ${currentFilter.zip} • ${currentFilter.category}</span>`;
+        if (window.currentAllLeads && window.currentAllLeads.length > 0) {
+          const combLead = window.currentAllLeads.find(lead => lead.zipCode === currentFilter.zip);
+          const combCity = combLead && combLead.city ? combLead.city : null;
+          html += combCity ? `<span>${combCity} • ${currentFilter.category}</span>` : `<span>ZIP ${currentFilter.zip} • ${currentFilter.category}</span>`;
+        } else {
+          html += `<span>ZIP ${currentFilter.zip} • ${currentFilter.category}</span>`;
+        }
         break;
     }
 

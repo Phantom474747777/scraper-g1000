@@ -176,7 +176,7 @@ class LeadsDatabase:
         if valid_only:
             # Filter out junk leads (no phone, or name contains junk patterns)
             cursor.execute('''
-                SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, 'New') as status
+                SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, 'New') as status, location
                 FROM leads
                 WHERE phone NOT IN ("N/A", "")
                 AND phone IS NOT NULL
@@ -187,7 +187,7 @@ class LeadsDatabase:
                 ORDER BY scraped_date DESC
             ''')
         else:
-            cursor.execute('SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, \'New\') as status FROM leads ORDER BY scraped_date DESC')
+            cursor.execute('SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, \'New\') as status, location FROM leads ORDER BY scraped_date DESC')
 
         results = cursor.fetchall()
         conn.close()
