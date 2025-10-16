@@ -1141,6 +1141,36 @@ async function pollManualScrapingProgress() {
   const progressLeads = document.getElementById('consoleProgressLeads');
 
   let previousLogCount = 0;
+  let lastKnownProgress = 0;
+  let displayedProgress = 0;
+  let animationRunning = true; // Flag to stop animation
+
+  // Smooth animation loop for progress bar
+  const animateProgress = () => {
+    if (!animationRunning) return; // Stop animation if flagged
+
+    if (displayedProgress < lastKnownProgress) {
+      // Slowly catch up to real progress (0.3% per frame at 60fps = smooth)
+      displayedProgress += 0.3;
+      if (displayedProgress > lastKnownProgress) {
+        displayedProgress = lastKnownProgress;
+      }
+    } else if (displayedProgress < 95) {
+      // Even when caught up, keep slowly creeping forward
+      displayedProgress += 0.05; // Very slow creep - creates constant movement
+    }
+
+    // Cap at 99% until backend says 100%
+    if (displayedProgress > 99 && lastKnownProgress < 100) {
+      displayedProgress = 99;
+    }
+
+    progressBar.style.width = displayedProgress + '%';
+    requestAnimationFrame(animateProgress);
+  };
+
+  // Start animation loop
+  requestAnimationFrame(animateProgress);
 
   const interval = setInterval(async () => {
     try {
@@ -1157,8 +1187,8 @@ async function pollManualScrapingProgress() {
       const currentPage = status.current_page || 0;
       const maxPages = status.max_pages || 2;
 
-      // Update progress bar
-      progressBar.style.width = progress + '%';
+      // Update target progress (animation will smooth it out)
+      lastKnownProgress = progress;
 
       // Display NEW logs only (Matrix hacker vibe!)
       if (logs.length > previousLogCount) {
@@ -1183,6 +1213,12 @@ async function pollManualScrapingProgress() {
       // Check if scraping is complete
       if (!status.active) {
         clearInterval(interval);
+        animationRunning = false; // Stop progress bar animation
+
+        // Set progress to 100% on completion
+        lastKnownProgress = 100;
+        displayedProgress = 100;
+        progressBar.style.width = '100%';
 
         consoleStatus.querySelector('.status-dot').classList.remove('status-running');
         consoleStatus.querySelector('.status-dot').classList.add('status-idle');
