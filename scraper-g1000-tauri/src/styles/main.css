@@ -1337,6 +1337,14 @@ body::before {
   font-weight: 500;
 }
 
+.config-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(172, 172, 172, 0.7);
+  margin-top: 0.4rem;
+  font-style: italic;
+}
+
 .glass-input,
 .glass-select {
   width: 100%;
@@ -1459,6 +1467,32 @@ body::before {
   font-size: 1.2rem;
 }
 
+/* View Leads Button */
+.btn-view-leads {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-view-leads:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+}
+
 /* Console Panel */
 .console-panel {
   display: flex;
@@ -1532,11 +1566,11 @@ body::before {
 }
 
 .console-line.console-info {
-  color: #60a5fa;
+  color: #00ff00;
 }
 
 .console-line.console-success {
-  color: #22c55e;
+  color: #ffffff;
 }
 
 .console-line.console-error {
@@ -1560,9 +1594,48 @@ body::before {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22c55e 0%, #10b981 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #10b981 50%, #22c55e 100%);
+  background-size: 200% 100%;
   transition: width 0.3s ease;
   border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  animation: progressPulse 3s ease-in-out infinite;
+}
+
+/* Continuous movement animation */
+@keyframes progressPulse {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Animated shimmer effect - always moving */
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
 }
 
 .progress-stats {

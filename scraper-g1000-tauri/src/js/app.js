@@ -181,6 +181,16 @@ function setupEventListeners() {
   // Manual Mode: Enable Start button when ZIP + Category selected
   document.getElementById('selectManualZip')?.addEventListener('change', validateManualForm);
   document.getElementById('selectManualCategory')?.addEventListener('change', validateManualForm);
+  document.getElementById('inputCustomCategory')?.addEventListener('input', validateManualForm);
+
+  // Manual Mode: Start Scraping button
+  document.getElementById('btnStartManualScrape')?.addEventListener('click', startManualScrapingFull);
+
+  // Manual Mode: View Leads button (after scraping)
+  document.getElementById('btnViewScrapedLeads')?.addEventListener('click', () => {
+    showScreen('leads-dashboard');
+    loadLeadsData(); // Reload leads to show newly scraped ones
+  });
 }
 
 // === Checkbox Selection Tracking ===
@@ -923,14 +933,173 @@ function loadManualModeCategories() {
 function validateManualForm() {
   const zip = document.getElementById('selectManualZip').value;
   const category = document.getElementById('selectManualCategory').value;
+  const customCategory = document.getElementById('inputCustomCategory').value.trim();
   const startBtn = document.getElementById('btnStartManualScrape');
 
-  console.log('[Validate] ZIP:', zip, 'Category:', category);
+  // Enable button if ZIP is selected AND (either dropdown category or custom category is filled)
+  const hasCategory = category || customCategory;
 
-  if (zip && category) {
+  console.log('[Validate] ZIP:', zip, 'Category:', category, 'Custom:', customCategory, 'Has category:', hasCategory);
+
+  if (zip && hasCategory) {
     startBtn.disabled = false;
   } else {
     startBtn.disabled = true;
   }
+}
+
+// === Start Manual Scraping (Full Implementation) ===
+async function startManualScrapingFull() {
+  const zip = document.getElementById('selectManualZip').value;
+  const category = document.getElementById('selectManualCategory').value;
+  const customCategory = document.getElementById('inputCustomCategory').value.trim();
+  const city = document.getElementById('inputManualCity').value.trim();
+  const state = document.getElementById('inputManualState').value.trim();
+
+  // Use custom category if provided, otherwise use dropdown
+  const finalCategory = customCategory || category;
+
+  if (!zip || !finalCategory) {
+    alert('Please select a ZIP code and category');
+    return;
+  }
+
+  console.log('[Scrape] Starting manual scrape:', { zip, category: finalCategory, city, state });
+
+  const consoleOutput = document.getElementById('consoleOutput');
+  const consoleStatus = document.getElementById('consoleStatus');
+  const consoleProgress = document.getElementById('consoleProgress');
+  const startBtn = document.getElementById('btnStartManualScrape');
+
+  // Update UI
+  startBtn.disabled = true;
+  startBtn.innerHTML = '<span class="spinner"></span> Scraping...';
+  consoleOutput.innerHTML = '<div class="console-line console-system">Initializing scraper...</div>';
+  consoleStatus.querySelector('.status-dot').classList.remove('status-idle');
+  consoleStatus.querySelector('.status-dot').classList.add('status-running');
+  consoleStatus.querySelector('.status-text').textContent = 'Running';
+
+  try {
+    // Call backend scraping API
+    consoleOutput.innerHTML += '<div class="console-line console-info">→ Connecting to backend...</div>';
+
+    const response = await apiCall('/api/scrape/start', 'POST', {
+      profileId: currentProfileId,
+      zipCode: zip,
+      category: finalCategory,
+      maxPages: 2
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to start scraping');
+    }
+
+    consoleOutput.innerHTML += '<div class="console-line console-success">✓ Scraping started</div>';
+    consoleOutput.innerHTML += `<div class="console-line console-info">→ Scraping ${finalCategory} in ZIP ${zip}</div>`;
+
+    // Show progress bar
+    consoleProgress.style.display = 'block';
+    document.getElementById('consoleProgressBar').style.width = '0%';
+    document.getElementById('consoleProgressText').textContent = 'Page 0 of 2';
+    document.getElementById('consoleProgressLeads').textContent = '0 leads';
+
+    // Poll for progress
+    await pollManualScrapingProgress();
+
+  } catch (error) {
+    console.error('[Scrape] Error:', error);
+    consoleOutput.innerHTML += `<div class="console-line console-error">✗ Error: ${error.message}</div>`;
+    consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+    consoleStatus.querySelector('.status-dot').classList.add('status-error');
+    consoleStatus.querySelector('.status-text').textContent = 'Error';
+
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Scraping</span>';
+    alert('Scraping failed: ' + error.message);
+  }
+}
+
+// === Poll Manual Scraping Progress ===
+async function pollManualScrapingProgress() {
+  const consoleOutput = document.getElementById('consoleOutput');
+  const consoleStatus = document.getElementById('consoleStatus');
+  const startBtn = document.getElementById('btnStartManualScrape');
+  const progressBar = document.getElementById('consoleProgressBar');
+  const progressText = document.getElementById('consoleProgressText');
+  const progressLeads = document.getElementById('consoleProgressLeads');
+
+  let previousLogCount = 0;
+
+  const interval = setInterval(async () => {
+    try {
+      const response = await apiCall('/api/scrape/status');
+
+      if (!response.success || !response.status) {
+        throw new Error('Failed to get status');
+      }
+
+      const status = response.status;
+      const progress = status.progress || 0;
+      const leads = status.total_leads || 0;
+      const logs = status.logs || [];
+      const currentPage = status.current_page || 0;
+      const maxPages = status.max_pages || 2;
+
+      // Update progress bar
+      progressBar.style.width = progress + '%';
+
+      // Display NEW logs only (Matrix hacker vibe!)
+      if (logs.length > previousLogCount) {
+        const newLogs = logs.slice(previousLogCount);
+        newLogs.forEach(log => {
+          const logClass = log.type === 'error' ? 'console-error' :
+                          log.type === 'success' ? 'console-success' :
+                          log.type === 'system' ? 'console-system' : 'console-info';
+
+          consoleOutput.innerHTML += `<div class="console-line ${logClass}">${log.message}</div>`;
+        });
+        previousLogCount = logs.length;
+      }
+
+      // Update progress text
+      progressText.textContent = `Page ${currentPage} of ${maxPages}`;
+      progressLeads.textContent = `${leads} leads`;
+
+      // Auto-scroll console to bottom
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+      // Check if scraping is complete
+      if (!status.active) {
+        clearInterval(interval);
+
+        consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+        consoleStatus.querySelector('.status-dot').classList.add('status-idle');
+        consoleStatus.querySelector('.status-text').textContent = 'Complete';
+
+        // Re-enable button
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Scraping</span>';
+
+        // Show "View Leads" button
+        const viewLeadsBtn = document.getElementById('btnViewScrapedLeads');
+        viewLeadsBtn.style.display = 'flex';
+
+        // Show success toast
+        showToast(`Scraping complete! Found ${leads} leads`, 'success');
+      }
+
+    } catch (error) {
+      console.error('[Poll] Error:', error);
+      clearInterval(interval);
+
+      consoleOutput.innerHTML += `<div class="console-line console-error">[ERROR] ${error.message}</div>`;
+      consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+      consoleStatus.querySelector('.status-dot').classList.add('status-error');
+      consoleStatus.querySelector('.status-text').textContent = 'Error';
+
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Scraping</span>';
+    }
+  }, 800); // Poll every 0.8 seconds for smoother log streaming
 }
 

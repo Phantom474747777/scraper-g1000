@@ -72,7 +72,9 @@
                 <button class="btn-back" id="btnBackFromManual">← Back</button>
                 <h1>Manual Mode</h1>
                 <div class="hotkey-hints">
-                    <span class="hotkey-pill">[ESC] Cancel</span>
+                    <button class="btn-reset" id="btnResetManualMode">
+                        ↻ Reset
+                    </button>
                 </div>
             </div>
 
@@ -125,6 +127,13 @@
                             </select>
                         </div>
 
+                        <!-- Custom Category Input -->
+                        <div class="config-section">
+                            <label class="config-label">Or Enter Custom Category</label>
+                            <input type="text" id="inputCustomCategory" placeholder="e.g., Tree Services, Electricians..." class="glass-input">
+                            <span class="config-hint">Leave blank if using dropdown above</span>
+                        </div>
+
                         <!-- Start Button -->
                         <button class="btn-start-scraping" id="btnStartManualScrape" disabled>
                             <span class="btn-icon">▶</span>
@@ -159,6 +168,12 @@
                                 <span id="consoleProgressLeads">0 leads</span>
                             </div>
                         </div>
+
+                        <!-- View Leads Button (appears after scraping completes) -->
+                        <button class="btn-view-leads" id="btnViewScrapedLeads" style="display: none;">
+                            <span class="btn-icon">→</span>
+                            <span>View Leads</span>
+                        </button>
                     </div>
                 </div>
             </div>

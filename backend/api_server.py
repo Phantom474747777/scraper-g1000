@@ -41,7 +41,10 @@ scraping_state = {
     'current_category': None,
     'total_leads': 0,
     'progress': 0,
-    'stop_requested': False
+    'stop_requested': False,
+    'logs': [],  # Real-time log buffer
+    'current_page': 0,
+    'max_pages': 2
 }
 
 # === STATIC FILE SERVING ===
@@ -231,7 +234,10 @@ def start_scraping():
             'current_category': category,
             'total_leads': 0,
             'progress': 0,
-            'stop_requested': False
+            'stop_requested': False,
+            'logs': [],
+            'current_page': 0,
+            'max_pages': max_pages
         })
 
         # Start scraping in background thread
@@ -527,44 +533,86 @@ def export_leads(profile_id):
 
 # === BACKGROUND SCRAPING LOGIC ===
 
+def add_log(message, log_type='info'):
+    """Add a log message to the scraping state"""
+    global scraping_state
+    import datetime
+
+    # Clean message - remove ANSI codes and emoji that cause issues
+    clean_msg = message
+    for char in ['🔍', '✓', '✗', '⚠️', '💾', '🧹', '📊']:
+        clean_msg = clean_msg.replace(char, '')
+
+    scraping_state['logs'].append({
+        'message': clean_msg.strip(),
+        'type': log_type,
+        'timestamp': datetime.datetime.now().isoformat()
+    })
+
+    # Keep only last 100 logs to prevent memory issues
+    if len(scraping_state['logs']) > 100:
+        scraping_state['logs'] = scraping_state['logs'][-100:]
+
 def run_scrape_job(profile_id, zip_code, category, max_pages):
-    """Run scraping job in background thread"""
+    """Run scraping job in background thread with real-time logging"""
     global scraping_state
 
+    # Intercept stdout to capture print statements
+    import sys
+    import io
+
+    class LogCapture(io.StringIO):
+        def write(self, message):
+            if message.strip():
+                add_log(message, 'info')
+            return super().write(message)
+
     try:
-        print(f"[Scrape Job] Starting: {zip_code} - {category}")
+        add_log(f"[START] Scraping {category} in ZIP {zip_code}", 'system')
+        add_log(f"[CONFIG] Max pages: {max_pages}", 'system')
+        scraping_state['progress'] = 10
 
-        # Create new event loop for this thread
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        # Run scraping
-        leads = loop.run_until_complete(
-            scrape_yellowpages_free(zip_code, category, max_pages)
-        )
+        # scrape_yellowpages_free is a synchronous function - call it directly
+        leads = scrape_yellowpages_free(zip_code, category, max_pages)
 
         scraping_state['total_leads'] = len(leads)
-        scraping_state['progress'] = 100
+        scraping_state['progress'] = 85
+        add_log(f"[SUCCESS] Found {len(leads)} businesses", 'success')
 
         # Save leads to database
         profile = profile_manager.get_profile(profile_id)
         if profile and leads:
-            db = LeadsDatabase(profile.get_database_path())
-            for lead in leads:
-                db.add_lead(
-                    name=lead['name'],
-                    phone_number=lead['phone_number'],
-                    address=lead['address'],
-                    website=lead['website'],
-                    email=lead['email']
-                )
-            profile_manager.update_profile_leads(profile_id, db.get_total_leads())
+            add_log(f"[INFO] Saving leads to database...", 'info')
+            scraping_state['progress'] = 90
 
-        print(f"[Scrape Job] Complete: {len(leads)} leads")
+            db = LeadsDatabase(profile.get_database_path())
+            saved_count = 0
+            for lead in leads:
+                success, reason = db.add_lead(
+                    name=lead['name'],
+                    address=lead['address'],
+                    phone=lead['phone_number'],
+                    email=lead.get('email'),
+                    website=lead.get('website'),
+                    category=category,
+                    zip_code=zip_code
+                )
+                if success:
+                    saved_count += 1
+
+            scraping_state['progress'] = 95
+            add_log(f"[INFO] Saved {saved_count} unique leads to database", 'info')
+
+            profile_manager.update_profile_leads(profile_id, db.get_total_leads())
+            add_log(f"[COMPLETE] Total unique businesses: {len(leads)}", 'success')
+
+        scraping_state['progress'] = 100
 
     except Exception as e:
-        print(f"[Scrape Job] Error: {e}")
+        add_log(f"[ERROR] {str(e)}", 'error')
         scraping_state['error'] = str(e)
+        import traceback
+        traceback.print_exc()
 
     finally:
         scraping_state['active'] = False
