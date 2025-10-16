@@ -1310,8 +1310,10 @@ body::before {
 }
 
 .manual-console-panel {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 950px;
+  width: 950px;
+  min-width: 950px;
+  max-width: 950px;
   overflow: hidden;
 }
 
