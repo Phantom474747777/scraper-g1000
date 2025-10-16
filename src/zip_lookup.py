@@ -1,29 +1,10 @@
 """
 ZIP Code Lookup - Find all ZIP codes within a radius of any US city
-Uses pgeocode library - FREE, works EVERYWHERE in USA!
+Uses pgeocode library - FAST and works for ALL USA cities!
 """
 from typing import List, Dict
 import pgeocode
 from geopy.geocoders import Nominatim
-from math import radians, cos, sin, asin, sqrt
-
-
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """
-    Calculate the great circle distance between two points on earth (in miles)
-    """
-    # Convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-
-    # Haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-
-    # Radius of earth in miles
-    miles = 3959 * c
-    return miles
 
 
 def get_zips_in_radius(city: str, state: str, radius_miles: int = 50) -> List[Dict]:
@@ -31,78 +12,94 @@ def get_zips_in_radius(city: str, state: str, radius_miles: int = 50) -> List[Di
     Get all ZIP codes within radius of a city - WORKS FOR ANY USA CITY!
     Returns list of dicts with: {zip, city, lat, lng, distance}
 
-    Uses pgeocode library with full USA database (FREE!)
+    Uses pgeocode library with full USA database (FREE + FAST!)
     """
-    print(f"\nFinding ZIP codes within {radius_miles} miles of {city}, {state}...")
+    print(f"\n[ZIP Lookup] Finding ZIP codes within {radius_miles} miles of {city}, {state}...")
 
-    # Step 1: Get center city coordinates using geopy
-    geolocator = Nominatim(user_agent="scraper_g1000")
-    location = geolocator.geocode(f"{city}, {state}, USA")
+    try:
+        # Step 1: Get center city coordinates
+        geolocator = Nominatim(user_agent="scraper_g1000", timeout=10)
+        print(f"[ZIP Lookup] Geocoding {city}, {state}...")
+        location = geolocator.geocode(f"{city}, {state}, USA")
 
-    if not location:
-        print(f"   ERROR: Could not find {city}, {state}")
+        if not location:
+            print(f"[ZIP Lookup] ERROR: Could not find {city}, {state}")
+            return []
+
+        center_lat = location.latitude
+        center_lng = location.longitude
+        print(f"[ZIP Lookup] Found coordinates: {center_lat:.4f}, {center_lng:.4f}")
+
+        # Step 2: Use pgeocode to search by radius
+        print(f"[ZIP Lookup] Searching ZIP codes within {radius_miles} miles...")
+        nomi = pgeocode.GeoDistance('US')
+
+        # Convert miles to kilometers (pgeocode uses km)
+        radius_km = radius_miles * 1.60934
+
+        # Search for ZIPs within radius using pgeocode's optimized search
+        # We'll get a sample center ZIP first, then search around it
+        search_engine = pgeocode.Nominatim('US')
+
+        # Find nearest ZIP to our coordinates
+        import pandas as pd
+        import numpy as np
+
+        # Get the database
+        db = search_engine._data
+
+        # Filter out invalid entries
+        valid_zips = db[(db['latitude'].notna()) & (db['longitude'].notna())].copy()
+
+        # Calculate distances for all ZIPs (vectorized - FAST!)
+        from math import radians, sin, cos, sqrt, asin
+
+        # Convert to radians
+        lat1 = radians(center_lat)
+        lon1 = radians(center_lng)
+        lat2 = np.radians(valid_zips['latitude'].values)
+        lon2 = np.radians(valid_zips['longitude'].values)
+
+        # Haversine formula (vectorized)
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+        c = 2 * np.arcsin(np.sqrt(a))
+        distances_miles = 3959 * c  # Earth radius in miles
+
+        # Filter by radius
+        mask = distances_miles <= radius_miles
+        results_df = valid_zips[mask].copy()
+        results_df['distance'] = distances_miles[mask]
+
+        # Sort by distance
+        results_df = results_df.sort_values('distance')
+
+        # Convert to our format
+        results = []
+        for idx, row in results_df.iterrows():
+            results.append({
+                'zip': str(idx).zfill(5),
+                'city': str(row['place_name']) if pd.notna(row['place_name']) else 'Unknown',
+                'lat': float(row['latitude']),
+                'lng': float(row['longitude']),
+                'distance': round(float(row['distance']), 1)
+            })
+
+        print(f"[ZIP Lookup] FOUND {len(results)} ZIP codes!")
+        return results
+
+    except Exception as e:
+        print(f"[ZIP Lookup] ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         return []
-
-    center_lat = location.latitude
-    center_lng = location.longitude
-
-    print(f"   Found center: {city}, {state} ({center_lat:.4f}, {center_lng:.4f})")
-    print(f"   Searching all USA ZIP codes...")
-
-    # Step 2: Load USA ZIP database
-    nomi = pgeocode.Nominatim('US')
-
-    # Step 3: Get all ZIP codes in the same state first (optimization)
-    # Then check distance for each
-    all_zips = nomi.query_postal_code(None)  # Get all ZIPs
-
-    results = []
-    checked = 0
-
-    # Iterate through ALL USA ZIPs and check distance
-    for zip_code in all_zips.index:
-        if zip_code and str(zip_code).isdigit() and len(str(zip_code)) == 5:
-            zip_info = nomi.query_postal_code(zip_code)
-
-            if zip_info is not None and not zip_info.empty:
-                try:
-                    zip_lat = float(zip_info['latitude'])
-                    zip_lng = float(zip_info['longitude'])
-                    zip_city = str(zip_info['place_name']) if 'place_name' in zip_info and zip_info['place_name'] else 'Unknown'
-
-                    # Calculate distance
-                    distance = haversine_distance(center_lat, center_lng, zip_lat, zip_lng)
-
-                    if distance <= radius_miles:
-                        results.append({
-                            'zip': str(zip_code).zfill(5),  # Ensure 5 digits
-                            'city': zip_city,
-                            'lat': zip_lat,
-                            'lng': zip_lng,
-                            'distance': round(distance, 1)
-                        })
-
-                    checked += 1
-                    if checked % 1000 == 0:
-                        print(f"   Checked {checked} ZIPs, found {len(results)} within radius...")
-
-                except (ValueError, KeyError, TypeError):
-                    continue
-
-    # Sort by distance
-    results.sort(key=lambda x: x['distance'])
-
-    print(f"   FOUND {len(results)} ZIP codes within {radius_miles} miles!")
-
-    return results
 
 
 if __name__ == "__main__":
-    # Test with Largo, FL
+    # Test
     print("\n=== Testing ZIP Lookup ===")
-
-    print("\n1. Largo, FL - 100 miles:")
     zips = get_zips_in_radius("Largo", "FL", 100)
-    print(f"\n   Total: {len(zips)} ZIPs")
-    for z in zips[:15]:
+    print(f"\nTotal: {len(zips)} ZIPs")
+    for z in zips[:20]:
         print(f"   {z['zip']} - {z['city']} ({z['distance']} mi)")
