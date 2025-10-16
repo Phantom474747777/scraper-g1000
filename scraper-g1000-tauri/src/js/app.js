@@ -5,14 +5,17 @@
 const API_BASE = 'http://localhost:5050';
 let currentProfileId = null;
 let currentProfileData = null;
-let allLeadsData = [];
 let currentFilter = null;
 
 console.log('[App] Scraper G1000 loaded');
 
 // === API Helper ===
 async function apiCall(endpoint, method = 'GET', body = null) {
-  const options = { method, headers: { 'Content-Type': 'application/json' } };
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store'  // Disable browser caching
+  };
   if (body) options.body = JSON.stringify(body);
   const response = await fetch(`${API_BASE}${endpoint}`, options);
   return await response.json();
@@ -155,7 +158,7 @@ async function loadLeadsDashboard() {
   showScreen('leads-dashboard');
 
   try {
-    // Load dashboard stats
+    // ALWAYS fetch fresh data from server
     const statsData = await apiCall(`/api/dashboard/${currentProfileId}`);
     console.log('[Dashboard] Stats:', statsData);
 
@@ -166,13 +169,13 @@ async function loadLeadsDashboard() {
 
     const stats = statsData.stats;
 
-    // Populate KPI cards
+    // Populate KPI cards with FRESH data
     document.getElementById('cardAllLeadsCount').textContent = stats.total || 0;
     document.getElementById('cardUncontactedCount').textContent = stats.by_status?.New || 0;
     document.getElementById('cardContactedCount').textContent = stats.by_status?.Contacted || 0;
     document.getElementById('cardArchivedCount').textContent = stats.by_status?.Archived || 0;
 
-    // Load all leads to get breakdown by status per ZIP/category
+    // Load FRESH leads data
     const leadsData = await apiCall(`/api/leads/${currentProfileId}`);
     const allLeads = leadsData.success ? leadsData.leads : [];
 
@@ -180,7 +183,7 @@ async function loadLeadsDashboard() {
     const zipCards = document.getElementById('zipCards');
     if (stats.by_zip && stats.by_zip.length > 0) {
       zipCards.innerHTML = stats.by_zip.map(([zip, count]) => {
-        // Calculate breakdown for this ZIP
+        // Calculate breakdown for this ZIP from FRESH data
         const zipLeads = allLeads.filter(lead => lead.zipCode === zip);
         const newCount = zipLeads.filter(lead => (lead.status || 'New') === 'New').length;
         const contactedCount = zipLeads.filter(lead => lead.status === 'Contacted').length;
@@ -263,33 +266,32 @@ async function showFilteredLeads(filter) {
 
   showScreen('leads-list');
 
-  // Load leads
+  // Load leads with loading indicator
   const tbody = document.getElementById('leadsTableBody');
   tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading leads...</td></tr>';
 
   try {
+    // ALWAYS fetch FRESH data from server
     const data = await apiCall(`/api/leads/${currentProfileId}`);
-    console.log('[Filter] Leads data:', data);
+    console.log('[Filter] Fresh leads data:', data);
 
     if (!data.success || !data.leads || data.leads.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" class="empty">No leads found</td></tr>';
+      document.getElementById('leadsCount').textContent = '0';
       return;
     }
 
-    // Store all leads
-    allLeadsData = data.leads;
-
-    // Apply filter
-    let filteredLeads = allLeadsData;
+    // Apply filter to FRESH data
+    let filteredLeads = data.leads;
     if (filter.type === 'status') {
-      filteredLeads = allLeadsData.filter(lead => lead.status === filter.value);
+      filteredLeads = data.leads.filter(lead => lead.status === filter.value);
     } else if (filter.type === 'zip') {
-      filteredLeads = allLeadsData.filter(lead => lead.zipCode === filter.value);
+      filteredLeads = data.leads.filter(lead => lead.zipCode === filter.value);
     } else if (filter.type === 'category') {
-      filteredLeads = allLeadsData.filter(lead => lead.category === filter.value);
+      filteredLeads = data.leads.filter(lead => lead.category === filter.value);
     }
 
-    renderLeadsTable(filteredLeads);
+    renderLeadsTable(filteredLeads, data.leads);
 
   } catch (error) {
     console.error('[Filter] Error:', error);
@@ -298,7 +300,7 @@ async function showFilteredLeads(filter) {
 }
 
 // === Render Leads Table ===
-function renderLeadsTable(leads) {
+function renderLeadsTable(leads, allLeads) {
   const tbody = document.getElementById('leadsTableBody');
 
   if (leads.length === 0) {
@@ -323,26 +325,35 @@ function renderLeadsTable(leads) {
   `).join('');
 
   document.getElementById('leadsCount').textContent = leads.length;
+
+  // Store all leads for search functionality
+  window.currentAllLeads = allLeads;
+  window.currentFilteredLeads = leads;
 }
 
 // === Filter Leads Table (Search) ===
 function filterLeadsTable(searchQuery) {
+  if (!window.currentAllLeads) return;
+
   if (!searchQuery || searchQuery.trim() === '') {
     // Show all filtered leads (based on current filter)
     if (currentFilter.type === 'all') {
-      renderLeadsTable(allLeadsData);
+      renderLeadsTable(window.currentAllLeads, window.currentAllLeads);
     } else if (currentFilter.type === 'status') {
-      renderLeadsTable(allLeadsData.filter(lead => lead.status === currentFilter.value));
+      const filtered = window.currentAllLeads.filter(lead => lead.status === currentFilter.value);
+      renderLeadsTable(filtered, window.currentAllLeads);
     } else if (currentFilter.type === 'zip') {
-      renderLeadsTable(allLeadsData.filter(lead => lead.zipCode === currentFilter.value));
+      const filtered = window.currentAllLeads.filter(lead => lead.zipCode === currentFilter.value);
+      renderLeadsTable(filtered, window.currentAllLeads);
     } else if (currentFilter.type === 'category') {
-      renderLeadsTable(allLeadsData.filter(lead => lead.category === currentFilter.value));
+      const filtered = window.currentAllLeads.filter(lead => lead.category === currentFilter.value);
+      renderLeadsTable(filtered, window.currentAllLeads);
     }
     return;
   }
 
   const query = searchQuery.toLowerCase();
-  let filtered = allLeadsData;
+  let filtered = window.currentAllLeads;
 
   // Apply current filter first
   if (currentFilter.type === 'status') {
@@ -362,7 +373,7 @@ function filterLeadsTable(searchQuery) {
     (lead.zipCode && lead.zipCode.toLowerCase().includes(query))
   );
 
-  renderLeadsTable(filtered);
+  renderLeadsTable(filtered, window.currentAllLeads);
 }
 
 // === Update Lead Status ===
@@ -373,13 +384,8 @@ async function updateLeadStatus(leadId, newStatus) {
     const result = await apiCall(`/api/leads/${currentProfileId}/${leadId}/status`, 'PUT', { status: newStatus });
 
     if (result.success) {
-      // Update in-memory data
-      const lead = allLeadsData.find(l => l.id === leadId);
-      if (lead) {
-        lead.status = newStatus;
-      }
-
-      // Re-render current filtered view
+      console.log('[Status] Update successful, reloading view with fresh data...');
+      // Reload the entire filtered view with FRESH data from server
       await showFilteredLeads(currentFilter);
     } else {
       alert('Failed to update status: ' + result.error);
@@ -396,9 +402,7 @@ async function exportFilteredLeads() {
 
   try {
     // Get currently displayed leads from table
-    const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]');
-    const displayedLeadIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
-    const leadsToExport = allLeadsData.filter(lead => displayedLeadIds.includes(lead.id));
+    const leadsToExport = window.currentFilteredLeads || [];
 
     if (leadsToExport.length === 0) {
       alert('No leads to export');
