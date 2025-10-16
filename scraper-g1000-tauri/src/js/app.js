@@ -143,8 +143,44 @@ function setupEventListeners() {
     filterLeadsTable(e.target.value);
   });
 
+  // Bulk actions
+  document.getElementById('btnBulkContact')?.addEventListener('click', () => bulkUpdateStatus('Contacted'));
+  document.getElementById('btnBulkArchive')?.addEventListener('click', () => bulkUpdateStatus('Archived'));
+  document.getElementById('btnBulkExport')?.addEventListener('click', () => openExportModal('selected'));
+
+  // Export modal
+  document.getElementById('btnExportLeads')?.addEventListener('click', () => openExportModal('current'));
+  document.getElementById('btnCloseExportModal')?.addEventListener('click', closeExportModal);
+  document.getElementById('btnCancelExport')?.addEventListener('click', closeExportModal);
+  document.getElementById('btnConfirmExport')?.addEventListener('click', performExport);
+
   document.addEventListener('keydown', handleKeyboardShortcuts);
 }
+
+// === Checkbox Selection Tracking ===
+function updateBulkToolbar() {
+  const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
+  const count = checkboxes.length;
+  const toolbar = document.getElementById('bulkActionsToolbar');
+  const countSpan = document.getElementById('bulkSelectedCount');
+
+  if (count > 0) {
+    toolbar.style.display = 'flex';
+    countSpan.textContent = count;
+  } else {
+    toolbar.style.display = 'none';
+  }
+}
+
+// Override the Select All checkbox handler
+document.addEventListener('DOMContentLoaded', () => {
+  // Wait for table to be rendered, then add listeners
+  document.body.addEventListener('change', (e) => {
+    if (e.target.matches('#leadsTableBody input[type="checkbox"]') || e.target.id === 'selectAll') {
+      updateBulkToolbar();
+    }
+  });
+});
 
 // === Keyboard Shortcuts ===
 function handleKeyboardShortcuts(e) {
@@ -291,6 +327,7 @@ async function showFilteredLeads(filter) {
   }
 
   showScreen('leads-list');
+  setupBreadcrumb();
 
   // Load leads with loading indicator
   const tbody = document.getElementById('leadsTableBody');
@@ -402,7 +439,192 @@ function filterLeadsTable(searchQuery) {
   renderLeadsTable(filtered, window.currentAllLeads);
 }
 
-// === Update Lead Status ===
+// === Bulk Status Update ===
+async function bulkUpdateStatus(newStatus) {
+  const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
+  const leadIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+
+  if (leadIds.length === 0) {
+    showToast('No leads selected', 'error');
+    return;
+  }
+
+  const confirmMsg = `Mark ${leadIds.length} lead(s) as ${newStatus}?`;
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const result = await apiCall(`/api/leads/${currentProfileId}/bulk-status`, 'PUT', {
+      leadIds,
+      status: newStatus
+    });
+
+    if (result.success) {
+      showToast(`${result.updated} lead(s) marked as ${newStatus}`, 'success');
+      document.getElementById('selectAll').checked = false;
+      updateBulkToolbar();
+      await showFilteredLeads(currentFilter);
+    } else {
+      showToast('Failed to update leads: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('[Bulk Update] Error:', error);
+    showToast('Failed to update leads: ' + error.message, 'error');
+  }
+}
+
+// === Export Modal ===
+function openExportModal(defaultScope) {
+  const modal = document.getElementById('exportModal');
+  modal.classList.add('active');
+
+  // Update counts
+  const currentCount = window.currentFilteredLeads?.length || 0;
+  const selectedCount = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked').length;
+  const allCount = window.currentAllLeads?.length || 0;
+
+  document.getElementById('exportCurrentCount').textContent = currentCount;
+  document.getElementById('exportSelectedCount').textContent = selectedCount;
+  document.getElementById('exportAllCount').textContent = allCount;
+
+  // Pre-select scope
+  const scopeRadio = document.querySelector(`input[name="exportScope"][value="${defaultScope}"]`);
+  if (scopeRadio) scopeRadio.checked = true;
+
+  // Disable 'selected' option if nothing is selected
+  const selectedRadio = document.querySelector('input[name="exportScope"][value="selected"]');
+  if (selectedRadio) {
+    selectedRadio.disabled = selectedCount === 0;
+    selectedRadio.closest('.radio-option').style.opacity = selectedCount === 0 ? '0.5' : '1';
+  }
+}
+
+function closeExportModal() {
+  const modal = document.getElementById('exportModal');
+  modal.classList.remove('active');
+}
+
+async function performExport() {
+  const scope = document.querySelector('input[name="exportScope"]:checked')?.value;
+  const format = document.querySelector('input[name="exportFormat"]:checked')?.value;
+
+  if (!scope || !format) {
+    showToast('Please select export options', 'error');
+    return;
+  }
+
+  // Determine which leads to export
+  let leadsToExport = [];
+  let leadIds = null;
+
+  if (scope === 'selected') {
+    const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
+    leadIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+    leadsToExport = window.currentAllLeads.filter(lead => leadIds.includes(lead.id));
+  } else if (scope === 'current') {
+    leadsToExport = window.currentFilteredLeads || [];
+    leadIds = leadsToExport.map(lead => lead.id);
+  } else if (scope === 'all') {
+    leadsToExport = window.currentAllLeads || [];
+    leadIds = null; // null means all leads
+  }
+
+  if (leadsToExport.length === 0) {
+    showToast('No leads to export', 'error');
+    return;
+  }
+
+  try {
+    const result = await apiCall(`/api/leads/${currentProfileId}/export`, 'POST', {
+      leadIds,
+      format
+    });
+
+    if (!result.success) {
+      showToast('Export failed: ' + result.error, 'error');
+      return;
+    }
+
+    // Generate file
+    const csvData = result.data;
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+
+    let blob, ext;
+    if (format === 'xlsx') {
+      // For XLSX, we'd need a library like SheetJS, for now just use CSV
+      blob = new Blob([csvContent], { type: 'text/csv' });
+      ext = 'csv';
+      showToast('XLSX format coming soon - exported as CSV', 'info');
+    } else {
+      blob = new Blob([csvContent], { type: 'text/csv' });
+      ext = 'csv';
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+
+    // Generate filename
+    let scopeName = scope === 'all' ? 'all_leads' : scope === 'selected' ? 'selected_leads' : 'current_view';
+    const timestamp = new Date().toISOString().split('T')[0];
+    a.download = `${currentProfileData.name}_${scopeName}_${timestamp}.${ext}`;
+
+    a.click();
+    URL.revokeObjectURL(url);
+
+    closeExportModal();
+    showToast(`Exported ${result.count} leads successfully`, 'success');
+
+  } catch (error) {
+    console.error('[Export] Error:', error);
+    showToast('Export failed: ' + error.message, 'error');
+  }
+}
+
+// === Clickable Breadcrumb ===
+function setupBreadcrumb() {
+  const breadcrumb = document.getElementById('breadcrumb');
+  if (!breadcrumb) return;
+
+  // Make it clickable to go back to dashboard
+  breadcrumb.style.cursor = 'pointer';
+  breadcrumb.addEventListener('click', () => {
+    loadLeadsDashboard();
+  });
+
+  // Update breadcrumb with proper formatting
+  if (currentFilter) {
+    let html = '<span class="breadcrumb-link">Leads</span>';
+    html += '<span class="breadcrumb-separator">›</span>';
+
+    switch (currentFilter.type) {
+      case 'all':
+        html += '<span>All Leads</span>';
+        break;
+      case 'status':
+        html += `<span>Status: ${currentFilter.value}</span>`;
+        break;
+      case 'zip':
+        html += `<span>ZIP ${currentFilter.value}</span>`;
+        break;
+      case 'category':
+        html += `<span>${currentFilter.value}</span>`;
+        break;
+    }
+
+    breadcrumb.innerHTML = html;
+
+    // Make "Leads" clickable
+    const link = breadcrumb.querySelector('.breadcrumb-link');
+    if (link) {
+      link.addEventListener('click', (e) => {
+        e.stopPropagation();
+        loadLeadsDashboard();
+      });
+    }
+  }
+}
+
+// === Update Lead Status (Single) ===
 async function updateLeadStatus(leadId, newStatus) {
   console.log('[Status] Updating lead', leadId, 'to', newStatus);
 
@@ -411,14 +633,15 @@ async function updateLeadStatus(leadId, newStatus) {
 
     if (result.success) {
       console.log('[Status] Update successful, reloading view with fresh data...');
+      showToast(`Lead marked as ${newStatus}`, 'success');
       // Reload the entire filtered view with FRESH data from server
       await showFilteredLeads(currentFilter);
     } else {
-      alert('Failed to update status: ' + result.error);
+      showToast('Failed to update status: ' + result.error, 'error');
     }
   } catch (error) {
     console.error('[Status] Error:', error);
-    alert('Failed to update status: ' + error.message);
+    showToast('Failed to update status: ' + error.message, 'error');
   }
 }
 
