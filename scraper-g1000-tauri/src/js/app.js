@@ -440,12 +440,28 @@ async function loadCombinedFilterOptions() {
 }
 
 async function applyCombinedFilter() {
-  const zip = document.getElementById('filterCombinedZip').value;
-  const cat = document.getElementById('filterCombinedCategory').value;
+  const zip = document.getElementById('filterCombinedZip').value.trim();
+  const cat = document.getElementById('filterCombinedCategory').value.trim();
 
   if (!zip || !cat) {
     showToast('Please select both ZIP and Category', 'error');
     return;
+  }
+
+  // Validate that this combo exists in scraped data
+  const response = await apiCall(`/api/leads/${currentProfileId}/scraped-combos`);
+  if (response.success && response.combos) {
+    const exists = response.combos.some(combo => combo.zip === zip && combo.category === cat);
+    if (!exists) {
+      const resultsDiv = document.getElementById('combinedResults');
+      resultsDiv.innerHTML = `
+        <div class="error-message">
+          No leads found for ZIP ${zip} + ${cat}.<br>
+          This combination has not been scraped yet.
+        </div>
+      `;
+      return;
+    }
   }
 
   showFilteredLeads({
