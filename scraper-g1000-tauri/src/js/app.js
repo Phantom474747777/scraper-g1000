@@ -684,7 +684,7 @@ function renderLeadsTable(leads, allLeads) {
   const tbody = document.getElementById('leadsTableBody');
 
   if (leads.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">No leads match this filter</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No leads match this filter</td></tr>';
     document.getElementById('leadsCount').textContent = '0';
     return;
   }
@@ -695,6 +695,7 @@ function renderLeadsTable(leads, allLeads) {
       <td>${lead.name}</td>
       <td>${lead.phone}</td>
       <td>${lead.category || 'N/A'}</td>
+      <td>${lead.city || 'N/A'}</td>
       <td>${lead.zipCode || 'N/A'}</td>
       <td><span class="status-badge status-${(lead.status || 'New').toLowerCase()}">${lead.status || 'New'}</span></td>
       <td>
@@ -754,6 +755,7 @@ function filterLeadsTable(searchQuery) {
     lead.phone.toLowerCase().includes(query) ||
     (lead.address && lead.address.toLowerCase().includes(query)) ||
     (lead.category && lead.category.toLowerCase().includes(query)) ||
+    (lead.city && lead.city.toLowerCase().includes(query)) ||
     (lead.zipCode && lead.zipCode.toLowerCase().includes(query))
   );
 
@@ -1039,7 +1041,7 @@ async function exportFilteredLeads() {
       return;
     }
 
-    const headers = ['Name', 'Phone', 'Address', 'Website', 'Email', 'Category', 'ZIP Code', 'Status'];
+    const headers = ['Name', 'Phone', 'Address', 'Website', 'Email', 'Category', 'City', 'ZIP Code', 'Status'];
     const csv = [
       headers.join(','),
       ...leadsToExport.map(lead => [
@@ -1049,6 +1051,7 @@ async function exportFilteredLeads() {
         lead.website || 'N/A',
         lead.email || 'N/A',
         lead.category || 'N/A',
+        lead.city || 'N/A',
         lead.zipCode || 'N/A',
         lead.status || 'New'
       ].map(field => `"${field}"`).join(','))
