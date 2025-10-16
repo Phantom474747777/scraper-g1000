@@ -186,11 +186,64 @@ function setupEventListeners() {
   // Manual Mode: Start Scraping button
   document.getElementById('btnStartManualScrape')?.addEventListener('click', startManualScrapingFull);
 
-  // Manual Mode: View Leads button (after scraping)
-  document.getElementById('btnViewScrapedLeads')?.addEventListener('click', () => {
-    showScreen('leads-dashboard');
-    loadLeadsData(); // Reload leads to show newly scraped ones
-  });
+  // Manual Mode: View Leads button (after scraping) - with filtering
+  document.getElementById('btnViewScrapedLeads')?.addEventListener('click', viewFilteredLeads);
+
+  // Manual Mode: Reset button
+  document.getElementById('btnResetManualMode')?.addEventListener('click', resetManualMode);
+
+  // Manual Mode: Reset console when navigating back
+  document.getElementById('btnBackFromManual')?.addEventListener('click', resetManualMode);
+}
+
+// Global variable to store last scrape metadata
+let lastScrapeMetadata = {
+  zip: null,
+  category: null
+};
+
+// Reset manual mode console and form
+function resetManualMode() {
+  const consoleOutput = document.getElementById('consoleOutput');
+  const consoleProgress = document.getElementById('consoleProgress');
+  const viewLeadsBtn = document.getElementById('btnViewScrapedLeads');
+  const consoleStatus = document.getElementById('consoleStatus');
+
+  // Reset console
+  consoleOutput.innerHTML = '<div class="console-line console-system">System Ready</div><div class="console-line console-system">Configure settings and click Start to begin</div>';
+
+  // Hide progress bar and View Leads button
+  consoleProgress.style.display = 'none';
+  viewLeadsBtn.style.display = 'none';
+
+  // Reset status
+  consoleStatus.querySelector('.status-dot').classList.remove('status-running', 'status-error');
+  consoleStatus.querySelector('.status-dot').classList.add('status-idle');
+  consoleStatus.querySelector('.status-text').textContent = 'Idle';
+
+  // Clear metadata
+  lastScrapeMetadata = { zip: null, category: null };
+}
+
+// View filtered leads by ZIP + Category
+function viewFilteredLeads() {
+  showScreen('leads-dashboard');
+
+  // Apply filters if we have metadata
+  if (lastScrapeMetadata.zip || lastScrapeMetadata.category) {
+    // Set filter values
+    if (lastScrapeMetadata.zip) {
+      const zipFilter = document.getElementById('filterZipCode');
+      if (zipFilter) zipFilter.value = lastScrapeMetadata.zip;
+    }
+    if (lastScrapeMetadata.category) {
+      const categoryFilter = document.getElementById('filterCategory');
+      if (categoryFilter) categoryFilter.value = lastScrapeMetadata.category;
+    }
+  }
+
+  // Reload leads with filters
+  loadLeadsData();
 }
 
 // === Checkbox Selection Tracking ===
@@ -963,6 +1016,12 @@ async function startManualScrapingFull() {
     alert('Please select a ZIP code and category');
     return;
   }
+
+  // Store metadata for filtered View Leads
+  lastScrapeMetadata = {
+    zip: zip,
+    category: finalCategory
+  };
 
   console.log('[Scrape] Starting manual scrape:', { zip, category: finalCategory, city, state });
 

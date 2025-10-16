@@ -285,7 +285,7 @@ body::before {
 }
 
 /* Buttons - Frosted Glass Effect */
-.btn-primary, .btn-secondary, .btn-back, .btn-create-profile {
+.btn-primary, .btn-secondary, .btn-back, .btn-reset, .btn-create-profile {
   padding: 1rem 2rem;
   border-radius: 12px;
   font-size: 1rem;
@@ -298,7 +298,7 @@ body::before {
   color: var(--text-primary);
 }
 
-.btn-primary:hover, .btn-secondary:hover, .btn-back:hover, .btn-create-profile:hover {
+.btn-primary:hover, .btn-secondary:hover, .btn-back:hover, .btn-reset:hover, .btn-create-profile:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
