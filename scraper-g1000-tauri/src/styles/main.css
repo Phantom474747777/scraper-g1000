@@ -1833,3 +1833,12 @@ body::before {
   opacity: 0.7;
 }
 
+/* Empty warning for multi-filter with no results */
+.empty-warning {
+  text-align: center;
+  padding: 2rem !important;
+  color: #ef4444 !important;
+  font-size: 1rem;
+  font-weight: 500;
+}
+

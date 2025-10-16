@@ -684,7 +684,12 @@ function renderLeadsTable(leads, allLeads) {
   const tbody = document.getElementById('leadsTableBody');
 
   if (leads.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty">No leads match this filter</td></tr>';
+    // Check if this is a multi-filter with no results - likely not scraped yet
+    const isMultiFilter = currentFilter && currentFilter.type === 'multi';
+    const message = isMultiFilter
+      ? '⚠️ No leads found for this combination. You may need to scrape this ZIP + Category first.'
+      : 'No leads match this filter';
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-warning">${message}</td></tr>`;
     document.getElementById('leadsCount').textContent = '0';
     return;
   }
