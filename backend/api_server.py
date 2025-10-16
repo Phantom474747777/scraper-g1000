@@ -417,6 +417,52 @@ def bulk_update_lead_status(profile_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/leads/<profile_id>/scraped-combos', methods=['GET'])
+def get_scraped_combos(profile_id):
+    """Get list of ZIP+Category combinations already scraped for this profile"""
+    try:
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            return jsonify({'success': False, 'error': 'Profile not found'}), 404
+
+        db = LeadsDatabase(profile.get_database_path())
+
+        # Query unique ZIP + Category combinations from leads
+        import sqlite3
+        conn = sqlite3.connect(profile.get_database_path())
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT DISTINCT zip_code, category, COUNT(*) as lead_count
+            FROM leads
+            WHERE zip_code IS NOT NULL AND zip_code != '' AND zip_code != 'N/A'
+              AND category IS NOT NULL AND category != '' AND category != 'N/A'
+            GROUP BY zip_code, category
+            ORDER BY zip_code, category
+        ''')
+
+        combos = []
+        for row in cursor.fetchall():
+            combos.append({
+                'zip': row[0],
+                'category': row[1],
+                'leadCount': row[2]
+            })
+
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'combos': combos,
+            'count': len(combos)
+        }), 200
+
+    except Exception as e:
+        print(f"[Scraped Combos] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/leads/<profile_id>/export', methods=['POST'])
 def export_leads(profile_id):
     """Export leads to CSV or XLSX format and save to file"""

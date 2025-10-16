@@ -179,7 +179,11 @@ function setupEventListeners() {
   document.getElementById('btnFindManualZips')?.addEventListener('click', findManualZIPs);
 
   // Manual Mode: Enable Start button when ZIP + Category selected
-  document.getElementById('selectManualZip')?.addEventListener('change', validateManualForm);
+  document.getElementById('selectManualZip')?.addEventListener('change', (e) => {
+    const selectedZip = e.target.value;
+    loadManualModeCategories(selectedZip); // Reload categories with markers
+    validateManualForm();
+  });
   document.getElementById('selectManualCategory')?.addEventListener('change', validateManualForm);
   document.getElementById('inputCustomCategory')?.addEventListener('input', validateManualForm);
 
@@ -989,13 +993,40 @@ async function findManualZIPs() {
     const zips = response.zips || [];
     consoleOutput.innerHTML += '<div class="console-line console-success">✓ Found ' + zips.length + ' ZIP codes</div>';
 
-    // Populate ZIP dropdown
+    // Fetch scraped combinations to mark already-used ZIPs
+    consoleOutput.innerHTML += '<div class="console-line console-info">→ Checking for already-scraped combinations...</div>';
+    const combosResponse = await apiCall(`/api/leads/${currentProfileId}/scraped-combos`);
+    const scrapedCombos = combosResponse.success ? combosResponse.combos : [];
+
+    // Store combos globally for category dropdown
+    window.scrapedCombos = scrapedCombos;
+
+    // Count how many categories each ZIP has scraped
+    const zipUsageMap = {};
+    scrapedCombos.forEach(combo => {
+      if (!zipUsageMap[combo.zip]) zipUsageMap[combo.zip] = [];
+      zipUsageMap[combo.zip].push(combo.category);
+    });
+
+    consoleOutput.innerHTML += '<div class="console-line console-success">✓ Found ' + scrapedCombos.length + ' already-scraped combinations</div>';
+
+    // Populate ZIP dropdown with usage indicators
     const zipSelect = document.getElementById('selectManualZip');
     zipSelect.innerHTML = '<option value="">Choose a ZIP...</option>';
     zips.forEach(zip => {
       const option = document.createElement('option');
       option.value = zip.zip;
-      option.textContent = zip.zip + ' - ' + zip.city;
+
+      const usedCount = zipUsageMap[zip.zip] ? zipUsageMap[zip.zip].length : 0;
+      const totalCategories = 9; // We have 9 default categories
+
+      if (usedCount > 0) {
+        option.textContent = zip.zip + ' - ' + zip.city + ' ⚠️ (' + usedCount + '/' + totalCategories + ' used)';
+        option.style.color = '#f59e0b'; // Orange for partially used
+      } else {
+        option.textContent = zip.zip + ' - ' + zip.city + ' ✓';
+      }
+
       zipSelect.appendChild(option);
     });
 
@@ -1010,7 +1041,7 @@ async function findManualZIPs() {
   }
 }
 
-function loadManualModeCategories() {
+function loadManualModeCategories(selectedZip = null) {
   // Load categories from current profile data
   const categorySelect = document.getElementById('selectManualCategory');
   categorySelect.innerHTML = '<option value="">Choose a category...</option>';
@@ -1028,10 +1059,26 @@ function loadManualModeCategories() {
     'Cleaning Services'
   ];
 
+  // If we have a selected ZIP, check which categories have been scraped
+  let usedCategories = [];
+  if (selectedZip && window.scrapedCombos) {
+    usedCategories = window.scrapedCombos
+      .filter(combo => combo.zip === selectedZip)
+      .map(combo => combo.category);
+  }
+
   defaultCategories.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat;
-    option.textContent = cat;
+
+    const isUsed = usedCategories.includes(cat);
+    if (isUsed) {
+      option.textContent = cat + ' ⚠️ (Already scraped)';
+      option.style.color = '#ef4444'; // Red for already used
+    } else {
+      option.textContent = cat;
+    }
+
     categorySelect.appendChild(option);
   });
 }
