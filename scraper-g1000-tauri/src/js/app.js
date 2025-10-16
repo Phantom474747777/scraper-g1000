@@ -21,6 +21,32 @@ async function apiCall(endpoint, method = 'GET', body = null) {
   return await response.json();
 }
 
+// === Toast Notifications ===
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+
+  const icons = {
+    success: '✓',
+    error: '✗',
+    info: 'ℹ'
+  };
+
+  toast.innerHTML = `
+    <div class="toast-icon">${icons[type] || icons.info}</div>
+    <div class="toast-message">${message}</div>
+  `;
+
+  container.appendChild(toast);
+
+  // Auto-remove after 4 seconds
+  setTimeout(() => {
+    toast.classList.add('toast-exit');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
 // === Screen Navigation ===
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));

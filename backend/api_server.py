@@ -338,6 +338,95 @@ def update_lead_status(profile_id, lead_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/leads/<profile_id>/bulk-status', methods=['PUT'])
+def bulk_update_lead_status(profile_id):
+    """Update status for multiple leads at once"""
+    try:
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            return jsonify({'success': False, 'error': 'Profile not found'}), 404
+
+        data = request.json
+        lead_ids = data.get('leadIds', [])
+        new_status = data.get('status')
+
+        if not lead_ids:
+            return jsonify({'success': False, 'error': 'No lead IDs provided'}), 400
+
+        if new_status not in ['New', 'Contacted', 'Archived']:
+            return jsonify({'success': False, 'error': 'Invalid status'}), 400
+
+        db = LeadsDatabase(profile.get_database_path())
+        updated_count = 0
+
+        for lead_id in lead_ids:
+            try:
+                db.update_lead_status(lead_id, new_status)
+                updated_count += 1
+            except Exception as e:
+                print(f"[Bulk Update] Failed to update lead {lead_id}: {e}")
+
+        return jsonify({
+            'success': True,
+            'updated': updated_count,
+            'requested': len(lead_ids)
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/leads/<profile_id>/export', methods=['POST'])
+def export_leads(profile_id):
+    """Export leads to CSV or XLSX format"""
+    try:
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            return jsonify({'success': False, 'error': 'Profile not found'}), 404
+
+        data = request.json
+        lead_ids = data.get('leadIds')  # None for all leads
+        file_format = data.get('format', 'csv')
+
+        db = LeadsDatabase(profile.get_database_path())
+        all_leads = db.get_all_leads()
+
+        # Filter leads if specific IDs requested
+        if lead_ids:
+            leads_dict = {lead[0]: lead for lead in all_leads}
+            filtered_leads = [leads_dict[lid] for lid in lead_ids if lid in leads_dict]
+        else:
+            filtered_leads = all_leads
+
+        # Prepare CSV data
+        headers = ['ID', 'Name', 'Phone', 'Address', 'Website', 'Email', 'Category', 'ZIP Code', 'Status']
+        csv_rows = [headers]
+
+        for lead in filtered_leads:
+            csv_rows.append([
+                str(lead[0]),  # ID
+                lead[1],  # Name
+                lead[2],  # Phone
+                lead[3] or 'N/A',  # Address
+                lead[4] or 'N/A',  # Website
+                lead[5] or 'N/A',  # Email
+                lead[6] if len(lead) > 6 else 'N/A',  # Category
+                lead[7] if len(lead) > 7 else 'N/A',  # ZIP
+                lead[8] if len(lead) > 8 else 'New'  # Status
+            ])
+
+        # Return CSV data as JSON (frontend will handle file creation)
+        return jsonify({
+            'success': True,
+            'data': csv_rows,
+            'count': len(filtered_leads),
+            'format': file_format
+        }), 200
+
+    except Exception as e:
+        print(f"[Export] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # === BACKGROUND SCRAPING LOGIC ===
 
 def run_scrape_job(profile_id, zip_code, category, max_pages):

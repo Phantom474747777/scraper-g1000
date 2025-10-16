@@ -221,6 +221,18 @@
                 </div>
             </div>
 
+            <!-- Bulk Actions Toolbar -->
+            <div class="bulk-actions-toolbar" id="bulkActionsToolbar" style="display: none;">
+                <div class="bulk-actions-left">
+                    <span id="bulkSelectedCount">0</span> selected
+                </div>
+                <div class="bulk-actions-right">
+                    <button class="btn-bulk" id="btnBulkContact">Mark Contacted</button>
+                    <button class="btn-bulk" id="btnBulkArchive">Archive</button>
+                    <button class="btn-bulk" id="btnBulkExport">Export Selected</button>
+                </div>
+            </div>
+
             <div class="leads-table-container">
                 <table class="leads-table">
                     <thead>
@@ -247,6 +259,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Leads</h2>
+                <button class="modal-close" id="btnCloseExportModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-option-group">
+                    <label>Export Scope</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="exportScope" value="current" checked>
+                            <span>Current View (<span id="exportCurrentCount">0</span> leads)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="exportScope" value="selected">
+                            <span>Selected Only (<span id="exportSelectedCount">0</span> leads)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="exportScope" value="all">
+                            <span>All Leads (<span id="exportAllCount">0</span> leads)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="export-option-group">
+                    <label>File Format</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="exportFormat" value="csv" checked>
+                            <span>CSV (.csv)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="exportFormat" value="xlsx">
+                            <span>Excel (.xlsx)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelExport">Cancel</button>
+                <button class="btn-primary" id="btnConfirmExport">Export & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="js/app.js"></script>
 </body>
