@@ -465,17 +465,19 @@
                         <div class="filter-row">
                             <div class="filter-col">
                                 <label>ZIP Code</label>
-                                <select id="filterCombinedZip" class="glass-select">
+                                <input list="zipList" id="filterCombinedZip" placeholder="Type or select..." class="glass-input">
+                                <datalist id="zipList">
                                     <option value="">All ZIPs</option>
-                                </select>
+                                </datalist>
                             </div>
                             <div class="filter-col">
                                 <label>Category</label>
-                                <select id="filterCombinedCategory" class="glass-select">
+                                <input list="categoryList" id="filterCombinedCategory" placeholder="Type or select..." class="glass-input">
+                                <datalist id="categoryList">
                                     <option value="">All Categories</option>
-                                </select>
+                                </datalist>
                             </div>
-                            <div class="filter-col">
+                            <div class="filter-col filter-button-col">
                                 <button class="btn-primary" id="btnApplyCombinedFilter">Search</button>
                             </div>
                         </div>

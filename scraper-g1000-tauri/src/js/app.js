@@ -116,8 +116,13 @@ function setupEventListeners() {
   document.getElementById('btnBackFromManual')?.addEventListener('click', () => showScreen('mode-selector'));
   document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => showScreen('mode-selector'));
   document.getElementById('btnBackFromList')?.addEventListener('click', () => {
-    // Reload dashboard to refresh stats after status changes
-    loadLeadsDashboard();
+    // Check if we came from manual scrape (lastScrapeMetadata exists)
+    if (lastScrapeMetadata.zip && lastScrapeMetadata.category) {
+      showScreen('manual-scrape');
+    } else {
+      // Otherwise go back to dashboard
+      loadLeadsDashboard();
+    }
   });
 
   // Toggle buttons for ZIP / Category / Combined view
@@ -392,11 +397,11 @@ async function loadCombinedFilterOptions() {
 
     const combos = response.combos;
 
-    const zipSelect = document.getElementById('filterCombinedZip');
-    const catSelect = document.getElementById('filterCombinedCategory');
+    const zipList = document.getElementById('zipList');
+    const catList = document.getElementById('categoryList');
 
-    zipSelect.innerHTML = '<option value="">All ZIPs</option>';
-    catSelect.innerHTML = '<option value="">All Categories</option>';
+    zipList.innerHTML = '';
+    catList.innerHTML = '';
 
     const uniqueZips = [...new Set(combos.map(c => c.zip))].sort();
     const uniqueCats = [...new Set(combos.map(c => c.category))].sort();
@@ -404,22 +409,20 @@ async function loadCombinedFilterOptions() {
     uniqueZips.forEach(zip => {
       const opt = document.createElement('option');
       opt.value = zip;
-      opt.textContent = zip;
-      zipSelect.appendChild(opt);
+      zipList.appendChild(opt);
     });
 
     uniqueCats.forEach(cat => {
       const opt = document.createElement('option');
       opt.value = cat;
-      opt.textContent = cat;
-      catSelect.appendChild(opt);
+      catList.appendChild(opt);
     });
 
     const resultsDiv = document.getElementById('combinedResults');
     resultsDiv.innerHTML = `
       <div class="info-message">
         Found ${combos.length} scraped combinations.<br>
-        Select ZIP and Category above to filter leads.
+        Type or select ZIP and Category above to filter leads.
       </div>
     `;
 

@@ -1763,3 +1763,54 @@ body::before {
   to { transform: rotate(360deg); }
 }
 
+/* Combined Filter Panel Styles */
+.combined-filter-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filter-col label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.filter-button-col {
+  padding-bottom: 0.1rem;
+}
+
+.combined-results {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-message, .error-message, .empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.error-message {
+  color: #ef4444;
+}
+
+.empty-state {
+  padding: 2rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
