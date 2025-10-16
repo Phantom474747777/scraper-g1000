@@ -79,7 +79,7 @@ def get_zips_in_radius(city: str, state: str, radius_miles: int = 50) -> List[Di
         results = []
         for idx, row in results_df.iterrows():
             results.append({
-                'zip': str(idx).zfill(5),
+                'zip': str(row['postal_code']).zfill(5),
                 'city': str(row['place_name']) if pd.notna(row['place_name']) else 'Unknown',
                 'lat': float(row['latitude']),
                 'lng': float(row['longitude']),
