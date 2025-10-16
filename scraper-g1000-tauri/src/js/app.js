@@ -925,6 +925,9 @@ function setupBreadcrumb() {
       case 'category':
         html += `<span>${currentFilter.value}</span>`;
         break;
+      case 'combined':
+        html += `<span>ZIP ${currentFilter.zip} • ${currentFilter.category}</span>`;
+        break;
     }
 
     breadcrumb.innerHTML = html;
