@@ -1,100 +1,276 @@
-# AI Web Scraper with Crawl4AI  
+# 🦗 CritterCaptures Lead Scraper
 
-### 👉 **[Learn How to Scrape and Build Lead Lists Easily with Crawl4AI!](https://dev.to/kaymen99/scrape-any-website-fast-and-cheap-with-crawl4ai-3fj1)**  
+**The easiest lead scraping system ever created.**
 
-This project is an AI-powered web scraper built with [**Crawl4AI**](https://docs.crawl4ai.com/). It automates **lead generation** by extracting local business (Dentists, restaurents,...) names, addresses, phone numbers, and more from [**YellowPages**](https://www.yellowpages.ca/). With the help of LLMs like GPT-4o, Claude, and DeepSeek, it intelligently processes data and saves it in **CSV files**, making it ready for outreach or analysis!  
+## 🚀 Quick Start
 
-## Features  
+**Just double-click `START.bat` in File Explorer**
 
-- **Extract Business Information** – Scrape business names, contact details, and other key data.  
-- **AI-Powered Data Processing** – Use LLMs to clean, format, and enhance the extracted data.  
-- **Customizable Scraper** – Adapt it to different websites and data types.  
-- **Flexible LLM Integration** – Choose from AI models like GPT-4, Claude, and DeepSeek.  
+That's literally it. 🚀
 
-## Adaptability  
+---
 
-This scraper is designed for **YellowPages** but can be used on **any website**. You can change the target URL, modify the AI instructions to adjust how the data is processed, and define new data fields based on your needs.  
+## 🎯 What This Does
 
-## Potential Use Cases  
+Scrapes local business leads for **CritterCaptures wildlife removal** services.
 
-- **Lead Generation** – Collect business emails, phone numbers, and addresses to build targeted outreach lists.  
-- **Market Research** – Gather real-time industry data to analyze trends and customer behavior.  
-- **Competitor Analysis** – Monitor pricing, services, and customer reviews to stay competitive.  
-- **AI Data Enrichment** – Use LLMs to clean and categorize data for better insights.  
-- **Research & Analysis** – Extract structured data from directories, reports, and other sources for business or academic studies.  
+**Target customers** (NOT competitors):
+- Property Management Companies
+- Real Estate Agents
+- HOA Management
+- Apartment Complexes
+- Vacation Rentals
+- Storage Facilities
+- Mobile Home Parks
 
-## Project Structure
+---
 
+## 📋 How It Works
+
+### Step 1: Double-click `START.bat`
+
+### Step 2: Choose from menu:
 ```
-.
-├── main.py # Main entry point for the crawler
-├── config.py # Contains configuration constants (LLM Models, Base URL, CSS selectors, etc.)
-├── models
-│ └── business.py # Defines the Local Business data model using Pydantic
-├── src
-│ ├── utils.py # Utility functions for processing and saving data
-│ └── scraper.py # functions for configuring and running the crawler
-└── requirements.txt # Python package dependencies
-```
+🦗 CritterCaptures Lead Scraper
+============================================================
 
-# How to Run
-## Prerequisites
-Ensure you have the following installed:
-- Python 3.11+
-- LLM provider API key (OpenAI, Gemini, Claude,...)
-- Necessary Python libraries (listed in `requirements.txt`)
-
-## Setup
-### Clone the Repository
-```bash
-git clone https://github.com/kaymen99/llm-web-scraper
-cd llm-web-scraper
+📋 MENU:
+  [1] Start New Scrape
+  [2] View Database Stats
+  [3] List Available Categories
+  [4] Exit
+============================================================
 ```
 
-### Create and Activate a Virtual Environment
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+### Step 3: Enter zip codes:
+```
+📮 Enter ZIP codes to scrape:
+   (separate multiple with commas, e.g., 33527, 33594, 33612)
+
+   Zip codes: 33527, 33594
 ```
 
-### Install Required Packages
-```bash
-pip install -r requirements.txt
-playwright install
+### Step 4: Pick category:
+```
+📂 AVAILABLE CATEGORIES:
+============================================================
+  [1] Property Management Companies
+  [2] Real Estate Agents
+  [3] HOA Management
+  [4] Apartment Complexes
+  [5] Vacation Rentals
+  [6] Storage Facilities
+  [7] Mobile Home Parks
+============================================================
+
+🏷️  Select a category number (1-7):
+   Category: 1
 ```
 
-### Set Up Environment Variables
-Create a `.env` file in the root directory and add necessary credentials:
+### Step 5: Press ENTER to start!
 
-```ini
-# API keys for LLMs providers, add key for every provider you want to use
-OPENAI_API_KEY=""            # OpenAI API key for accessing OpenAI's models and services
-GEMINI_API_KEY=""            # Google Cloud API key for accessing Google Cloud services
-GROQ_API_KEY=""              # GROQ platform API key for using GROQ's services
+The scraper runs automatically and saves everything to organized folders.
+
+---
+
+## 📁 Where Are My Leads?
+
+```
+data/leads/
+├── property_management_companies/
+│   ├── lead_1_zip_33527/
+│   │   └── 33527_2025-10-15_143022.csv
+│   └── lead_2_zip_33594/
+│       └── 33594_2025-10-15_143045.csv
+│
+├── real_estate_agents/
+│   ├── lead_3_zip_33527/  ← SAME zip, different category!
+│   └── lead_4_zip_33594/
+│
+└── hoa_management/
+    └── lead_5_zip_33527/  ← SAME zip again!
 ```
 
-## Running the scraper
+**Each category gets its own folder.**
+**Lead numbers increment automatically (1, 2, 3...).**
 
-To start the scraper, run:
+---
 
-```bash
-python main.py
+## 🔒 Safety Features
+
+### ✅ Prevents Duplicate Leads
+Once a zip+category combo is scraped, it's **BLOCKED FOREVER**:
+
+```
+⚠️  ALREADY SCRAPED!
+   📅 Date: 2025-10-15 14:30:22
+   📁 Folder: property_management_companies/lead_1_zip_33527
+   🚫 SKIPPING!
 ```
 
-The script will crawl the specified website, extract data page by page, and save the complete venues to a `businesses_data.csv` file in the project directory. Additionally, usage statistics for the LLM strategy will be displayed after crawling.
+### ✅ Allows Same Zip for Different Categories
+You CAN scrape the same zip multiple times - just pick a different category!
 
-## Configuration  
+Example:
+- ZIP 33527 + Property Management = ✅ Lead 1
+- ZIP 33527 + Real Estate Agents = ✅ Lead 2
+- ZIP 33527 + Property Management = ❌ BLOCKED (already done!)
 
-The `config.py` file contains key settings for controlling the scraper's behavior. You can modify these values to customize the scraping process:  
+### ✅ Permanent Memory
+Database remembers everything forever:
+- Restart computer? Still remembers.
+- Months later? Still remembers.
+- Never sell duplicate leads!
 
-- **LLM_MODEL**: The AI model used for data extraction. Supports any LLM from **LiteLLM** (e.g., `gpt-4o`, `claude`, `deepseek-chat`, `gemini-2.0-flash`). 
-- **BASE_URL**: The target website to scrape. By default, it extracts **dentists in Toronto** from Yellow Pages, but you can change this to any business category or location.  
-- **CSS_SELECTOR**: The HTML selector used to pinpoint business details within the page.  
-- **MAX_PAGES**: Limits the number of pages to crawl (default: `3`). Increase this value to scrape more data.  
-- **SCRAPER_INSTRUCTIONS**: Custom LLM prompt defining what details to extract .
+---
 
-# Contributing
-Contributions are welcome! Please open an issue or submit a pull request for any changes.
+## 🧹 Cleaning the Data
 
-# Contact
-If you have any questions or suggestions, feel free to contact me at `aymenMir1001@gmail.com`.
+The data will be **messy** (no AI used during scraping).
+
+**To clean:**
+1. Open any CSV file
+2. Copy all data
+3. Paste into **ChatGPT Plus**
+4. Say: "Clean this business data CSV. Extract name, phone, address. Return clean CSV."
+5. Done!
+
+---
+
+## 💡 Pro Tips
+
+### Tip #1: Start with Big Cities
+Small towns have fewer results. Try:
+- Tampa area: `33612`, `33629`, `33618`
+- Brandon area: `33511`, `33510`
+- Plant City: `33563`, `33566`
+
+### Tip #2: Run All 7 Categories
+Each category = different set of leads from same zips!
+- Day 1: Property Management
+- Day 2: Real Estate Agents
+- Day 3: HOA Management
+- etc.
+
+### Tip #3: Use the Stats Feature
+Check menu option [2] to see:
+- Total leads in database
+- Leads per zip code
+- Your progress
+
+### Tip #4: Scrape Regularly
+Run weekly or monthly for fresh leads. The database prevents duplicates automatically!
+
+---
+
+## 📊 Menu Options Explained
+
+### [1] Start New Scrape
+Interactive wizard - asks for zips and category, then scrapes automatically.
+
+### [2] View Database Stats
+Shows total leads, breakdown by zip code.
+
+### [3] List Available Categories
+Quick reference of all 7 categories.
+
+### [4] Exit
+Closes the program.
+
+---
+
+## ⚙️ Technical Details
+
+**What it does:**
+- Scrapes YellowPages.com (no AI credits needed)
+- Extracts: name, phone, address, website, email
+- Saves to organized CSV files
+- Tracks everything in SQLite database
+
+**Database location:**
+`data/leads_tracker.db`
+
+**DO NOT DELETE THIS FILE** - it's your duplicate protection!
+
+---
+
+## 🔧 Troubleshooting
+
+**"No businesses found"**
+- Try bigger cities (Tampa instead of small towns)
+- Try different category
+- Some zips don't have all business types
+
+**"All duplicates skipped"**
+- You've already scraped this zip+category combo
+- Pick a different category OR different zips
+
+**Data looks messy**
+- That's normal! No AI = raw data
+- Upload to ChatGPT Plus to clean it
+
+---
+
+## 📈 Example Workflow
+
+### Week 1: Property Management
+```
+Zips: 33527, 33594, 33612
+Category: Property Management Companies
+Result: 50 leads
+```
+
+### Week 2: Real Estate (SAME ZIPS!)
+```
+Zips: 33527, 33594, 33612
+Category: Real Estate Agents
+Result: 45 new leads (different businesses!)
+```
+
+### Week 3: HOA (SAME ZIPS AGAIN!)
+```
+Zips: 33527, 33594, 33612
+Category: HOA Management
+Result: 30 new leads
+```
+
+**Total: 125 leads from same 3 zips, 3 different categories!**
+
+---
+
+## ✅ Best Practices
+
+**DO:**
+- Run all 7 categories for maximum leads
+- Use multiple zips at once
+- Check stats regularly
+- Keep the database file safe
+
+**DON'T:**
+- Delete `data/leads_tracker.db` (your safety net!)
+- Delete the `data/` folder
+- Worry about duplicates (system handles it)
+- Expect perfect data (clean with ChatGPT)
+
+---
+
+## 🎉 That's It!
+
+**You now have a production-ready lead scraping system that:**
+- ✅ Asks you what to scrape (interactive menu)
+- ✅ Organizes everything automatically
+- ✅ Never duplicates leads
+- ✅ Requires ZERO AI credits
+- ✅ Works forever
+
+**Just double-click `START.bat` and follow the prompts!** 🚀
+
+---
+
+## 📞 Need Help?
+
+Check the menu option [3] to see all available categories.
+
+Check option [2] to see your database stats.
+
+Everything else is automatic!

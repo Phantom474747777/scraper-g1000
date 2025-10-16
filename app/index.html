@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraper G1000</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        <!-- Profile Selection Screen (Initial) -->
+        <div id="profile-selector" class="screen active">
+            <div class="centered-content">
+                <div class="app-logo">
+                    <div class="logo-icon">⚡</div>
+                    <h1 class="app-title">Scraper G1000</h1>
+                    <p class="app-subtitle">Business Lead Generation</p>
+                </div>
+
+                <div class="profile-list" id="profileList">
+                    <!-- Profiles will be loaded here -->
+                    <div class="profile-loading">Loading profiles...</div>
+                </div>
+
+                <button class="btn-create-profile" id="btnCreateProfile">
+                    <span>+ Create New Profile</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <span class="app-icon">⚡</span>
+                    <span class="app-name">Scraper G1000</span>
+                </div>
+                <div class="top-bar-center">
+                    <span class="current-profile" id="currentProfile">CritterCaptures</span>
+                </div>
+                <div class="top-bar-right">
+                    <button class="icon-btn" id="btnSettings" title="Settings">⚙️</button>
+                    <button class="icon-btn" id="btnBack" title="Change Profile">←</button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalLeads">0</div>
+                            <div class="stat-label">Total Leads</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card clickable" id="cardManualScrape">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <div class="stat-value">Manual</div>
+                            <div class="stat-label">Scrape Mode</div>
+                        </div>
+                        <div class="card-arrow">→</div>
+                    </div>
+
+                    <div class="stat-card clickable" id="cardAutoScrape">
+                        <div class="stat-icon">🤖</div>
+                        <div class="stat-info">
+                            <div class="stat-value">Auto</div>
+                            <div class="stat-label">Pilot Mode</div>
+                        </div>
+                        <div class="card-arrow">→</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Recent Activity</h2>
+                        <button class="btn-link" id="btnViewAll">View All →</button>
+                    </div>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-icon">✓</div>
+                            <div class="activity-details">
+                                <div class="activity-title">33527 · Real Estate Agents</div>
+                                <div class="activity-subtitle">45 leads · 2 hours ago</div>
+                            </div>
+                        </div>
+                        <!-- More activities will be loaded -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn-primary" id="btnViewLeads">
+                        <span>View All Leads</span>
+                    </button>
+                    <button class="btn-secondary" id="btnExport">
+                        <span>Export Data</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Scrape Screen -->
+        <div id="manual-scrape" class="screen">
+            <div class="screen-header">
+                <button class="btn-back" id="btnBackFromManual">← Back</button>
+                <h1>Manual Scrape</h1>
+            </div>
+
+            <div class="scrape-form">
+                <div class="form-section">
+                    <h3>Step 1: Location</h3>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="inputCity" placeholder="Dover" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" id="inputState" placeholder="FL" class="input-field" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Radius (miles)</label>
+                        <input type="range" id="inputRadius" min="10" max="100" value="50" class="slider">
+                        <span id="radiusValue">50</span> miles
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Step 2: Select ZIP Code</h3>
+                    <div id="zipList" class="zip-list">
+                        <div class="loading">Click "Find ZIPs" to start</div>
+                    </div>
+                    <button class="btn-secondary" id="btnFindZips">Find ZIPs</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>Step 3: Select Category</h3>
+                    <select id="selectCategory" class="select-field">
+                        <option value="">Choose a category...</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-primary btn-large" id="btnStartScrape">
+                        Start Scraping →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scraping Progress Screen -->
+        <div id="scraping-progress" class="screen">
+            <div class="progress-container">
+                <h2>Scraping in Progress...</h2>
+                <div class="progress-info">
+                    <div id="scrapeStatus">33527 · Real Estate Agents</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-stats">
+                    <div id="progressText">Page 1 of 2 · 28 leads</div>
+                    <div id="progressTime">45 seconds remaining</div>
+                </div>
+                <div class="progress-actions">
+                    <button class="btn-secondary" id="btnPauseScrape">⏸ Pause</button>
+                    <button class="btn-danger" id="btnCancelScrape">× Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Viewer Screen -->
+        <div id="leads-viewer" class="screen">
+            <div class="screen-header">
+                <button class="btn-back" id="btnBackFromLeads">← Back</button>
+                <h1>All Leads</h1>
+                <div class="header-actions">
+                    <input type="search" id="searchLeads" placeholder="Search leads..." class="search-field">
+                    <button class="btn-secondary" id="btnFilterLeads">Filter</button>
+                    <button class="btn-primary" id="btnExportLeads">Export ↓</button>
+                </div>
+            </div>
+
+            <div class="leads-table-container">
+                <table class="leads-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>ZIP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTableBody">
+                        <tr>
+                            <td colspan="6" class="loading">Loading leads...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <div>Showing <span id="leadsCount">0</span> leads</div>
+                <div class="pagination">
+                    <button class="btn-icon">←</button>
+                    <span>Page 1 of 25</span>
+                    <button class="btn-icon">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

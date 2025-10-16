@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -c \"\nimport sys\nsys.path.insert(0, ''c:\\Users\\47\\Documents\\GitHub\\ai-web-scraper'')\nfrom src.zip_lookup import get_zips_in_radius\n\n# Test with Tampa, 100 miles\nprint(''Testing Tampa, FL with 100 miles:'')\nzips = get_zips_in_radius(''Tampa'', ''FL'', 100)\nprint(f''Found {len(zips)} ZIPs'')\nfor z in zips[:10]:\n    print(f''  {z[\"\"zip\"\"]} - {z[\"\"city\"\"]} ({z[\"\"distance\"\"]} miles)'')\n\")",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -c \"from src.zip_lookup import get_zips_in_radius; zips = get_zips_in_radius(''Tampa'', ''FL'', 100); print(f''Found {len(zips)} ZIPs within 100 miles''); [print(f''{z[\"\"zip\"\"]} - {z[\"\"city\"\"]} ({z[\"\"distance\"\"]} mi)'') for z in zips[:15]]\")",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip install uszipcode --quiet)",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip install uszipcode --upgrade --quiet)",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip install pgeocode --quiet)",
+      "Bash(taskkill:*)",
+      "Bash(wmic process where \"name=''python.exe''\" get ProcessId,CommandLine)",
+      "Bash(powershell -Command \"Get-Process python | Select-Object Id,Path | Format-Table\")",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip install Flask flask-cors undetected-chromedriver --quiet --disable-pip-version-check)",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip install pywebview --quiet --disable-pip-version-check)",
+      "Bash(start /B \"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" scraper-g1000.py)",
+      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" \"c:\\Users\\47\\Documents\\GitHub\\ai-web-scraper\\scraper-g1000.py\")",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

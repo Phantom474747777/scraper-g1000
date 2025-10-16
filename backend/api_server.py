@@ -603,20 +603,34 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
     """Run scraping job in background thread with real-time logging"""
     global scraping_state
 
-    # Intercept stdout to capture print statements
+    # Intercept stdout to capture print statements and track page progress
     import sys
     import io
+    import re
 
     class LogCapture(io.StringIO):
         def write(self, message):
             if message.strip():
                 add_log(message, 'info')
+
+                # Track current page from log messages
+                page_match = re.search(r'\[PAGE (\d+)\]', message)
+                if page_match:
+                    scraping_state['current_page'] = int(page_match.group(1)) - 1
+                    # Update progress based on page
+                    page_progress = (scraping_state['current_page'] / max_pages) * 70
+                    scraping_state['progress'] = 10 + int(page_progress)
+
             return super().write(message)
+
+    old_stdout = sys.stdout
+    sys.stdout = LogCapture()
 
     try:
         add_log(f"[START] Scraping {category} in ZIP {zip_code}", 'system')
         add_log(f"[CONFIG] Max pages: {max_pages}", 'system')
         scraping_state['progress'] = 10
+        scraping_state['current_page'] = 0
 
         # scrape_yellowpages_free is a synchronous function - call it directly
         leads = scrape_yellowpages_free(zip_code, category, max_pages)
@@ -661,6 +675,7 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
         traceback.print_exc()
 
     finally:
+        sys.stdout = old_stdout
         scraping_state['active'] = False
         scraping_state['paused'] = False
 

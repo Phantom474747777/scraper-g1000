@@ -120,9 +120,11 @@ function setupEventListeners() {
     loadLeadsDashboard();
   });
 
-  // Toggle buttons for ZIP / Category view
+  // Toggle buttons for ZIP / Category / Combined view
   document.getElementById('btnViewZips')?.addEventListener('click', toggleToZipView);
   document.getElementById('btnViewCategories')?.addEventListener('click', toggleToCategoryView);
+  document.getElementById('btnViewCombined')?.addEventListener('click', toggleToCombinedView);
+  document.getElementById('btnApplyCombinedFilter')?.addEventListener('click', applyCombinedFilter);
 
   // Scraping
   document.getElementById('btnStartScrape')?.addEventListener('click', startManualScrape);
@@ -349,15 +351,94 @@ function loadCategories() {
 function toggleToZipView() {
   document.getElementById('btnViewZips').classList.add('active');
   document.getElementById('btnViewCategories').classList.remove('active');
+  document.getElementById('btnViewCombined')?.classList.remove('active');
   document.getElementById('zipSection').style.display = 'block';
   document.getElementById('categorySection').style.display = 'none';
+  document.getElementById('combinedSection')?.style.display = 'none';
 }
 
 function toggleToCategoryView() {
   document.getElementById('btnViewCategories').classList.add('active');
   document.getElementById('btnViewZips').classList.remove('active');
+  document.getElementById('btnViewCombined')?.classList.remove('active');
   document.getElementById('categorySection').style.display = 'block';
   document.getElementById('zipSection').style.display = 'none';
+  document.getElementById('combinedSection')?.style.display = 'none';
+}
+
+async function toggleToCombinedView() {
+  document.getElementById('btnViewCombined').classList.add('active');
+  document.getElementById('btnViewZips').classList.remove('active');
+  document.getElementById('btnViewCategories').classList.remove('active');
+  document.getElementById('combinedSection').style.display = 'block';
+  document.getElementById('zipSection').style.display = 'none';
+  document.getElementById('categorySection').style.display = 'none';
+
+  await loadCombinedFilterOptions();
+}
+
+async function loadCombinedFilterOptions() {
+  try {
+    const response = await apiCall(`/api/leads/${currentProfileId}/scraped-combos`);
+
+    if (!response.success || !response.combos || response.combos.length === 0) {
+      document.getElementById('combinedResults').innerHTML = '<div class="empty-state">No scraped combinations yet</div>';
+      return;
+    }
+
+    const combos = response.combos;
+
+    const zipSelect = document.getElementById('filterCombinedZip');
+    const catSelect = document.getElementById('filterCombinedCategory');
+
+    zipSelect.innerHTML = '<option value="">All ZIPs</option>';
+    catSelect.innerHTML = '<option value="">All Categories</option>';
+
+    const uniqueZips = [...new Set(combos.map(c => c.zip))].sort();
+    const uniqueCats = [...new Set(combos.map(c => c.category))].sort();
+
+    uniqueZips.forEach(zip => {
+      const opt = document.createElement('option');
+      opt.value = zip;
+      opt.textContent = zip;
+      zipSelect.appendChild(opt);
+    });
+
+    uniqueCats.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      catSelect.appendChild(opt);
+    });
+
+    const resultsDiv = document.getElementById('combinedResults');
+    resultsDiv.innerHTML = `
+      <div class="info-message">
+        Found ${combos.length} scraped combinations.<br>
+        Select ZIP and Category above to filter leads.
+      </div>
+    `;
+
+  } catch (error) {
+    console.error('[Combined Filter] Error:', error);
+    document.getElementById('combinedResults').innerHTML = '<div class="error-message">Failed to load combinations</div>';
+  }
+}
+
+async function applyCombinedFilter() {
+  const zip = document.getElementById('filterCombinedZip').value;
+  const cat = document.getElementById('filterCombinedCategory').value;
+
+  if (!zip || !cat) {
+    showToast('Please select both ZIP and Category', 'error');
+    return;
+  }
+
+  showFilteredLeads({
+    type: 'combined',
+    zip: zip,
+    category: cat
+  });
 }
 
 // === Load Leads Dashboard ===
@@ -470,6 +551,9 @@ async function showFilteredLeads(filter) {
     case 'category':
       breadcrumb.textContent = `Category: ${filter.value}`;
       break;
+    case 'combined':
+      breadcrumb.textContent = `ZIP ${filter.zip} • ${filter.category}`;
+      break;
   }
 
   showScreen('leads-list');
@@ -498,6 +582,10 @@ async function showFilteredLeads(filter) {
       filteredLeads = data.leads.filter(lead => lead.zipCode === filter.value);
     } else if (filter.type === 'category') {
       filteredLeads = data.leads.filter(lead => lead.category === filter.value);
+    } else if (filter.type === 'combined') {
+      filteredLeads = data.leads.filter(lead =>
+        lead.zipCode === filter.zip && lead.category === filter.category
+      );
     }
 
     renderLeadsTable(filteredLeads, data.leads);
@@ -571,6 +659,10 @@ function filterLeadsTable(searchQuery) {
     filtered = filtered.filter(lead => lead.zipCode === currentFilter.value);
   } else if (currentFilter.type === 'category') {
     filtered = filtered.filter(lead => lead.category === currentFilter.value);
+  } else if (currentFilter.type === 'combined') {
+    filtered = filtered.filter(lead =>
+      lead.zipCode === currentFilter.zip && lead.category === currentFilter.category
+    );
   }
 
   // Apply search query
@@ -1250,8 +1342,8 @@ async function pollManualScrapingProgress() {
         previousLogCount = logs.length;
       }
 
-      // Update progress text
-      progressText.textContent = `Page ${currentPage} of ${maxPages}`;
+      // Update progress text (fix: show 1/2 instead of 0/2)
+      progressText.textContent = `Page ${currentPage + 1} of ${maxPages}`;
       progressLeads.textContent = `${leads} leads`;
 
       // Auto-scroll console to bottom

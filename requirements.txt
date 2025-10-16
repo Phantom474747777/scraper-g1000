@@ -8,3 +8,7 @@ pgeocode>=0.4.0
 nest-asyncio>=1.5.6
 beautifulsoup4>=4.12.0
 openpyxl>=3.1.5
+Flask>=3.0.0
+flask-cors>=4.0.0
+undetected-chromedriver>=3.5.5
+pywebview>=5.0.0

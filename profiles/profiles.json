@@ -1,0 +1,26 @@
+{
+  "profiles": [
+    {
+      "profile_id": "crittercaptures",
+      "name": "CritterCaptures",
+      "icon": "\ud83e\udd9d",
+      "business_type": "Wildlife Removal",
+      "default_city": "Dover",
+      "default_state": "FL",
+      "default_radius": 50,
+      "categories": [
+        "Real Estate Agents",
+        "Property Managers",
+        "Home Inspectors",
+        "Construction Companies",
+        "Roofing Contractors",
+        "HVAC Services",
+        "Plumbing Companies",
+        "Landscaping Companies",
+        "Cleaning Services"
+      ],
+      "created_at": "2025-10-15T19:50:09.570375",
+      "total_leads": 1597
+    }
+  ]
+}

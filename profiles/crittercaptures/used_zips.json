@@ -1,0 +1,288 @@
+{
+  "33527": {
+    "categories": [
+      "Real Estate Agents",
+      "Property Managers",
+      "Home Inspectors",
+      "Construction Companies",
+      "Roofing Contractors",
+      "HVAC Services",
+      "Plumbing Companies",
+      "Landscaping Companies",
+      "Cleaning Services"
+    ],
+    "history": [
+      {
+        "category": "Real Estate Agents",
+        "scraped_at": "2025-10-15T02:44:55.393030",
+        "leads_found": 57,
+        "output_file": "data\\33527_real_estate_agents_leads_2025-10-15_024455.csv"
+      },
+      {
+        "category": "Property Managers",
+        "scraped_at": "2025-10-15T14:38:45.112877",
+        "leads_found": 28,
+        "output_file": "data\\leads\\property_managers\\lead_1_zip_33527\\33527_2025-10-15_143845.csv"
+      },
+      {
+        "category": "Home Inspectors",
+        "scraped_at": "2025-10-15T14:40:07.829894",
+        "leads_found": 58,
+        "output_file": "data\\leads\\home_inspectors\\lead_2_zip_33527\\33527_2025-10-15_144007.csv"
+      },
+      {
+        "category": "Construction Companies",
+        "scraped_at": "2025-10-15T14:41:35.830648",
+        "leads_found": 62,
+        "output_file": "data\\leads\\construction_companies\\lead_3_zip_33527\\33527_2025-10-15_144135.csv"
+      },
+      {
+        "category": "Roofing Contractors",
+        "scraped_at": "2025-10-15T14:43:05.049062",
+        "leads_found": 56,
+        "output_file": "data\\leads\\roofing_contractors\\lead_4_zip_33527\\33527_2025-10-15_144305.csv"
+      },
+      {
+        "category": "HVAC Services",
+        "scraped_at": "2025-10-15T14:44:40.298954",
+        "leads_found": 53,
+        "output_file": "data\\leads\\hvac_services\\lead_5_zip_33527\\33527_2025-10-15_144440.csv"
+      },
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T14:45:49.455804",
+        "leads_found": 67,
+        "output_file": "data\\leads\\plumbing_companies\\lead_6_zip_33527\\33527_2025-10-15_144549.csv"
+      },
+      {
+        "category": "Landscaping Companies",
+        "scraped_at": "2025-10-15T14:47:03.548539",
+        "leads_found": 61,
+        "output_file": "data\\leads\\landscaping_companies\\lead_7_zip_33527\\33527_2025-10-15_144703.csv"
+      },
+      {
+        "category": "Cleaning Services",
+        "scraped_at": "2025-10-15T14:48:21.861352",
+        "leads_found": 60,
+        "output_file": "data\\leads\\cleaning_services\\lead_8_zip_33527\\33527_2025-10-15_144821.csv"
+      }
+    ]
+  },
+  "33584": {
+    "categories": [
+      "Real Estate Agents",
+      "Property Managers",
+      "Home Inspectors",
+      "Construction Companies",
+      "Roofing Contractors",
+      "HVAC Services",
+      "Plumbing Companies",
+      "Landscaping Companies",
+      "Cleaning Services"
+    ],
+    "history": [
+      {
+        "category": "Real Estate Agents",
+        "scraped_at": "2025-10-15T14:50:38.033636",
+        "leads_found": 59,
+        "output_file": "data\\leads\\real_estate_agents\\lead_9_zip_33584\\33584_2025-10-15_145038.csv"
+      },
+      {
+        "category": "Property Managers",
+        "scraped_at": "2025-10-15T14:52:05.735985",
+        "leads_found": 25,
+        "output_file": "data\\leads\\property_managers\\lead_10_zip_33584\\33584_2025-10-15_145205.csv"
+      },
+      {
+        "category": "Home Inspectors",
+        "scraped_at": "2025-10-15T14:53:16.022352",
+        "leads_found": 32,
+        "output_file": "data\\leads\\home_inspectors\\lead_11_zip_33584\\33584_2025-10-15_145316.csv"
+      },
+      {
+        "category": "Construction Companies",
+        "scraped_at": "2025-10-15T14:54:23.222016",
+        "leads_found": 39,
+        "output_file": "data\\leads\\construction_companies\\lead_12_zip_33584\\33584_2025-10-15_145423.csv"
+      },
+      {
+        "category": "Roofing Contractors",
+        "scraped_at": "2025-10-15T14:55:38.144179",
+        "leads_found": 30,
+        "output_file": "data\\leads\\roofing_contractors\\lead_13_zip_33584\\33584_2025-10-15_145538.csv"
+      },
+      {
+        "category": "HVAC Services",
+        "scraped_at": "2025-10-15T14:57:22.549526",
+        "leads_found": 31,
+        "output_file": "data\\leads\\hvac_services\\lead_14_zip_33584\\33584_2025-10-15_145722.csv"
+      },
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T15:01:15.706304",
+        "leads_found": 31,
+        "output_file": "data\\leads\\plumbing_companies\\lead_15_zip_33584\\33584_2025-10-15_150115.csv"
+      },
+      {
+        "category": "Landscaping Companies",
+        "scraped_at": "2025-10-15T15:02:42.751887",
+        "leads_found": 24,
+        "output_file": "data\\leads\\landscaping_companies\\lead_16_zip_33584\\33584_2025-10-15_150242.csv"
+      },
+      {
+        "category": "Cleaning Services",
+        "scraped_at": "2025-10-15T15:04:01.049990",
+        "leads_found": 27,
+        "output_file": "data\\leads\\cleaning_services\\lead_17_zip_33584\\33584_2025-10-15_150401.csv"
+      }
+    ]
+  },
+  "33594": {
+    "categories": [
+      "Real Estate Agents",
+      "Property Managers",
+      "Home Inspectors",
+      "Construction Companies",
+      "Roofing Contractors",
+      "HVAC Services",
+      "Plumbing Companies",
+      "Landscaping Companies",
+      "Cleaning Services"
+    ],
+    "history": [
+      {
+        "category": "Real Estate Agents",
+        "scraped_at": "2025-10-15T15:17:24.492144",
+        "leads_found": 52,
+        "output_file": "data\\leads\\real_estate_agents\\lead_18_zip_33594\\33594_2025-10-15_151724.csv"
+      },
+      {
+        "category": "Property Managers",
+        "scraped_at": "2025-10-15T15:20:27.502277",
+        "leads_found": 17,
+        "output_file": "data\\leads\\property_managers\\lead_19_zip_33594\\33594_2025-10-15_152027.csv"
+      },
+      {
+        "category": "Home Inspectors",
+        "scraped_at": "2025-10-15T15:57:50.799183",
+        "leads_found": 24,
+        "output_file": "data\\leads\\home_inspectors\\lead_20_zip_33594\\33594_2025-10-15_155750.csv"
+      },
+      {
+        "category": "Construction Companies",
+        "scraped_at": "2025-10-15T15:59:35.658624",
+        "leads_found": 40,
+        "output_file": "data\\leads\\construction_companies\\lead_21_zip_33594\\33594_2025-10-15_155935.csv"
+      },
+      {
+        "category": "Roofing Contractors",
+        "scraped_at": "2025-10-15T16:45:20.673355",
+        "leads_found": 28,
+        "output_file": "data\\leads\\roofing_contractors\\lead_22_zip_33594\\33594_2025-10-15_164520.csv"
+      },
+      {
+        "category": "HVAC Services",
+        "scraped_at": "2025-10-15T17:02:07.579800",
+        "leads_found": 25,
+        "output_file": "data\\leads\\hvac_services\\lead_23_zip_33594\\33594_2025-10-15_170207.csv"
+      },
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T17:47:43.442245",
+        "leads_found": 21,
+        "output_file": "data\\leads\\plumbing_companies\\lead_24_zip_33594\\33594_2025-10-15_174743.csv"
+      },
+      {
+        "category": "Landscaping Companies",
+        "scraped_at": "2025-10-15T17:48:29.395319",
+        "leads_found": 27,
+        "output_file": "data\\leads\\landscaping_companies\\lead_25_zip_33594\\33594_2025-10-15_174829.csv"
+      },
+      {
+        "category": "Cleaning Services",
+        "scraped_at": "2025-10-15T18:17:36.694945",
+        "leads_found": 59,
+        "output_file": "data\\leads\\cleaning_services\\lead_26_zip_33594\\33594_2025-10-15_181736.csv"
+      }
+    ]
+  },
+  "33565": {
+    "categories": [
+      "Real Estate Agents",
+      "Cleaning Services"
+    ],
+    "history": [
+      {
+        "category": "Real Estate Agents",
+        "scraped_at": "2025-10-15T18:32:07.688428",
+        "leads_found": 8,
+        "output_file": "data\\leads\\real_estate_agents\\lead_27_zip_33565\\33565_2025-10-15_183207.csv"
+      },
+      {
+        "category": "Cleaning Services",
+        "scraped_at": "2025-10-15T18:33:58.045216",
+        "leads_found": 29,
+        "output_file": "data\\leads\\cleaning_services\\lead_28_zip_33565\\33565_2025-10-15_183358.csv"
+      }
+    ]
+  },
+  "33567": {
+    "categories": [
+      "Plumbing Companies",
+      "Landscaping Companies"
+    ],
+    "history": [
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T18:35:35.368198",
+        "leads_found": 58,
+        "output_file": "data\\leads\\plumbing_companies\\lead_29_zip_33567\\33567_2025-10-15_183535.csv"
+      },
+      {
+        "category": "Landscaping Companies",
+        "scraped_at": "2025-10-15T18:36:49.531143",
+        "leads_found": 59,
+        "output_file": "data\\leads\\landscaping_companies\\lead_30_zip_33567\\33567_2025-10-15_183649.csv"
+      }
+    ]
+  },
+  "33510": {
+    "categories": [
+      "Plumbing Companies"
+    ],
+    "history": [
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T18:38:38.648032",
+        "leads_found": 29,
+        "output_file": "data\\leads\\plumbing_companies\\lead_31_zip_33510\\33510_2025-10-15_183838.csv"
+      }
+    ]
+  },
+  "33566": {
+    "categories": [
+      "Cleaning Services"
+    ],
+    "history": [
+      {
+        "category": "Cleaning Services",
+        "scraped_at": "2025-10-15T18:46:47.224614",
+        "leads_found": 9,
+        "output_file": "data\\leads\\cleaning_services\\lead_32_zip_33566\\33566_2025-10-15_184647.csv"
+      }
+    ]
+  },
+  "33617": {
+    "categories": [
+      "Plumbing Companies"
+    ],
+    "history": [
+      {
+        "category": "Plumbing Companies",
+        "scraped_at": "2025-10-15T18:53:51.627641",
+        "leads_found": 27,
+        "output_file": "data\\leads\\plumbing_companies\\lead_33_zip_33617\\33617_2025-10-15_185351.csv"
+      }
+    ]
+  }
+}
