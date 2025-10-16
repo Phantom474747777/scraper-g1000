@@ -535,16 +535,37 @@ async function loadLeadsDashboard() {
       zipCards.innerHTML = '<div class="loading-placeholder">No ZIP data available</div>';
     }
 
-    // Generate Category cards
+    // Generate Category cards with breakdown
     const categoryCards = document.getElementById('categoryCards');
     if (stats.by_category && stats.by_category.length > 0) {
-      categoryCards.innerHTML = stats.by_category.map(([category, count]) => `
-        <div class="category-card" onclick="showFilteredLeads({type: 'category', value: '${category}'})">
-          <div class="category-card-header">${category}</div>
-          <div class="category-count">${count}</div>
-          <div class="category-label">Leads</div>
-        </div>
-      `).join('');
+      categoryCards.innerHTML = stats.by_category.map(([category, count]) => {
+        // Calculate breakdown for this Category from FRESH data
+        const categoryLeads = allLeads.filter(lead => lead.category === category);
+        const newCount = categoryLeads.filter(lead => (lead.status || 'New') === 'New').length;
+        const contactedCount = categoryLeads.filter(lead => lead.status === 'Contacted').length;
+        const archivedCount = categoryLeads.filter(lead => lead.status === 'Archived').length;
+
+        return `
+          <div class="category-card" onclick="showFilteredLeads({type: 'category', value: '${category}'})">
+            <div class="category-card-header">${category}</div>
+            <div class="category-count">${count}</div>
+            <div class="category-breakdown">
+              <div class="breakdown-item new">
+                <span class="breakdown-dot"></span>
+                <span>${newCount} New</span>
+              </div>
+              <div class="breakdown-item contacted">
+                <span class="breakdown-dot"></span>
+                <span>${contactedCount} Contacted</span>
+              </div>
+              <div class="breakdown-item archived">
+                <span class="breakdown-dot"></span>
+                <span>${archivedCount} Archived</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     } else {
       categoryCards.innerHTML = '<div class="loading-placeholder">No category data available</div>';
     }

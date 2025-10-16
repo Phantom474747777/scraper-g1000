@@ -872,6 +872,13 @@ body::before {
   letter-spacing: 0.05em;
 }
 
+.category-breakdown {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 1rem;
+}
+
 /* Loading Placeholder */
 .loading-placeholder {
   grid-column: 1 / -1;
