@@ -456,6 +456,31 @@
                 <div class="view-toggle">
                     <button class="toggle-btn active" id="btnViewZips">By ZIP Code</button>
                     <button class="toggle-btn" id="btnViewCategories">By Category</button>
+                    <button class="toggle-btn" id="btnViewCombined">ZIP + Category</button>
+                </div>
+
+                <!-- Combined Filter Section (NEW!) -->
+                <div id="combinedSection" class="content-section" style="display: none;">
+                    <div class="combined-filter-panel">
+                        <div class="filter-row">
+                            <div class="filter-col">
+                                <label>ZIP Code</label>
+                                <select id="filterCombinedZip" class="glass-select">
+                                    <option value="">All ZIPs</option>
+                                </select>
+                            </div>
+                            <div class="filter-col">
+                                <label>Category</label>
+                                <select id="filterCombinedCategory" class="glass-select">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="filter-col">
+                                <button class="btn-primary" id="btnApplyCombinedFilter">Search</button>
+                            </div>
+                        </div>
+                        <div id="combinedResults" class="combined-results"></div>
+                    </div>
                 </div>
 
                 <!-- By ZIP Code Section -->
