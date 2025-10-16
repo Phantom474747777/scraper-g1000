@@ -146,7 +146,6 @@ function setupEventListeners() {
   // Bulk actions
   document.getElementById('btnBulkContact')?.addEventListener('click', () => bulkUpdateStatus('Contacted'));
   document.getElementById('btnBulkArchive')?.addEventListener('click', () => bulkUpdateStatus('Archived'));
-  document.getElementById('btnBulkExport')?.addEventListener('click', () => openExportModal('selected'));
 
   // Export modal
   document.getElementById('btnExportLeads')?.addEventListener('click', () => openExportModal('current'));
@@ -534,8 +533,35 @@ async function performExport() {
   }
 
   try {
-    // Generate filename with better organization
-    let scopeName = scope === 'all' ? 'AllLeads' : scope === 'selected' ? 'Selected' : 'CurrentView';
+    // Generate filename based on current filter context
+    let scopeName = '';
+
+    if (scope === 'all') {
+      scopeName = 'AllLeads';
+    } else if (scope === 'selected') {
+      // For selected, use the current filter context
+      if (currentFilter.type === 'zip') {
+        scopeName = `ZIP${currentFilter.value}`;
+      } else if (currentFilter.type === 'category') {
+        scopeName = currentFilter.value.replace(/\s+/g, '');
+      } else if (currentFilter.type === 'status') {
+        scopeName = currentFilter.value;
+      } else {
+        scopeName = 'Selected';
+      }
+    } else if (scope === 'current') {
+      // For current view, always use the filter
+      if (currentFilter.type === 'zip') {
+        scopeName = `ZIP${currentFilter.value}`;
+      } else if (currentFilter.type === 'category') {
+        scopeName = currentFilter.value.replace(/\s+/g, '');
+      } else if (currentFilter.type === 'status') {
+        scopeName = currentFilter.value;
+      } else {
+        scopeName = 'CurrentView';
+      }
+    }
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
     const timeStr = new Date().toISOString().split('T')[1].split('.')[0].replace(/:/g, '');
     const filename = `${currentProfileData.name}_${scopeName}_${timestamp}_${timeStr}`;

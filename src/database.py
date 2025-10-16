@@ -1,8 +1,9 @@
 import sqlite3
 import hashlib
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 import os
+from src.validators import LeadValidator
 
 class LeadsDatabase:
     """Persistent database for tracking scraped leads and preventing duplicates"""
@@ -12,6 +13,8 @@ class LeadsDatabase:
         # Ensure the data directory exists
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self._init_database()
+        # Initialize validator
+        self.validator = LeadValidator(db_path)
 
     def _init_database(self):
         """Initialize the database with required tables"""
@@ -88,11 +91,25 @@ class LeadsDatabase:
     def add_lead(self, name: str, address: str, phone: str,
                  email: Optional[str] = None, website: Optional[str] = None,
                  zip_code: Optional[str] = None, category: Optional[str] = None,
-                 location: Optional[str] = None, source_file: Optional[str] = None) -> bool:
+                 location: Optional[str] = None, source_file: Optional[str] = None,
+                 skip_validation: bool = False) -> Tuple[bool, Optional[str]]:
         """
         Add a lead to the database if it doesn't already exist
-        Returns True if added, False if duplicate
+        Returns (success, reason) - reason is populated if validation fails
         """
+        # Validate lead quality before adding (unless skipped)
+        if not skip_validation:
+            lead_data = {
+                'name': name,
+                'phone': phone,
+                'email': email,
+                'website': website,
+                'address': address
+            }
+            is_valid, issues = self.validator.is_valid_lead(lead_data, strict=False)
+            if not is_valid:
+                return False, f"Validation failed: {'; '.join(issues)}"
+
         business_hash = self._generate_hash(name, phone, address)
 
         conn = sqlite3.connect(self.db_path)
@@ -114,11 +131,11 @@ class LeadsDatabase:
 
             conn.commit()
             conn.close()
-            return True
+            return True, None
         except sqlite3.IntegrityError:
             # Duplicate entry
             conn.close()
-            return False
+            return False, "Duplicate entry"
 
     def get_leads_by_location(self, location: str, zip_code: Optional[str] = None):
         """Retrieve all leads for a specific location"""
