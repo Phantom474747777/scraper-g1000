@@ -1473,7 +1473,7 @@ async function pollManualScrapingProgress() {
         progressBar.style.width = '100%';
 
         consoleStatus.querySelector('.status-dot').classList.remove('status-running');
-        consoleStatus.querySelector('.status-dot').classList.add('status-idle');
+        consoleStatus.querySelector('.status-dot').classList.add('status-complete');
         consoleStatus.querySelector('.status-text').textContent = 'Complete';
 
         // Re-enable button

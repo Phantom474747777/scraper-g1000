@@ -1538,6 +1538,11 @@ body::before {
   background: rgba(34, 197, 94, 0.8);
 }
 
+.status-dot.status-complete {
+  background: rgba(34, 197, 94, 1);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
 .status-dot.status-error {
   background: rgba(239, 68, 68, 0.8);
 }
@@ -1550,6 +1555,12 @@ body::before {
 .status-text {
   font-size: 0.9rem;
   color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.status-dot.status-complete + .status-text {
+  color: rgba(34, 197, 94, 1);
+  font-weight: 600;
 }
 
 .console-output {
@@ -1599,32 +1610,38 @@ body::before {
 
 .progress-bar-wrapper {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
   overflow: hidden;
   margin-bottom: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22c55e 0%, #10b981 50%, #22c55e 100%);
-  background-size: 200% 100%;
-  transition: width 0.3s ease;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #22c55e 0%, #10b981 30%, #059669 60%, #10b981 100%);
+  background-size: 300% 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
   position: relative;
   overflow: hidden;
-  animation: progressPulse 3s ease-in-out infinite;
-  min-width: 1%;
+  animation: progressFlow 2s ease-in-out infinite;
+  min-width: 2%;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* Continuous movement animation - gradient shifts */
-@keyframes progressPulse {
-  0%, 100% {
+/* Smooth flowing gradient animation */
+@keyframes progressFlow {
+  0% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
