@@ -77,7 +77,7 @@ def get_profiles():
     """Get all profiles with real lead counts from database"""
     try:
         profiles = profile_manager.get_all_profiles()
-        print(f"[DEBUG] Loaded {len(profiles)} profiles")
+        print(f"[DEBUG] Loaded {len(profiles)} profiles", flush=True)
 
         result_profiles = []
         for p in profiles:
@@ -616,7 +616,7 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
                 # Track current page from log messages
                 page_match = re.search(r'\[PAGE (\d+)\]', message)
                 if page_match:
-                    scraping_state['current_page'] = int(page_match.group(1)) - 1
+                    scraping_state['current_page'] = int(page_match.group(1))
                     # Update progress based on page
                     page_progress = (scraping_state['current_page'] / max_pages) * 70
                     scraping_state['progress'] = 10 + int(page_progress)

@@ -1346,8 +1346,8 @@ async function pollManualScrapingProgress() {
         previousLogCount = logs.length;
       }
 
-      // Update progress text (fix: show 1/2 instead of 0/2)
-      progressText.textContent = `Page ${currentPage + 1} of ${maxPages}`;
+      // Update progress text (display actual page numbers: 1/2, 2/2)
+      progressText.textContent = `Page ${currentPage} of ${maxPages}`;
       progressLeads.textContent = `${leads} leads`;
 
       // Auto-scroll console to bottom
