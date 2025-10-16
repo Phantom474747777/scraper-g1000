@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body {
+            background: #0D0D0D;
+            color: #FFF;
+            font-family: monospace;
+            padding: 20px;
+        }
+        .result {
+            background: #1A1A1A;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #0A84FF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scraper G1000 - API Test</h1>
+
+    <button onclick="testHealth()">Test Health</button>
+    <button onclick="testProfiles()">Test Profiles</button>
+    <button onclick="testConsole()">Test Console</button>
+
+    <div id="output"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:5050';
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            console.log(msg);
+            output.innerHTML += `<div class="result">${msg}</div>`;
+        }
+
+        async function testHealth() {
+            try {
+                log('Testing /health...');
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                log('✅ Health: ' + JSON.stringify(data));
+            } catch (e) {
+                log('❌ Error: ' + e.message);
+            }
+        }
+
+        async function testProfiles() {
+            try {
+                log('Testing /api/profiles...');
+                const response = await fetch(`${API_BASE}/api/profiles`);
+                const data = await response.json();
+                log('✅ Profiles: ' + JSON.stringify(data, null, 2));
+            } catch (e) {
+                log('❌ Error: ' + e.message);
+            }
+        }
+
+        function testConsole() {
+            console.log('Console test - check browser dev tools');
+            log('Check browser console (F12)');
+        }
+
+        // Auto-load on startup
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded!');
+            log('Testing API...');
+            testHealth();
+            setTimeout(() => testProfiles(), 1000);
+        });
+    </script>
+</body>
+</html>

@@ -21,32 +21,6 @@ async function apiCall(endpoint, method = 'GET', body = null) {
   return await response.json();
 }
 
-// === Toast Notifications ===
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-
-  const icons = {
-    success: '✓',
-    error: '✗',
-    info: 'ℹ'
-  };
-
-  toast.innerHTML = `
-    <div class="toast-icon">${icons[type] || icons.info}</div>
-    <div class="toast-message">${message}</div>
-  `;
-
-  container.appendChild(toast);
-
-  // Auto-remove after 4 seconds
-  setTimeout(() => {
-    toast.classList.add('toast-exit');
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
-}
-
 // === Screen Navigation ===
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -94,11 +68,10 @@ function selectProfile(profileId) {
   currentProfileId = profileId;
   currentProfileData = window.allProfiles.find(p => p.id === profileId);
 
-  // Update profile name in mode selector
-  document.getElementById('modeProfileName').textContent = currentProfileData.name;
+  document.getElementById('currentProfile').textContent = currentProfileData.name;
+  document.getElementById('statTotalLeads').textContent = currentProfileData.totalLeads || 0;
 
-  // Show v2.0 mode selection screen
-  showScreen('mode-selector');
+  showScreen('dashboard');
 }
 
 // === Setup Event Listeners ===
@@ -112,9 +85,9 @@ function setupEventListeners() {
   // View Leads now loads dashboard
   document.getElementById('btnViewLeads')?.addEventListener('click', loadLeadsDashboard);
 
-  // Back buttons - Fixed navigation
-  document.getElementById('btnBackFromManual')?.addEventListener('click', () => showScreen('mode-selector'));
-  document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => showScreen('mode-selector'));
+  // Back buttons
+  document.getElementById('btnBackFromManual')?.addEventListener('click', () => showScreen('dashboard'));
+  document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => showScreen('dashboard'));
   document.getElementById('btnBackFromList')?.addEventListener('click', () => {
     // Reload dashboard to refresh stats after status changes
     loadLeadsDashboard();
@@ -144,69 +117,8 @@ function setupEventListeners() {
     filterLeadsTable(e.target.value);
   });
 
-  // Bulk actions
-  document.getElementById('btnBulkContact')?.addEventListener('click', () => bulkUpdateStatus('Contacted'));
-  document.getElementById('btnBulkArchive')?.addEventListener('click', () => bulkUpdateStatus('Archived'));
-
-  // Export modal
-  document.getElementById('btnExportLeads')?.addEventListener('click', () => openExportModal('current'));
-  document.getElementById('btnCloseExportModal')?.addEventListener('click', closeExportModal);
-  document.getElementById('btnCancelExport')?.addEventListener('click', closeExportModal);
-  document.getElementById('btnConfirmExport')?.addEventListener('click', performExport);
-
   document.addEventListener('keydown', handleKeyboardShortcuts);
-
-  // v2.0 Mode Selection
-  document.getElementById('cardSelectManual')?.addEventListener('click', () => {
-    showScreen('manual-scrape');
-    loadManualModeCategories();
-  });
-
-  document.getElementById('cardSelectAutomation')?.addEventListener('click', () => {
-    showScreen('automation-mode');
-  });
-
-  document.getElementById('btnViewLeadsFromMode')?.addEventListener('click', loadLeadsDashboard);
-  document.getElementById('btnBackFromMode')?.addEventListener('click', () => showScreen('profile-selector'));
-  document.getElementById('btnBackFromAutomation')?.addEventListener('click', () => showScreen('mode-selector'));
-
-  // Manual Mode: Radius slider
-  document.getElementById('inputManualRadius')?.addEventListener('input', (e) => {
-    document.getElementById('radiusValue').textContent = e.target.value;
-  });
-
-  // Manual Mode: Find ZIPs button
-  document.getElementById('btnFindManualZips')?.addEventListener('click', findManualZIPs);
-
-  // Manual Mode: Enable Start button when ZIP + Category selected
-  document.getElementById('selectManualZip')?.addEventListener('change', validateManualForm);
-  document.getElementById('selectManualCategory')?.addEventListener('change', validateManualForm);
 }
-
-// === Checkbox Selection Tracking ===
-function updateBulkToolbar() {
-  const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
-  const count = checkboxes.length;
-  const toolbar = document.getElementById('bulkActionsToolbar');
-  const countSpan = document.getElementById('bulkSelectedCount');
-
-  if (count > 0) {
-    toolbar.style.display = 'flex';
-    countSpan.textContent = count;
-  } else {
-    toolbar.style.display = 'none';
-  }
-}
-
-// Override the Select All checkbox handler
-document.addEventListener('DOMContentLoaded', () => {
-  // Wait for table to be rendered, then add listeners
-  document.body.addEventListener('change', (e) => {
-    if (e.target.matches('#leadsTableBody input[type="checkbox"]') || e.target.id === 'selectAll') {
-      updateBulkToolbar();
-    }
-  });
-});
 
 // === Keyboard Shortcuts ===
 function handleKeyboardShortcuts(e) {
@@ -353,7 +265,6 @@ async function showFilteredLeads(filter) {
   }
 
   showScreen('leads-list');
-  setupBreadcrumb();
 
   // Load leads with loading indicator
   const tbody = document.getElementById('leadsTableBody');
@@ -465,237 +376,7 @@ function filterLeadsTable(searchQuery) {
   renderLeadsTable(filtered, window.currentAllLeads);
 }
 
-// === Bulk Status Update ===
-async function bulkUpdateStatus(newStatus) {
-  const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
-  const leadIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
-
-  if (leadIds.length === 0) {
-    showToast('No leads selected', 'error');
-    return;
-  }
-
-  const confirmMsg = `Mark ${leadIds.length} lead(s) as ${newStatus}?`;
-  if (!confirm(confirmMsg)) return;
-
-  try {
-    const result = await apiCall(`/api/leads/${currentProfileId}/bulk-status`, 'PUT', {
-      leadIds,
-      status: newStatus
-    });
-
-    if (result.success) {
-      showToast(`${result.updated} lead(s) marked as ${newStatus}`, 'success');
-      document.getElementById('selectAll').checked = false;
-      updateBulkToolbar();
-      await showFilteredLeads(currentFilter);
-    } else {
-      showToast('Failed to update leads: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('[Bulk Update] Error:', error);
-    showToast('Failed to update leads: ' + error.message, 'error');
-  }
-}
-
-// === Export Modal ===
-function openExportModal(defaultScope) {
-  const modal = document.getElementById('exportModal');
-  modal.classList.add('active');
-
-  // Update counts
-  const currentCount = window.currentFilteredLeads?.length || 0;
-  const selectedCount = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked').length;
-  const allCount = window.currentAllLeads?.length || 0;
-
-  document.getElementById('exportCurrentCount').textContent = currentCount;
-  document.getElementById('exportSelectedCount').textContent = selectedCount;
-  document.getElementById('exportAllCount').textContent = allCount;
-
-  // Pre-select scope
-  const scopeRadio = document.querySelector(`input[name="exportScope"][value="${defaultScope}"]`);
-  if (scopeRadio) scopeRadio.checked = true;
-
-  // Disable 'selected' option if nothing is selected
-  const selectedRadio = document.querySelector('input[name="exportScope"][value="selected"]');
-  if (selectedRadio) {
-    selectedRadio.disabled = selectedCount === 0;
-    selectedRadio.closest('.radio-option').style.opacity = selectedCount === 0 ? '0.5' : '1';
-  }
-}
-
-function closeExportModal() {
-  const modal = document.getElementById('exportModal');
-  modal.classList.remove('active');
-}
-
-async function performExport() {
-  const scope = document.querySelector('input[name="exportScope"]:checked')?.value;
-  const format = document.querySelector('input[name="exportFormat"]:checked')?.value;
-
-  if (!scope || !format) {
-    showToast('Please select export options', 'error');
-    return;
-  }
-
-  // Determine which leads to export
-  let leadsToExport = [];
-  let leadIds = null;
-
-  if (scope === 'selected') {
-    const checkboxes = document.querySelectorAll('#leadsTableBody input[type="checkbox"]:checked');
-    leadIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
-    leadsToExport = window.currentAllLeads.filter(lead => leadIds.includes(lead.id));
-  } else if (scope === 'current') {
-    leadsToExport = window.currentFilteredLeads || [];
-    leadIds = leadsToExport.map(lead => lead.id);
-  } else if (scope === 'all') {
-    leadsToExport = window.currentAllLeads || [];
-    leadIds = null; // null means all leads
-  }
-
-  if (leadsToExport.length === 0) {
-    showToast('No leads to export', 'error');
-    return;
-  }
-
-  try {
-    // Generate filename based on current filter context
-    let scopeName = '';
-
-    if (scope === 'all') {
-      scopeName = 'AllLeads';
-    } else if (scope === 'selected') {
-      // For selected, use the current filter context
-      if (currentFilter.type === 'zip') {
-        scopeName = `ZIP${currentFilter.value}`;
-      } else if (currentFilter.type === 'category') {
-        scopeName = currentFilter.value.replace(/\s+/g, '');
-      } else if (currentFilter.type === 'status') {
-        scopeName = currentFilter.value;
-      } else {
-        scopeName = 'Selected';
-      }
-    } else if (scope === 'current') {
-      // For current view, always use the filter
-      if (currentFilter.type === 'zip') {
-        scopeName = `ZIP${currentFilter.value}`;
-      } else if (currentFilter.type === 'category') {
-        scopeName = currentFilter.value.replace(/\s+/g, '');
-      } else if (currentFilter.type === 'status') {
-        scopeName = currentFilter.value;
-      } else {
-        scopeName = 'CurrentView';
-      }
-    }
-
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
-    const timeStr = new Date().toISOString().split('T')[1].split('.')[0].replace(/:/g, '');
-    const filename = `${currentProfileData.name}_${scopeName}_${timestamp}_${timeStr}`;
-
-    const result = await apiCall(`/api/leads/${currentProfileId}/export`, 'POST', {
-      leadIds,
-      format,
-      filename
-    });
-
-    if (!result.success) {
-      showToast('Export failed: ' + result.error, 'error');
-      return;
-    }
-
-    // Use PyWebView's save dialog if available (desktop app)
-    if (window.pywebview && window.pywebview.api) {
-      const saveResult = await window.pywebview.api.save_file(
-        result.fileData,
-        filename,
-        format
-      );
-
-      if (saveResult.success) {
-        closeExportModal();
-        showToast(`Exported ${result.count} leads to ${saveResult.path}`, 'success');
-      } else if (saveResult.error !== 'User cancelled') {
-        showToast('Export failed: ' + saveResult.error, 'error');
-      } else {
-        // User cancelled - just close modal
-        closeExportModal();
-      }
-    } else {
-      // Fallback to browser download (when running in browser)
-      const binaryString = atob(result.fileData);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      const mimeType = format === 'xlsx'
-        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        : 'text/csv';
-      const blob = new Blob([bytes], { type: mimeType });
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = result.filename;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      closeExportModal();
-      showToast(`Exported ${result.count} leads to ${result.filename}`, 'success');
-    }
-
-  } catch (error) {
-    console.error('[Export] Error:', error);
-    showToast('Export failed: ' + error.message, 'error');
-  }
-}
-
-// === Clickable Breadcrumb ===
-function setupBreadcrumb() {
-  const breadcrumb = document.getElementById('breadcrumb');
-  if (!breadcrumb) return;
-
-  // Make it clickable to go back to dashboard
-  breadcrumb.style.cursor = 'pointer';
-  breadcrumb.addEventListener('click', () => {
-    loadLeadsDashboard();
-  });
-
-  // Update breadcrumb with proper formatting
-  if (currentFilter) {
-    let html = '<span class="breadcrumb-link">Leads</span>';
-    html += '<span class="breadcrumb-separator">›</span>';
-
-    switch (currentFilter.type) {
-      case 'all':
-        html += '<span>All Leads</span>';
-        break;
-      case 'status':
-        html += `<span>Status: ${currentFilter.value}</span>`;
-        break;
-      case 'zip':
-        html += `<span>ZIP ${currentFilter.value}</span>`;
-        break;
-      case 'category':
-        html += `<span>${currentFilter.value}</span>`;
-        break;
-    }
-
-    breadcrumb.innerHTML = html;
-
-    // Make "Leads" clickable
-    const link = breadcrumb.querySelector('.breadcrumb-link');
-    if (link) {
-      link.addEventListener('click', (e) => {
-        e.stopPropagation();
-        loadLeadsDashboard();
-      });
-    }
-  }
-}
-
-// === Update Lead Status (Single) ===
+// === Update Lead Status ===
 async function updateLeadStatus(leadId, newStatus) {
   console.log('[Status] Updating lead', leadId, 'to', newStatus);
 
@@ -704,15 +385,14 @@ async function updateLeadStatus(leadId, newStatus) {
 
     if (result.success) {
       console.log('[Status] Update successful, reloading view with fresh data...');
-      showToast(`Lead marked as ${newStatus}`, 'success');
       // Reload the entire filtered view with FRESH data from server
       await showFilteredLeads(currentFilter);
     } else {
-      showToast('Failed to update status: ' + result.error, 'error');
+      alert('Failed to update status: ' + result.error);
     }
   } catch (error) {
     console.error('[Status] Error:', error);
-    showToast('Failed to update status: ' + error.message, 'error');
+    alert('Failed to update status: ' + error.message);
   }
 }
 
@@ -814,7 +494,7 @@ async function pollScrapeStatus() {
         if (!status.active) {
           clearInterval(interval);
           setTimeout(() => {
-            showScreen('mode-selector');
+            showScreen('dashboard');
             alert(`Complete! Found ${status.total_leads || 0} leads`);
             location.reload();
           }, 1000);
@@ -838,99 +518,3 @@ document.getElementById('btnCreateProfile')?.addEventListener('click', () => {
 });
 
 console.log('[App] Ready');
-
-// === Manual Mode Functions ===
-async function findManualZIPs() {
-  const city = document.getElementById('inputManualCity').value.trim();
-  const state = document.getElementById('inputManualState').value.trim().toUpperCase();
-  const radius = document.getElementById('inputManualRadius').value;
-
-  if (!city || !state) {
-    alert('Please enter both City and State');
-    return;
-  }
-
-  const consoleOutput = document.getElementById('consoleOutput');
-  const findBtn = document.getElementById('btnFindManualZips');
-
-  // Disable button and show loading spinner
-  findBtn.disabled = true;
-  findBtn.innerHTML = '<span class="spinner"></span> Searching...';
-
-  // Log to console
-  consoleOutput.innerHTML += '<div class="console-line console-info">→ Searching for ZIPs within ' + radius + ' miles of ' + city + ', ' + state + '</div>';
-
-  try {
-    const response = await apiCall('/api/zip-lookup', 'POST', { city, state, radius });
-
-    if (!response.success) {
-      consoleOutput.innerHTML += '<div class="console-line console-error">✗ Error: ' + response.error + '</div>';
-      findBtn.disabled = false;
-      findBtn.innerHTML = '<span>Find ZIP Codes</span>';
-      return;
-    }
-
-    const zips = response.zips || [];
-    consoleOutput.innerHTML += '<div class="console-line console-success">✓ Found ' + zips.length + ' ZIP codes</div>';
-
-    // Populate ZIP dropdown
-    const zipSelect = document.getElementById('selectManualZip');
-    zipSelect.innerHTML = '<option value="">Choose a ZIP...</option>';
-    zips.forEach(zip => {
-      const option = document.createElement('option');
-      option.value = zip.zip;
-      option.textContent = zip.zip + ' - ' + zip.city;
-      zipSelect.appendChild(option);
-    });
-
-    // Show ZIP dropdown
-    document.getElementById('zipSelectionSection').style.display = 'block';
-
-  } catch (error) {
-    consoleOutput.innerHTML += '<div class="console-line console-error">✗ Error: ' + error.message + '</div>';
-  } finally {
-    findBtn.disabled = false;
-    findBtn.innerHTML = '<span>Find ZIP Codes</span>';
-  }
-}
-
-function loadManualModeCategories() {
-  // Load categories from current profile data
-  const categorySelect = document.getElementById('selectManualCategory');
-  categorySelect.innerHTML = '<option value="">Choose a category...</option>';
-
-  // For now, use default categories (will be replaced with profile-specific ones later)
-  const defaultCategories = [
-    'Real Estate Agents',
-    'Property Managers',
-    'Home Inspectors',
-    'Construction Companies',
-    'Roofing Contractors',
-    'HVAC Services',
-    'Plumbing Companies',
-    'Landscaping Companies',
-    'Cleaning Services'
-  ];
-
-  defaultCategories.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    categorySelect.appendChild(option);
-  });
-}
-
-function validateManualForm() {
-  const zip = document.getElementById('selectManualZip').value;
-  const category = document.getElementById('selectManualCategory').value;
-  const startBtn = document.getElementById('btnStartManualScrape');
-
-  console.log('[Validate] ZIP:', zip, 'Category:', category);
-
-  if (zip && category) {
-    startBtn.disabled = false;
-  } else {
-    startBtn.disabled = true;
-  }
-}
-

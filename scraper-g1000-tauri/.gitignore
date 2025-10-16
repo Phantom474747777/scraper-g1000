@@ -1,0 +1,64 @@
+# Tauri / Rust
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# Node
+node_modules/
+package-lock.json
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Data & Outputs
+data/
+*.csv
+*.db
+*.json
+profiles/
+!profiles/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+*.exe
+*.msi
+*.dmg
+*.deb
+*.AppImage
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary
+*.tmp
+*.temp
+.cache/
+
+# Environment
+.env
+.env.local
+
+# Installer downloads
+rustup-init.exe

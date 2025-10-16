@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.profile_manager import ProfileManager
 from src.database import LeadsDatabase
 from src.scraper_free_bypass import scrape_yellowpages_free
+from src.zip_lookup import get_zips_in_radius
 
 # Determine UI directory
 BASE_DIR = Path(__file__).parent.parent
@@ -167,6 +168,42 @@ def create_profile():
             'profileId': profile.profile_id
         }), 201
     except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/zip-lookup', methods=['POST'])
+def zip_lookup():
+    """Find ZIP codes within radius of a city"""
+    try:
+        data = request.json
+        city = data.get('city')
+        state = data.get('state')
+        radius = int(data.get('radius', 50))
+
+        if not city or not state:
+            return jsonify({'success': False, 'error': 'City and state are required'}), 400
+
+        # Suppress print output to avoid Windows encoding issues with emojis
+        import io
+        import contextlib
+
+        # Redirect stdout to suppress emoji print statements
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f):
+            # Use existing zip lookup function
+            zips = get_zips_in_radius(city, state, radius)
+
+        print(f"[ZIP Lookup] Found {len(zips)} ZIPs near {city}, {state}")
+
+        return jsonify({
+            'success': True,
+            'zips': zips,
+            'count': len(zips)
+        }), 200
+
+    except Exception as e:
+        print(f"[ZIP Lookup] Error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # === SCRAPING OPERATIONS ===
