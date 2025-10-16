@@ -85,7 +85,10 @@ function setupEventListeners() {
   // Back buttons
   document.getElementById('btnBackFromManual')?.addEventListener('click', () => showScreen('dashboard'));
   document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => showScreen('dashboard'));
-  document.getElementById('btnBackFromList')?.addEventListener('click', () => showScreen('leads-dashboard'));
+  document.getElementById('btnBackFromList')?.addEventListener('click', () => {
+    // Reload dashboard to refresh stats after status changes
+    loadLeadsDashboard();
+  });
 
   // Toggle buttons for ZIP / Category view
   document.getElementById('btnViewZips')?.addEventListener('click', toggleToZipView);
@@ -376,8 +379,8 @@ async function updateLeadStatus(leadId, newStatus) {
         lead.status = newStatus;
       }
 
-      // Re-render table
-      showFilteredLeads(currentFilter);
+      // Re-render current filtered view
+      await showFilteredLeads(currentFilter);
     } else {
       alert('Failed to update status: ' + result.error);
     }
