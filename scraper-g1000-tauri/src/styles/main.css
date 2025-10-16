@@ -1312,6 +1312,8 @@ body::before {
 .manual-console-panel {
   flex: 1;
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .glass-panel {
@@ -1612,7 +1614,8 @@ body::before {
   border-radius: 4px;
   position: relative;
   overflow: hidden;
-  animation: progressPulse 3s ease-in-out infinite, fakeCrawl 30s linear infinite;
+  animation: progressPulse 3s ease-in-out infinite;
+  min-width: 1%;
 }
 
 /* Continuous movement animation - gradient shifts */
