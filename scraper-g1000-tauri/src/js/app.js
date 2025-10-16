@@ -992,6 +992,13 @@ function setupBreadcrumb() {
           html += `<span>ZIP ${currentFilter.zip} • ${currentFilter.category}</span>`;
         }
         break;
+      case 'multi':
+        const multiParts = [];
+        if (currentFilter.city) multiParts.push(currentFilter.city);
+        if (currentFilter.zip) multiParts.push(`ZIP ${currentFilter.zip}`);
+        if (currentFilter.category) multiParts.push(currentFilter.category);
+        html += `<span>${multiParts.join(' • ')}</span>`;
+        break;
     }
 
     breadcrumb.innerHTML = html;
