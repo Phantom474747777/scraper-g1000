@@ -221,41 +221,81 @@ function resetManualMode() {
   consoleStatus.querySelector('.status-dot').classList.add('status-idle');
   consoleStatus.querySelector('.status-text').textContent = 'Idle';
 
+  // Clear ALL form inputs
+  document.getElementById('inputManualCity').value = '';
+  document.getElementById('inputManualState').value = '';
+  document.getElementById('inputManualRadius').value = 50;
+  document.getElementById('radiusValue').textContent = 50;
+  document.getElementById('inputCustomCategory').value = '';
+
+  // Clear and hide ZIP dropdown
+  const zipSelect = document.getElementById('selectManualZip');
+  zipSelect.innerHTML = '<option value="">Choose a ZIP...</option>';
+  document.getElementById('zipSelectionSection').style.display = 'none';
+
+  // Reset category dropdown
+  document.getElementById('selectManualCategory').value = '';
+
+  // Disable start button
+  document.getElementById('btnStartManualScrape').disabled = true;
+
   // Clear metadata
   lastScrapeMetadata = { zip: null, category: null };
 }
 
 // View filtered leads by ZIP + Category
 async function viewFilteredLeads() {
-  showScreen('leads-dashboard');
+  console.log('[ViewFiltered] Showing leads for:', lastScrapeMetadata);
 
-  // Wait for DOM to render
-  await new Promise(resolve => setTimeout(resolve, 100));
+  // Navigate to leads-list screen directly with filter
+  showScreen('leads-list');
 
-  // Load ALL leads first
-  await loadLeadsData();
+  // Create combined filter for ZIP + Category
+  const combinedFilter = {
+    type: 'combined',
+    zip: lastScrapeMetadata.zip,
+    category: lastScrapeMetadata.category
+  };
 
-  // Wait for leads to load
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Update breadcrumb
+  const breadcrumb = document.getElementById('breadcrumb');
+  if (breadcrumb) {
+    breadcrumb.textContent = `ZIP ${lastScrapeMetadata.zip} • ${lastScrapeMetadata.category}`;
+  }
 
-  // Apply filters if we have metadata
-  if (lastScrapeMetadata.zip || lastScrapeMetadata.category) {
-    // Set filter values
-    if (lastScrapeMetadata.zip) {
-      const zipFilter = document.getElementById('filterZipCode');
-      if (zipFilter) {
-        zipFilter.value = lastScrapeMetadata.zip;
-      }
+  // Load leads with combined filter
+  const tbody = document.getElementById('leadsTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading leads...</td></tr>';
+
+  try {
+    // Fetch ALL leads
+    const data = await apiCall(`/api/leads/${currentProfileId}`);
+
+    if (!data.success || !data.leads || data.leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">No leads found</td></tr>';
+      document.getElementById('leadsCount').textContent = '0';
+      return;
     }
-    if (lastScrapeMetadata.category) {
-      const categoryFilter = document.getElementById('filterCategory');
-      if (categoryFilter) {
-        categoryFilter.value = lastScrapeMetadata.category;
-      }
-    }
 
-    // Manually trigger filter function
-    filterLeads();
+    // Filter by BOTH ZIP and Category
+    let filteredLeads = data.leads.filter(lead =>
+      lead.zipCode === lastScrapeMetadata.zip &&
+      lead.category === lastScrapeMetadata.category
+    );
+
+    console.log('[ViewFiltered] Filtered', filteredLeads.length, 'leads from', data.leads.length, 'total');
+
+    // Render filtered results
+    renderLeadsTable(filteredLeads, data.leads);
+
+    // Store for export/search
+    currentFilter = combinedFilter;
+    window.currentAllLeads = data.leads;
+    window.currentFilteredLeads = filteredLeads;
+
+  } catch (error) {
+    console.error('[ViewFiltered] Error:', error);
+    tbody.innerHTML = '<tr><td colspan="7" class="error">Failed to load leads</td></tr>';
   }
 }
 
