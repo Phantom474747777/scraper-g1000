@@ -226,24 +226,37 @@ function resetManualMode() {
 }
 
 // View filtered leads by ZIP + Category
-function viewFilteredLeads() {
+async function viewFilteredLeads() {
   showScreen('leads-dashboard');
+
+  // Wait for DOM to render
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // Load ALL leads first
+  await loadLeadsData();
+
+  // Wait for leads to load
+  await new Promise(resolve => setTimeout(resolve, 200));
 
   // Apply filters if we have metadata
   if (lastScrapeMetadata.zip || lastScrapeMetadata.category) {
     // Set filter values
     if (lastScrapeMetadata.zip) {
       const zipFilter = document.getElementById('filterZipCode');
-      if (zipFilter) zipFilter.value = lastScrapeMetadata.zip;
+      if (zipFilter) {
+        zipFilter.value = lastScrapeMetadata.zip;
+      }
     }
     if (lastScrapeMetadata.category) {
       const categoryFilter = document.getElementById('filterCategory');
-      if (categoryFilter) categoryFilter.value = lastScrapeMetadata.category;
+      if (categoryFilter) {
+        categoryFilter.value = lastScrapeMetadata.category;
+      }
     }
-  }
 
-  // Reload leads with filters
-  loadLeadsData();
+    // Manually trigger filter function
+    filterLeads();
+  }
 }
 
 // === Checkbox Selection Tracking ===

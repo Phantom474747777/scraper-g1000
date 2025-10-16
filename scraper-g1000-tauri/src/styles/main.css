@@ -1600,16 +1600,26 @@ body::before {
   border-radius: 4px;
   position: relative;
   overflow: hidden;
-  animation: progressPulse 3s ease-in-out infinite;
+  animation: progressPulse 3s ease-in-out infinite, fakeCrawl 30s linear infinite;
 }
 
-/* Continuous movement animation */
+/* Continuous movement animation - gradient shifts */
 @keyframes progressPulse {
   0%, 100% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+/* Fake slow crawl forward - creates illusion of constant progress */
+@keyframes fakeCrawl {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  100% {
+    transform: translateX(2%) scaleX(1.02);
   }
 }
 
