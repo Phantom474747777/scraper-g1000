@@ -1310,10 +1310,9 @@ body::before {
 }
 
 .manual-console-panel {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  max-width: 100%;
+  flex: 0 0 calc(100% - 450px);
+  min-width: 600px;
+  max-width: calc(100% - 450px);
 }
 
 .glass-panel {
