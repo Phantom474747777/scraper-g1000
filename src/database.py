@@ -145,10 +145,21 @@ class LeadsDatabase:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
+        # Ensure status column exists
+        cursor.execute("PRAGMA table_info(leads)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'status' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN status TEXT DEFAULT "New"')
+            conn.commit()
+
+        # Set all NULL statuses to 'New'
+        cursor.execute('UPDATE leads SET status = "New" WHERE status IS NULL')
+        conn.commit()
+
         if valid_only:
             # Filter out junk leads (no phone, or name contains junk patterns)
             cursor.execute('''
-                SELECT name, phone, address, website, email, category, zip_code
+                SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, 'New') as status
                 FROM leads
                 WHERE phone NOT IN ("N/A", "")
                 AND phone IS NOT NULL
@@ -159,7 +170,7 @@ class LeadsDatabase:
                 ORDER BY scraped_date DESC
             ''')
         else:
-            cursor.execute('SELECT name, phone, address, website, email, category, zip_code FROM leads ORDER BY scraped_date DESC')
+            cursor.execute('SELECT id, name, phone, address, website, email, category, zip_code, COALESCE(status, \'New\') as status FROM leads ORDER BY scraped_date DESC')
 
         results = cursor.fetchall()
         conn.close()
