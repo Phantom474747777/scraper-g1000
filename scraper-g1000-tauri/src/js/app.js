@@ -114,13 +114,20 @@ function setupEventListeners() {
 
   // Back buttons - Fixed navigation
   document.getElementById('btnBackFromManual')?.addEventListener('click', () => showScreen('mode-selector'));
-  document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => showScreen('mode-selector'));
+  document.getElementById('btnBackFromLeadsDashboard')?.addEventListener('click', () => {
+    // Clear combined filter inputs when returning to dashboard
+    document.getElementById('filterCombinedZip').value = '';
+    document.getElementById('filterCombinedCategory').value = '';
+    showScreen('mode-selector');
+  });
   document.getElementById('btnBackFromList')?.addEventListener('click', () => {
     // Check if we came from manual scrape (lastScrapeMetadata exists)
     if (lastScrapeMetadata.zip && lastScrapeMetadata.category) {
       showScreen('manual-scrape');
     } else {
-      // Otherwise go back to dashboard
+      // Clear combined filter inputs and go back to dashboard
+      document.getElementById('filterCombinedZip').value = '';
+      document.getElementById('filterCombinedCategory').value = '';
       loadLeadsDashboard();
     }
   });
@@ -560,6 +567,9 @@ async function showFilteredLeads(filter) {
       break;
     case 'combined':
       breadcrumb.textContent = `ZIP ${filter.zip} • ${filter.category}`;
+      break;
+    default:
+      breadcrumb.textContent = 'All Leads';
       break;
   }
 
