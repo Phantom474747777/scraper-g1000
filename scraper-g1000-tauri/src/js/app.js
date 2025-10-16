@@ -351,19 +351,23 @@ function loadCategories() {
 function toggleToZipView() {
   document.getElementById('btnViewZips').classList.add('active');
   document.getElementById('btnViewCategories').classList.remove('active');
-  document.getElementById('btnViewCombined')?.classList.remove('active');
+  const btnCombined = document.getElementById('btnViewCombined');
+  if (btnCombined) btnCombined.classList.remove('active');
   document.getElementById('zipSection').style.display = 'block';
   document.getElementById('categorySection').style.display = 'none';
-  document.getElementById('combinedSection')?.style.display = 'none';
+  const combined = document.getElementById('combinedSection');
+  if (combined) combined.style.display = 'none';
 }
 
 function toggleToCategoryView() {
   document.getElementById('btnViewCategories').classList.add('active');
   document.getElementById('btnViewZips').classList.remove('active');
-  document.getElementById('btnViewCombined')?.classList.remove('active');
+  const btnCombined = document.getElementById('btnViewCombined');
+  if (btnCombined) btnCombined.classList.remove('active');
   document.getElementById('categorySection').style.display = 'block';
   document.getElementById('zipSection').style.display = 'none';
-  document.getElementById('combinedSection')?.style.display = 'none';
+  const combined = document.getElementById('combinedSection');
+  if (combined) combined.style.display = 'none';
 }
 
 async function toggleToCombinedView() {
