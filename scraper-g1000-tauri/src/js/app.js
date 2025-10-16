@@ -395,30 +395,43 @@ async function toggleToCombinedView() {
 
 async function loadCombinedFilterOptions() {
   try {
-    const response = await apiCall(`/api/leads/${currentProfileId}/scraped-combos`);
-
-    if (!response.success || !response.combos || response.combos.length === 0) {
-      document.getElementById('combinedResults').innerHTML = '<div class="empty-state">No scraped combinations yet</div>';
+    // Get all leads to extract unique cities, ZIPs, and categories
+    const leadsData = await apiCall(`/api/leads/${currentProfileId}`);
+    if (!leadsData.success || !leadsData.leads || leadsData.leads.length === 0) {
+      document.getElementById('combinedResults').innerHTML = '<div class="empty-state">No leads yet. Start scraping!</div>';
       return;
     }
 
-    const combos = response.combos;
+    const leads = leadsData.leads;
 
+    const cityList = document.getElementById('cityList');
     const zipList = document.getElementById('zipList');
     const catList = document.getElementById('categoryList');
 
+    cityList.innerHTML = '';
     zipList.innerHTML = '';
     catList.innerHTML = '';
 
-    const uniqueZips = [...new Set(combos.map(c => c.zip))].sort();
-    const uniqueCats = [...new Set(combos.map(c => c.category))].sort();
+    // Extract unique values
+    const uniqueCities = [...new Set(leads.map(l => l.city).filter(c => c))].sort();
+    const uniqueZips = [...new Set(leads.map(l => l.zipCode).filter(z => z && z !== 'N/A'))].sort();
+    const uniqueCats = [...new Set(leads.map(l => l.category).filter(c => c && c !== 'N/A'))].sort();
 
+    // Populate city dropdown
+    uniqueCities.forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city;
+      cityList.appendChild(opt);
+    });
+
+    // Populate ZIP dropdown
     uniqueZips.forEach(zip => {
       const opt = document.createElement('option');
       opt.value = zip;
       zipList.appendChild(opt);
     });
 
+    // Populate category dropdown
     uniqueCats.forEach(cat => {
       const opt = document.createElement('option');
       opt.value = cat;
@@ -428,46 +441,34 @@ async function loadCombinedFilterOptions() {
     const resultsDiv = document.getElementById('combinedResults');
     resultsDiv.innerHTML = `
       <div class="info-message">
-        Found ${combos.length} scraped combinations.<br>
-        Type or select ZIP and Category above to filter leads.
+        Flexible search: Use City, ZIP, Category - alone or combined!<br>
+        Example: Just "Largo" | "Real Estate Agents" | "Largo + Real Estate Agents"
       </div>
     `;
 
   } catch (error) {
     console.error('[Combined Filter] Error:', error);
-    document.getElementById('combinedResults').innerHTML = '<div class="error-message">Failed to load combinations</div>';
+    document.getElementById('combinedResults').innerHTML = '<div class="error-message">Failed to load filter options</div>';
   }
 }
 
 async function applyCombinedFilter() {
+  const city = document.getElementById('filterCombinedCity').value.trim();
   const zip = document.getElementById('filterCombinedZip').value.trim();
   const cat = document.getElementById('filterCombinedCategory').value.trim();
 
-  if (!zip || !cat) {
-    showToast('Please select both ZIP and Category', 'error');
+  // User must select at least ONE filter
+  if (!city && !zip && !cat) {
+    showToast('Please select at least one filter (City, ZIP, or Category)', 'error');
     return;
   }
 
-  // Validate that this combo exists in scraped data
-  const response = await apiCall(`/api/leads/${currentProfileId}/scraped-combos`);
-  if (response.success && response.combos) {
-    const exists = response.combos.some(combo => combo.zip === zip && combo.category === cat);
-    if (!exists) {
-      const resultsDiv = document.getElementById('combinedResults');
-      resultsDiv.innerHTML = `
-        <div class="error-message">
-          No leads found for ZIP ${zip} + ${cat}.<br>
-          This combination has not been scraped yet.
-        </div>
-      `;
-      return;
-    }
-  }
-
+  // Build filter object with whichever fields are filled
   showFilteredLeads({
-    type: 'combined',
-    zip: zip,
-    category: cat
+    type: 'multi',
+    city: city || null,
+    zip: zip || null,
+    category: cat || null
   });
 }
 
@@ -617,6 +618,13 @@ async function showFilteredLeads(filter) {
       const combCity = combLead && combLead.city ? combLead.city : null;
       breadcrumb.textContent = combCity ? `${combCity} • ${filter.category}` : `ZIP ${filter.zip} • ${filter.category}`;
       break;
+    case 'multi':
+      const parts = [];
+      if (filter.city) parts.push(filter.city);
+      if (filter.zip) parts.push(`ZIP ${filter.zip}`);
+      if (filter.category) parts.push(filter.category);
+      breadcrumb.textContent = parts.join(' • ');
+      break;
     default:
       breadcrumb.textContent = 'All Leads';
       break;
@@ -652,6 +660,15 @@ async function showFilteredLeads(filter) {
       filteredLeads = data.leads.filter(lead =>
         lead.zipCode === filter.zip && lead.category === filter.category
       );
+    } else if (filter.type === 'multi') {
+      // Flexible multi-filter: Match ALL provided criteria
+      filteredLeads = data.leads.filter(lead => {
+        let matches = true;
+        if (filter.city) matches = matches && lead.city === filter.city;
+        if (filter.zip) matches = matches && lead.zipCode === filter.zip;
+        if (filter.category) matches = matches && lead.category === filter.category;
+        return matches;
+      });
     }
 
     renderLeadsTable(filteredLeads, data.leads);

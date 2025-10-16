@@ -459,23 +459,24 @@
                     <button class="toggle-btn" id="btnViewCombined">ZIP + Category</button>
                 </div>
 
-                <!-- Combined Filter Section (NEW!) -->
+                <!-- Combined Filter Section (Smart Multi-Filter!) -->
                 <div id="combinedSection" class="content-section" style="display: none;">
                     <div class="combined-filter-panel">
-                        <div class="filter-row">
+                        <div class="filter-row-multi">
+                            <div class="filter-col">
+                                <label>City</label>
+                                <input list="cityList" id="filterCombinedCity" placeholder="Type or select..." class="glass-input">
+                                <datalist id="cityList"></datalist>
+                            </div>
                             <div class="filter-col">
                                 <label>ZIP Code</label>
                                 <input list="zipList" id="filterCombinedZip" placeholder="Type or select..." class="glass-input">
-                                <datalist id="zipList">
-                                    <option value="">All ZIPs</option>
-                                </datalist>
+                                <datalist id="zipList"></datalist>
                             </div>
                             <div class="filter-col">
                                 <label>Category</label>
                                 <input list="categoryList" id="filterCombinedCategory" placeholder="Type or select..." class="glass-input">
-                                <datalist id="categoryList">
-                                    <option value="">All Categories</option>
-                                </datalist>
+                                <datalist id="categoryList"></datalist>
                             </div>
                             <div class="filter-col filter-button-col">
                                 <button class="btn-primary" id="btnApplyCombinedFilter">Search</button>

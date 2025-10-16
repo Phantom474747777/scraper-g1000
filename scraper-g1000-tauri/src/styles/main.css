@@ -1789,6 +1789,13 @@ body::before {
   align-items: end;
 }
 
+.filter-row-multi {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: end;
+}
+
 .filter-col label {
   display: block;
   font-size: 0.9rem;
