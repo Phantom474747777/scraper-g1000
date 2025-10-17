@@ -633,10 +633,9 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
         scraping_state['progress'] = 10
         scraping_state['current_page'] = 0
 
-        # Use Yelp scraper - SIMPLE HTTP requests, NO Selenium, NO Cloudflare!
-        from src.scraper_yelp import scrape_yelp
-        max_results = max_pages * 10  # ~10 results per page on Yelp
-        leads = scrape_yelp(zip_code, category, max_results)
+        # Back to YellowPages with FIXED Cloudflare bypass (non-headless + longer waits)
+        from src.scraper_free_bypass import scrape_yellowpages_free
+        leads = scrape_yellowpages_free(zip_code, category, max_pages)
 
         scraping_state['total_leads'] = len(leads)
         scraping_state['progress'] = 85
