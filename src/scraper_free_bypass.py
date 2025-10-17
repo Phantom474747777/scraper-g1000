@@ -13,13 +13,26 @@ import undetected_chromedriver as uc
 def create_stealth_driver():
     """Create an undetected Chrome driver to bypass Cloudflare."""
     options = uc.ChromeOptions()
-    options.add_argument('--headless=new')  # Headless mode
+    # DO NOT USE HEADLESS - Cloudflare detects it!
+    # options.add_argument('--headless=new')
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--disable-popup-blocking')
+    options.add_argument('--start-maximized')
     options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36')
 
-    driver = uc.Chrome(options=options, version_main=None)
+    # Use undetected-chromedriver with suppressed automation detection
+    driver = uc.Chrome(options=options, version_main=None, use_subprocess=True)
+
+    # Extra stealth: execute CDP commands
+    driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+        "userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    })
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
     return driver
 
 
@@ -125,15 +138,21 @@ def scrape_yellowpages_free(zip_code: str, category: str, max_pages: int = 2) ->
 
             # Wait for Cloudflare + page load
             print("[WAIT] Bypassing Cloudflare...")
-            time.sleep(8)  # Give Cloudflare time to resolve
+            time.sleep(15)  # Give Cloudflare time to resolve (increased from 8)
 
             # Check if we got past Cloudflare
             page_source = driver.page_source
 
-            if "Just a moment" in page_source or "Cloudflare" in page_source:
+            if "Just a moment" in page_source or "Cloudflare" in page_source or "Sorry, you have been blocked" in page_source:
                 print("[WARNING] Still seeing Cloudflare, waiting longer...")
-                time.sleep(5)
+                time.sleep(10)  # Wait even longer (increased from 5)
                 page_source = driver.page_source
+
+                # Final check - if still blocked, abort
+                if "Sorry, you have been blocked" in page_source:
+                    print("[ERROR] Cloudflare blocked us - scraper cannot continue")
+                    print("[ERROR] Try again in a few minutes or use a different network")
+                    break
 
             # Check for no results
             if "No Results Found" in page_source or "0 Results" in page_source:
