@@ -80,48 +80,116 @@ def scrape_with_selenium(zip_code: str, category: str, max_results: int = 50) ->
 
             # Scroll results
             try:
-                scrollable = driver.find_element(By.CSS_SELECTOR, 'div[role="feed"]')
-                for _ in range(10):
-                    driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scrollable)
-                    time.sleep(1)
+                # Try multiple selectors for scrollable div
+                scrollable = None
+                selectors = [
+                    'div[role="feed"]',
+                    'div.m6QErb',
+                    'div[aria-label*="Results"]',
+                    'div.section-scrollbox'
+                ]
+
+                for selector in selectors:
+                    try:
+                        scrollable = driver.find_element(By.CSS_SELECTOR, selector)
+                        print(f"[INFO] Found scrollable div with selector: {selector}")
+                        break
+                    except:
+                        continue
+
+                if not scrollable:
+                    print("[ERROR] Could not find scrollable results div")
+                    # Try scrolling page itself
+                    for _ in range(10):
+                        driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                        time.sleep(1)
+                else:
+                    # Scroll the results panel
+                    for _ in range(10):
+                        driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scrollable)
+                        time.sleep(1)
 
                 # Extract results from page source
                 soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-                # Find business names and info
-                business_divs = soup.find_all('div', class_=re.compile(r'fontHeadline|qBF1Pd'))
+                # Find business name divs directly (most reliable)
+                print("[INFO] Finding business name elements...")
 
-                print(f"[GOOGLE MAPS] Found {len(business_divs)} potential businesses")
+                # Strategy: Find divs with specific Google Maps classes for business names
+                name_divs = soup.find_all('div', class_=re.compile(r'qBF1Pd.*fontHeadline'))
+                print(f"[FOUND] {len(name_divs)} business name divs")
 
-                for div in business_divs[:max_results]:
+                if not name_divs:
+                    print("[WARNING] No business names found with primary selector")
+                    # Fallback: try broader search
+                    name_divs = soup.find_all('div', class_=re.compile(r'fontHeadlineSmall'))
+                    print(f"[FALLBACK] {len(name_divs)} elements with fontHeadlineSmall")
+
+                print(f"[GOOGLE MAPS] Processing {len(name_divs)} businesses")
+
+                extracted = 0
+                seen_names = set()  # Deduplicate
+
+                for name_div in name_divs[:max_results * 2]:  # Process more than max to account for duplicates
                     try:
-                        name = div.get_text(strip=True)
-                        if name and len(name) > 2:
-                            # Get parent container for more info
-                            parent = div.parent.parent if div.parent else None
-                            phone = 'N/A'
-                            address = 'N/A'
+                        # Extract business name
+                        name = name_div.get_text(strip=True)
 
+                        if not name or len(name) < 2:
+                            continue
+
+                        # Skip duplicates
+                        if name in seen_names:
+                            continue
+                        seen_names.add(name)
+
+                        # Find parent container to extract phone/address
+                        # Go up the DOM tree to find the full business card
+                        parent = name_div.parent
+                        for _ in range(5):  # Go up 5 levels to find the business card
                             if parent:
-                                text = parent.get_text()
-                                phone_match = re.search(r'\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}', text)
+                                parent = parent.parent
+                            else:
+                                break
+
+                        context_text = parent.get_text() if parent else name_div.get_text()
+
+                        # Extract phone - look for <span class="UsdlK">
+                        phone = 'N/A'
+                        if parent:
+                            phone_span = parent.find('span', class_='UsdlK')
+                            if phone_span:
+                                phone = phone_span.get_text(strip=True)
+                            else:
+                                # Fallback: regex search
+                                phone_match = re.search(r'\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}', context_text)
                                 if phone_match:
                                     phone = phone_match.group(0)
 
-                                # Try to find address
-                                addr_match = re.search(r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way)', text, re.IGNORECASE)
-                                if addr_match:
-                                    address = addr_match.group(0)
+                        # Extract address - look for patterns
+                        address = 'N/A'
+                        addr_match = re.search(r'\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way)', context_text, re.IGNORECASE)
+                        if addr_match:
+                            address = addr_match.group(0)
 
-                            all_businesses.append({
-                                'name': name,
-                                'phone_number': phone,
-                                'address': address,
-                                'website': 'N/A',
-                                'email': 'N/A'
-                            })
-                            print(f"[EXTRACT] {name} - {phone}")
-                    except:
+                        all_businesses.append({
+                            'name': name,
+                            'phone_number': phone,
+                            'address': address,
+                            'website': 'N/A',
+                            'email': 'N/A'
+                        })
+                        extracted += 1
+                        print(f"[EXTRACT {extracted}] {name} - {phone}")
+
+                        # Stop if we have enough
+                        if extracted >= max_results:
+                            break
+
+                    except Exception as e:
+                        print(f"[WARNING] Extraction error: {e}")
+                        import traceback
+                        traceback.print_exc()
                         continue
 
                 if all_businesses:
