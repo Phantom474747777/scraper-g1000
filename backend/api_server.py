@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.profile_manager import ProfileManager
 from src.database import LeadsDatabase
-from src.scraper_free_bypass import scrape_yellowpages_free
 from src.zip_lookup import get_zips_in_radius
 
 # Determine UI directory - USE TAURI FOLDER (the REAL glassmorphic UI!)
