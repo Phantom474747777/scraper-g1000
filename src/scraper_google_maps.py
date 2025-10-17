@@ -34,10 +34,21 @@ def extract_google_maps_businesses(driver, max_results=50) -> List[Dict[str, str
     print(f"[INFO] Scrolling to load up to {max_results} results...")
 
     # Wait for results to load
-    time.sleep(3)
+    time.sleep(5)
 
-    # Scroll to load more results (Google Maps lazy loads)
-    scrollable_div = driver.find_element(By.CSS_SELECTOR, 'div[role="feed"]')
+    # Find the scrollable results panel
+    try:
+        scrollable_div = driver.find_element(By.CSS_SELECTOR, 'div[role="feed"]')
+        print("[SUCCESS] Found results feed")
+    except Exception as e:
+        print(f"[ERROR] Could not find results feed: {e}")
+        # Try alternative selector
+        try:
+            scrollable_div = driver.find_element(By.CSS_SELECTOR, 'div.m6QErb')
+            print("[SUCCESS] Found results panel (alternative selector)")
+        except:
+            print("[ERROR] Could not find scrollable div - aborting")
+            return []
 
     for i in range(20):  # Scroll 20 times to load ~50 results
         driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scrollable_div)
