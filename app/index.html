@@ -189,6 +189,182 @@
             </div>
         </div>
 
+        <!-- Automation Screen -->
+        <div id="auto-scrape" class="screen">
+            <div class="screen-header">
+                <button class="btn-back" id="btnBackFromAuto">← Back</button>
+                <h1>🤖 Automation Mode</h1>
+            </div>
+
+            <div class="auto-container">
+                <!-- Configuration Panel -->
+                <div class="auto-config-panel">
+                    <div class="form-section">
+                        <h3>📍 Location Setup</h3>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="autoInputCity" placeholder="Dover" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" id="autoInputState" placeholder="FL" class="input-field" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Radius (miles)</label>
+                            <input type="range" id="autoInputRadius" min="10" max="100" value="50" class="slider">
+                            <span id="autoRadiusValue">50</span> miles
+                        </div>
+                        <button class="btn-secondary btn-block" id="btnAutoFindZips">Find ZIP Codes</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🎯 Categories to Scrape</h3>
+                        <div class="checkbox-grid" id="autoCategoryCheckboxes">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Real Estate Agents" class="category-checkbox">
+                                <span>Real Estate Agents</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Property Managers" class="category-checkbox">
+                                <span>Property Managers</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Home Inspectors" class="category-checkbox">
+                                <span>Home Inspectors</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Roofing Contractors" class="category-checkbox">
+                                <span>Roofing Contractors</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="HVAC Services" class="category-checkbox">
+                                <span>HVAC Services</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Plumbing Companies" class="category-checkbox">
+                                <span>Plumbing Companies</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Landscaping Companies" class="category-checkbox">
+                                <span>Landscaping Companies</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="Cleaning Services" class="category-checkbox">
+                                <span>Cleaning Services</span>
+                            </label>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button class="btn-link" id="btnSelectAllCategories">Select All</button>
+                            <button class="btn-link" id="btnDeselectAllCategories">Deselect All</button>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>⚙️ Settings</h3>
+                        <div class="form-group">
+                            <label>Max Leads per Category</label>
+                            <input type="number" id="autoMaxLeads" value="50" min="10" max="200" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>Delay Between Scrapes (seconds)</label>
+                            <input type="number" id="autoDelay" value="5" min="0" max="60" class="input-field">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn-primary btn-large" id="btnBuildQueue" disabled>
+                            Build Queue →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Queue Panel -->
+                <div class="auto-queue-panel">
+                    <div class="queue-header">
+                        <h3>📋 Scraping Queue</h3>
+                        <span class="queue-count" id="queueCount">0 jobs</span>
+                    </div>
+
+                    <div class="queue-list" id="queueList">
+                        <div class="queue-empty">
+                            <div class="empty-icon">📭</div>
+                            <p>No jobs in queue</p>
+                            <p class="empty-hint">Configure settings and click "Build Queue" to start</p>
+                        </div>
+                    </div>
+
+                    <div class="queue-actions">
+                        <button class="btn-secondary" id="btnClearQueue" disabled>Clear Queue</button>
+                        <button class="btn-success btn-large" id="btnStartAutomation" disabled>
+                            ▶ Start Automation
+                        </button>
+                    </div>
+
+                    <div class="queue-stats" id="queueStats" style="display: none;">
+                        <div class="stat-row">
+                            <span>Total ZIPs:</span>
+                            <strong id="statTotalZips">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Total Categories:</span>
+                            <strong id="statTotalCategories">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Total Jobs:</span>
+                            <strong id="statTotalJobs">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Estimated Time:</span>
+                            <strong id="statEstimatedTime">~0 min</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Progress Screen -->
+        <div id="auto-progress" class="screen">
+            <div class="progress-container">
+                <h2>🤖 Automation Running</h2>
+
+                <div class="auto-progress-summary">
+                    <div class="progress-stat">
+                        <div class="progress-stat-value" id="autoJobsComplete">0</div>
+                        <div class="progress-stat-label">Jobs Complete</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value" id="autoJobsRemaining">0</div>
+                        <div class="progress-stat-label">Jobs Remaining</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value" id="autoTotalLeads">0</div>
+                        <div class="progress-stat-label">Total Leads Found</div>
+                    </div>
+                </div>
+
+                <div class="current-job-card">
+                    <div class="current-job-label">Currently Scraping:</div>
+                    <div class="current-job-info" id="autoCurrentJob">33527 · Real Estate Agents</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="autoProgressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="current-job-stats" id="autoCurrentStats">Finding businesses...</div>
+                </div>
+
+                <div class="progress-actions">
+                    <button class="btn-secondary" id="btnPauseAutomation">⏸ Pause</button>
+                    <button class="btn-danger" id="btnCancelAutomation">× Stop Automation</button>
+                </div>
+
+                <div class="upcoming-jobs">
+                    <h4>Upcoming Jobs</h4>
+                    <div class="upcoming-jobs-list" id="upcomingJobsList">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Leads Viewer Screen -->
         <div id="leads-viewer" class="screen">
             <div class="screen-header">
@@ -233,5 +409,6 @@
     </div>
 
     <script src="js/app.js"></script>
+    <script src="js/automation.js"></script>
 </body>
 </html>

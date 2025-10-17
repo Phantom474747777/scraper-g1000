@@ -185,7 +185,7 @@ function setupEventListeners() {
   const cardAutoScrape = document.getElementById('cardAutoScrape');
   if (cardAutoScrape) {
     cardAutoScrape.addEventListener('click', () => {
-      alert('Automation mode coming soon!');
+      navigateTo('auto-scrape');
     });
   }
 
