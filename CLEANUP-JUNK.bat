@@ -67,7 +67,7 @@ echo   - 4 documentation files
 echo.
 pause
 
-echo [11/11] Deleting old unused scrapers from src/...
+echo [11/12] Deleting old unused scrapers from src/...
 del /F /Q "src\scraper_411.py" 2>nul
 del /F /Q "src\scraper_google_maps.py" 2>nul
 del /F /Q "src\scraper_no_ai.py" 2>nul
@@ -76,6 +76,11 @@ del /F /Q "src\scraper_yelp.py" 2>nul
 del /F /Q "src\scraper.py" 2>nul
 del /F /Q "src\scraper_free_bypass.py" 2>nul
 echo Done! Deleted 7 old scraper files (50KB+ saved)
+
+echo [12/12] Deleting JS backup files from UI...
+del /F /Q "scraper-g1000-tauri\src\js\app.js.backup" 2>nul
+del /F /Q "scraper-g1000-tauri\src\js\app_old.js" 2>nul
+echo Done! Deleted 2 backup JS files
 
 echo.
 echo ========================================
