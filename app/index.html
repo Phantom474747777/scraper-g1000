@@ -144,11 +144,24 @@
                     <h3>Step 3: Select Category</h3>
                     <select id="selectCategory" class="select-field">
                         <option value="">Choose a category...</option>
+                        <option value="Real Estate Agents">Real Estate Agents</option>
+                        <option value="Property Managers">Property Managers</option>
+                        <option value="Home Inspectors">Home Inspectors</option>
+                        <option value="Roofing Contractors">Roofing Contractors</option>
+                        <option value="HVAC Services">HVAC Services</option>
+                        <option value="Plumbing Companies">Plumbing Companies</option>
+                        <option value="Landscaping Companies">Landscaping Companies</option>
+                        <option value="Cleaning Services">Cleaning Services</option>
+                        <option value="custom">✏️ Custom Category...</option>
                     </select>
+
+                    <div id="customCategoryContainer" style="display: none; margin-top: 10px;">
+                        <input type="text" id="inputCustomCategory" placeholder="Enter custom category (e.g., Homeowners)" class="input-field">
+                    </div>
                 </div>
 
                 <div class="form-actions">
-                    <button class="btn-primary btn-large" id="btnStartScrape">
+                    <button class="btn-primary btn-large" id="btnStartScrape" disabled>
                         Start Scraping →
                     </button>
                 </div>

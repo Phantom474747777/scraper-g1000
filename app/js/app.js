@@ -97,11 +97,46 @@ async function loadDashboardData() {
 
 // === MANUAL SCRAPING ===
 
+function validateManualScrapeForm() {
+  const city = document.getElementById('inputCity').value.trim();
+  const state = document.getElementById('inputState').value.trim();
+  const categorySelect = document.getElementById('selectCategory').value;
+  const customCategory = document.getElementById('inputCustomCategory').value.trim();
+  const selectedZip = document.querySelector('.zip-item.selected');
+  const btnStartScrape = document.getElementById('btnStartScrape');
+
+  // Check if all required fields are filled
+  const hasCity = city.length > 0;
+  const hasState = state.length > 0;
+  const hasZip = selectedZip !== null;
+
+  // Category is valid if:
+  // - A predefined category is selected, OR
+  // - "custom" is selected AND custom input has text
+  const hasCategory = (categorySelect && categorySelect !== '' && categorySelect !== 'custom') ||
+                      (categorySelect === 'custom' && customCategory.length > 0);
+
+  const isFormValid = hasCity && hasState && hasZip && hasCategory;
+
+  if (btnStartScrape) {
+    btnStartScrape.disabled = !isFormValid;
+  }
+
+  return isFormValid;
+}
+
 async function startManualScrape() {
-  const city = document.getElementById('inputCity').value;
-  const state = document.getElementById('inputState').value;
-  const category = document.getElementById('selectCategory').value;
+  const city = document.getElementById('inputCity').value.trim();
+  const state = document.getElementById('inputState').value.trim();
+  const categorySelect = document.getElementById('selectCategory').value;
+  const customCategory = document.getElementById('inputCustomCategory').value.trim();
   const selectedZip = document.querySelector('.zip-item.selected')?.dataset.zip;
+
+  // Determine which category to use
+  let category = categorySelect;
+  if (categorySelect === 'custom') {
+    category = customCategory;
+  }
 
   if (!city || !state || !selectedZip || !category) {
     alert('Please fill in all fields');
@@ -205,6 +240,31 @@ function setupEventListeners() {
     });
   }
 
+  // Category dropdown - show custom input when "custom" selected
+  const selectCategory = document.getElementById('selectCategory');
+  const customCategoryContainer = document.getElementById('customCategoryContainer');
+  const inputCustomCategory = document.getElementById('inputCustomCategory');
+
+  if (selectCategory && customCategoryContainer) {
+    selectCategory.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        customCategoryContainer.style.display = 'block';
+        inputCustomCategory.focus();
+      } else {
+        customCategoryContainer.style.display = 'none';
+      }
+      validateManualScrapeForm();
+    });
+  }
+
+  // Validate form on input changes
+  const inputCity = document.getElementById('inputCity');
+  const inputState = document.getElementById('inputState');
+
+  if (inputCity) inputCity.addEventListener('input', validateManualScrapeForm);
+  if (inputState) inputState.addEventListener('input', validateManualScrapeForm);
+  if (inputCustomCategory) inputCustomCategory.addEventListener('input', validateManualScrapeForm);
+
   // Progress
   const btnPauseScrape = document.getElementById('btnPauseScrape');
   if (btnPauseScrape) {
@@ -279,6 +339,9 @@ function selectZip(zipCode) {
   if (selectedItem) {
     selectedItem.classList.add('selected');
   }
+
+  // Validate form after ZIP selection
+  validateManualScrapeForm();
 }
 
 async function loadLeadsTable() {
