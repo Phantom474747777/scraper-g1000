@@ -19,11 +19,12 @@ from src.database import LeadsDatabase
 from src.scraper_free_bypass import scrape_yellowpages_free
 from src.zip_lookup import get_zips_in_radius
 
-# Determine UI directory
+# Determine UI directory - USE NEW APP FOLDER!
 BASE_DIR = Path(__file__).parent.parent
-UI_DIR = BASE_DIR / "scraper-g1000-tauri" / "src"
+UI_DIR = BASE_DIR / "app"
 if not UI_DIR.exists():
-    UI_DIR = BASE_DIR / "app"
+    # Fallback to old tauri folder if app doesn't exist (shouldn't happen)
+    UI_DIR = BASE_DIR / "scraper-g1000-tauri" / "src"
 
 # Create Flask app with static folder configured
 app = Flask(__name__, static_folder=str(UI_DIR), static_url_path='')
