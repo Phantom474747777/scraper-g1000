@@ -24,27 +24,28 @@ USER_AGENTS = [
 
 
 def create_advanced_driver():
-    """Create Chrome driver with ADVANCED anti-detection"""
+    """Create Chrome driver with ADVANCED anti-detection - RUNS INVISIBLY"""
     options = uc.ChromeOptions()
 
     # Random user agent
     ua = random.choice(USER_AGENTS)
     options.add_argument(f'--user-agent={ua}')
 
+    # HEADLESS MODE - Browser runs invisibly in background
+    options.add_argument('--headless=new')  # New headless mode (more stable)
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920,1080')  # Fixed size for headless
+
     # Anti-detection settings
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--no-sandbox')
-    options.add_argument('--start-maximized')
     options.add_argument('--disable-infobars')
     options.add_argument('--disable-extensions')
+    options.add_argument('--disable-logging')
+    options.add_argument('--log-level=3')  # Suppress console logs
 
-    # Random window size
-    width = random.randint(1024, 1920)
-    height = random.randint(768, 1080)
-    options.add_argument(f'--window-size={width},{height}')
-
-    driver = uc.Chrome(options=options, version_main=None, use_subprocess=True)
+    driver = uc.Chrome(options=options, version_main=None, use_subprocess=True, headless=True)
 
     # Extra stealth
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": ua})
