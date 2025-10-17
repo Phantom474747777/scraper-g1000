@@ -633,9 +633,10 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
         scraping_state['progress'] = 10
         scraping_state['current_page'] = 0
 
-        # Back to YellowPages with FIXED Cloudflare bypass (non-headless + longer waits)
-        from src.scraper_free_bypass import scrape_yellowpages_free
-        leads = scrape_yellowpages_free(zip_code, category, max_pages)
+        # Use UNIVERSAL scraper - tries Google Maps with advanced anti-detection
+        from src.scraper_universal import scrape_with_selenium
+        max_results = max_pages * 25
+        leads = scrape_with_selenium(zip_code, category, max_results)
 
         scraping_state['total_leads'] = len(leads)
         scraping_state['progress'] = 85
