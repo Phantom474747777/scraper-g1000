@@ -3,6 +3,46 @@
  * Handles UI interactions and communication with backend
  */
 
+// API Bridge - converts Electron-style API calls to Flask fetch calls
+window.api = {
+  getProfiles: async () => {
+    const res = await fetch('/api/profiles');
+    return await res.json();
+  },
+  getLeads: async (profileId) => {
+    const res = await fetch(`/api/leads/${profileId}`);
+    return await res.json();
+  },
+  startScraping: async (config) => {
+    const res = await fetch('/api/scrape/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    return await res.json();
+  },
+  pauseScraping: async () => {
+    await fetch('/api/scrape/pause', { method: 'POST' });
+  },
+  stopScraping: async () => {
+    await fetch('/api/scrape/stop', { method: 'POST' });
+  },
+  onScrapingProgress: (callback) => {
+    // Poll for progress updates
+    setInterval(async () => {
+      const res = await fetch('/api/scrape/progress');
+      const data = await res.json();
+      if (data.active) callback(data);
+    }, 1000);
+  },
+  onScrapingComplete: (callback) => {
+    // Handled via progress polling
+  },
+  onScrapingError: (callback) => {
+    // Handled via progress polling
+  }
+};
+
 // State management
 let currentProfile = null;
 let currentScreen = 'profile-selector';
