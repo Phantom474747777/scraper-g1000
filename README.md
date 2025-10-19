@@ -1,6 +1,6 @@
-# 🦗 CritterCaptures Lead Scraper
+# 🚀 Scraper G1000 - Universal Lead Generation System
 
-**The easiest lead scraping system ever created.**
+**The most powerful universal lead scraping system ever created.**
 
 ## 🚀 Quick Start
 
@@ -12,9 +12,9 @@ That's literally it. 🚀
 
 ## 🎯 What This Does
 
-Scrapes local business leads for **CritterCaptures wildlife removal** services.
+**Scraper G1000** is a universal lead generation system that can scrape local business leads for **ANY** business type. It's completely customizable and works for any industry.
 
-**Target customers** (NOT competitors):
+**Built-in Business Categories:**
 - Property Management Companies
 - Real Estate Agents
 - HOA Management
@@ -22,6 +22,14 @@ Scrapes local business leads for **CritterCaptures wildlife removal** services.
 - Vacation Rentals
 - Storage Facilities
 - Mobile Home Parks
+- Construction Companies
+- HVAC Services
+- Plumbing Companies
+- Landscaping Companies
+- Roofing Contractors
+- Home Inspectors
+- Cleaning Services
+- And many more...
 
 ---
 
@@ -61,9 +69,16 @@ Scrapes local business leads for **CritterCaptures wildlife removal** services.
   [5] Vacation Rentals
   [6] Storage Facilities
   [7] Mobile Home Parks
+  [8] Construction Companies
+  [9] HVAC Services
+  [10] Plumbing Companies
+  [11] Landscaping Companies
+  [12] Roofing Contractors
+  [13] Home Inspectors
+  [14] Cleaning Services
 ============================================================
 
-🏷️  Select a category number (1-7):
+🏷️  Select a category number (1-14):
    Category: 1
 ```
 
@@ -131,9 +146,24 @@ The data will be **messy** (no AI used during scraping).
 **To clean:**
 1. Open any CSV file
 2. Copy all data
-3. Paste into **ChatGPT Plus**
+3. Paste into **ChatGPT Plus** or **Claude**
 4. Say: "Clean this business data CSV. Extract name, phone, address. Return clean CSV."
 5. Done!
+
+## 🔧 Customization Features
+
+**Scraper G1000** is designed to be completely customizable:
+
+### **Profile System**
+- Create multiple business profiles
+- Each profile can target different business types
+- Switch between profiles easily
+
+### **Future Features (Coming Soon)**
+- 🤖 **Auto Gmail Sending** - Automatically send personalized emails to leads
+- 📊 **Advanced Analytics** - Track conversion rates and ROI
+- 🎯 **Custom Target Lists** - Add your own business categories
+- 📱 **Mobile App** - Access your leads on the go
 
 ---
 
@@ -145,11 +175,13 @@ Small towns have fewer results. Try:
 - Brandon area: `33511`, `33510`
 - Plant City: `33563`, `33566`
 
-### Tip #2: Run All 7 Categories
+### Tip #2: Run All Categories
 Each category = different set of leads from same zips!
 - Day 1: Property Management
 - Day 2: Real Estate Agents
 - Day 3: HOA Management
+- Day 4: Construction Companies
+- Day 5: HVAC Services
 - etc.
 
 ### Tip #3: Use the Stats Feature
@@ -172,7 +204,7 @@ Interactive wizard - asks for zips and category, then scrapes automatically.
 Shows total leads, breakdown by zip code.
 
 ### [3] List Available Categories
-Quick reference of all 7 categories.
+Quick reference of all available business categories.
 
 ### [4] Exit
 Closes the program.
@@ -241,10 +273,11 @@ Result: 30 new leads
 ## ✅ Best Practices
 
 **DO:**
-- Run all 7 categories for maximum leads
+- Run all available categories for maximum leads
 - Use multiple zips at once
 - Check stats regularly
 - Keep the database file safe
+- Create different profiles for different business types
 
 **DON'T:**
 - Delete `data/leads_tracker.db` (your safety net!)
@@ -256,12 +289,15 @@ Result: 30 new leads
 
 ## 🎉 That's It!
 
-**You now have a production-ready lead scraping system that:**
+**You now have Scraper G1000 - a production-ready universal lead scraping system that:**
+- ✅ Works for ANY business type
 - ✅ Asks you what to scrape (interactive menu)
 - ✅ Organizes everything automatically
 - ✅ Never duplicates leads
 - ✅ Requires ZERO AI credits
 - ✅ Works forever
+- ✅ Profile system for multiple business types
+- ✅ Auto Gmail sending (coming soon!)
 
 **Just double-click `START.bat` and follow the prompts!** 🚀
 
