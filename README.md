@@ -14,22 +14,12 @@ That's literally it. 🚀
 
 **Scraper G1000** is a universal lead generation system that can scrape local business leads for **ANY** business type. It's completely customizable and works for any industry.
 
-**Built-in Business Categories:**
-- Property Management Companies
-- Real Estate Agents
-- HOA Management
-- Apartment Complexes
-- Vacation Rentals
-- Storage Facilities
-- Mobile Home Parks
-- Construction Companies
-- HVAC Services
-- Plumbing Companies
-- Landscaping Companies
-- Roofing Contractors
-- Home Inspectors
-- Cleaning Services
-- And many more...
+**Fully Customizable Categories:**
+- You define your own business categories
+- Type in whatever categories make sense for your business
+- No limits on how many categories you can add
+- Each profile can have completely different categories
+- Examples: "Real Estate Agents", "Property Managers", "HVAC Companies", "Local Restaurants", "Beauty Salons", "Auto Repair Shops" - literally anything!
 
 ---
 
@@ -60,27 +50,24 @@ That's literally it. 🚀
 
 ### Step 4: Pick category:
 ```
-📂 AVAILABLE CATEGORIES:
+📂 YOUR CUSTOM CATEGORIES:
 ============================================================
   [1] Property Management Companies
   [2] Real Estate Agents
-  [3] HOA Management
-  [4] Apartment Complexes
-  [5] Vacation Rentals
-  [6] Storage Facilities
-  [7] Mobile Home Parks
-  [8] Construction Companies
-  [9] HVAC Services
-  [10] Plumbing Companies
-  [11] Landscaping Companies
-  [12] Roofing Contractors
-  [13] Home Inspectors
-  [14] Cleaning Services
+  [3] Home Inspectors
+  [4] Construction Companies
+  [5] Roofing Contractors
+  [6] HVAC Services
+  [7] Plumbing Companies
+  [8] Landscaping Companies
+  [9] Cleaning Services
 ============================================================
 
-🏷️  Select a category number (1-14):
+🏷️  Select a category number (1-9):
    Category: 1
 ```
+
+*Note: These are YOUR custom categories that YOU defined when creating your business profile. Every profile can have completely different categories!*
 
 ### Step 5: Press ENTER to start!
 
@@ -150,19 +137,28 @@ The data will be **messy** (no AI used during scraping).
 4. Say: "Clean this business data CSV. Extract name, phone, address. Return clean CSV."
 5. Done!
 
-## 🔧 Customization Features
+## 🔧 Profile System - Complete Customization
 
 **Scraper G1000** is designed to be completely customizable:
 
-### **Profile System**
-- Create multiple business profiles
-- Each profile can target different business types
+### **Unlimited Profiles**
+- Create as many business profiles as you want
+- Each profile is completely independent
 - Switch between profiles easily
+
+### **Custom Categories for Each Profile**
+- Define your own business categories for each profile
+- Type in whatever categories make sense for your business
+- No limits on how many categories you can add
+- Examples:
+  - **Restaurant Profile**: "Local Restaurants", "Food Trucks", "Catering Companies"
+  - **Beauty Profile**: "Hair Salons", "Nail Salons", "Spas", "Barbershops"
+  - **Auto Profile**: "Auto Repair Shops", "Car Dealers", "Auto Parts Stores"
+  - **Real Estate Profile**: "Real Estate Agents", "Property Managers", "Home Inspectors"
 
 ### **Future Features (Coming Soon)**
 - 🤖 **Auto Gmail Sending** - Automatically send personalized emails to leads
-- 📊 **Advanced Analytics** - Track conversion rates and ROI
-- 🎯 **Custom Target Lists** - Add your own business categories
+- 📊 **Advanced Analytics** - Track conversion rates and ROI per profile
 - 📱 **Mobile App** - Access your leads on the go
 
 ---
@@ -204,7 +200,7 @@ Interactive wizard - asks for zips and category, then scrapes automatically.
 Shows total leads, breakdown by zip code.
 
 ### [3] List Available Categories
-Quick reference of all available business categories.
+Quick reference of YOUR custom categories for the current profile.
 
 ### [4] Exit
 Closes the program.
