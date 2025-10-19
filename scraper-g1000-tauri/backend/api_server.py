@@ -10,12 +10,14 @@ import threading
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent and python-src directories to path for imports
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+sys.path.insert(0, os.path.join(parent_dir, 'python-src'))
 
-from src.profile_manager import ProfileManager
-from src.database import LeadsDatabase
-from src.scraper_free_bypass import scrape_yellowpages_free
+from profile_manager import ProfileManager
+from database import LeadsDatabase
+from scraper_free_bypass import scrape_yellowpages_free
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Electron frontend
@@ -29,7 +31,10 @@ scraping_state = {
     'current_category': None,
     'total_leads': 0,
     'progress': 0,
-    'stop_requested': False
+    'stop_requested': False,
+    'logs': [],
+    'current_job': 0,
+    'total_jobs': 0
 }
 
 # === HEALTH CHECK ===
@@ -79,6 +84,38 @@ def create_profile():
             'success': True,
             'profileId': profile.profile_id
         }), 201
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# === ZIP CODE LOOKUP ===
+
+@app.route('/api/zip-lookup', methods=['POST'])
+def zip_lookup():
+    """Find ZIP codes within radius of city"""
+    try:
+        data = request.json
+        city = data.get('city', '').strip()
+        state = data.get('state', '').strip().upper()
+        radius = int(data.get('radius', 50))
+
+        if not city or not state:
+            return jsonify({'success': False, 'error': 'City and state required'}), 400
+
+        # Import zip_lookup module
+        from zip_lookup import get_zips_in_radius
+
+        zip_data = get_zips_in_radius(city, state, radius)
+        zips = [z['zip'] for z in zip_data] if zip_data else []
+
+        if not zips:
+            return jsonify({'success': False, 'error': 'No ZIP codes found for this location'}), 404
+
+        return jsonify({
+            'success': True,
+            'zips': zips,
+            'count': len(zips)
+        }), 200
+
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -169,6 +206,59 @@ def get_scrape_status():
         'status': scraping_state
     }), 200
 
+@app.route('/api/scrape/automation/start', methods=['POST'])
+def start_automation():
+    """Start automation mode (batch scraping)"""
+    global scraping_state
+
+    if scraping_state['active']:
+        return jsonify({'success': False, 'error': 'Scraping already active'}), 400
+
+    try:
+        data = request.json
+        profile_id = data.get('profileId')
+        zips = data.get('zips', [])
+        categories = data.get('categories', [])
+        max_pages = data.get('maxPages', 2)
+        skip_scraped = data.get('skipScraped', True)
+
+        if not zips or not categories:
+            return jsonify({'success': False, 'error': 'Missing ZIPs or categories'}), 400
+
+        total_jobs = len(zips) * len(categories)
+
+        # Reset state
+        scraping_state.update({
+            'active': True,
+            'paused': False,
+            'current_zip': None,
+            'current_category': None,
+            'total_leads': 0,
+            'progress': 0,
+            'stop_requested': False,
+            'logs': [],
+            'current_job': 0,
+            'total_jobs': total_jobs
+        })
+
+        # Start automation in background thread
+        thread = threading.Thread(
+            target=run_automation_job,
+            args=(profile_id, zips, categories, max_pages, skip_scraped),
+            daemon=True
+        )
+        thread.start()
+
+        return jsonify({
+            'success': True,
+            'message': 'Automation started',
+            'totalJobs': total_jobs
+        }), 200
+
+    except Exception as e:
+        scraping_state['active'] = False
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # === LEAD MANAGEMENT ===
 
 @app.route('/api/leads/<profile_id>', methods=['GET'])
@@ -246,6 +336,88 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
         scraping_state['active'] = False
         scraping_state['paused'] = False
 
+def run_automation_job(profile_id, zips, categories, max_pages, skip_scraped):
+    """Run automation job (batch scraping) in background thread"""
+    global scraping_state
+
+    try:
+        # Create new event loop for this thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            scraping_state['logs'].append({'type': 'error', 'message': 'Profile not found'})
+            return
+
+        db = LeadsDatabase(profile.get_database_path())
+
+        # Generate all jobs
+        jobs = []
+        for zip_code in zips:
+            for category in categories:
+                jobs.append({'zip': zip_code, 'category': category})
+
+        scraping_state['logs'].append({'type': 'system', 'message': f'Starting automation: {len(jobs)} jobs queued'})
+
+        # Process each job
+        for idx, job in enumerate(jobs):
+            if scraping_state['stop_requested']:
+                scraping_state['logs'].append({'type': 'system', 'message': 'Automation stopped by user'})
+                break
+
+            # Wait if paused
+            while scraping_state['paused'] and not scraping_state['stop_requested']:
+                asyncio.sleep(1)
+
+            zip_code = job['zip']
+            category = job['category']
+
+            scraping_state['current_job'] = idx + 1
+            scraping_state['current_zip'] = zip_code
+            scraping_state['current_category'] = category
+            scraping_state['logs'].append({'type': 'info', 'message': f'→ Job {idx + 1}/{len(jobs)}: {zip_code} - {category}'})
+
+            try:
+                # Run scraping
+                leads = loop.run_until_complete(
+                    scrape_yellowpages_free(zip_code, category, max_pages)
+                )
+
+                # Save leads to database
+                if leads:
+                    for lead in leads:
+                        db.add_lead(
+                            name=lead['name'],
+                            phone_number=lead['phone_number'],
+                            address=lead['address'],
+                            website=lead['website'],
+                            email=lead['email']
+                        )
+
+                    scraping_state['total_leads'] += len(leads)
+                    scraping_state['logs'].append({'type': 'success', 'message': f'  ✓ Found {len(leads)} leads'})
+                else:
+                    scraping_state['logs'].append({'type': 'info', 'message': '  No leads found'})
+
+            except Exception as e:
+                scraping_state['logs'].append({'type': 'error', 'message': f'  ✗ Error: {str(e)}'})
+
+            # Update progress
+            scraping_state['progress'] = int(((idx + 1) / len(jobs)) * 100)
+
+        # Update profile lead count
+        profile_manager.update_profile_leads(profile_id, db.get_total_leads())
+
+        scraping_state['logs'].append({'type': 'success', 'message': f'✓ Automation complete! Total: {scraping_state["total_leads"]} leads'})
+
+    except Exception as e:
+        scraping_state['logs'].append({'type': 'error', 'message': f'Fatal error: {str(e)}'})
+
+    finally:
+        scraping_state['active'] = False
+        scraping_state['paused'] = False
+
 # === SERVER STARTUP ===
 
 if __name__ == '__main__':
@@ -254,7 +426,7 @@ if __name__ == '__main__':
     print("[API Server] Press Ctrl+C to stop")
 
     app.run(
-        host='127.0.0.1',  # Localhost only for security
+        host='0.0.0.0',  # Listen on all interfaces
         port=port,
         debug=False,
         threaded=True

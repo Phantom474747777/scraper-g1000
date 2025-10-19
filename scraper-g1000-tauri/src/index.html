@@ -179,241 +179,234 @@
             </div>
         </div>
 
-        <!-- Automation Mode Screen (v2.0 NEW) -->
+        <!-- Automation Mode Screen (COMPLETE REDESIGN - SIDE-BY-SIDE LAYOUT) -->
         <div id="automation-mode" class="screen">
             <div class="screen-header">
                 <button class="btn-back" id="btnBackFromAutomation">← Back</button>
                 <h1>Automation Mode</h1>
                 <div class="hotkey-hints">
-                    <span class="hotkey-pill">[P] Pause</span>
-                    <span class="hotkey-pill">[R] Resume</span>
-                    <span class="hotkey-pill">[Q] Stop</span>
+                    <button class="btn-reset" id="btnResetAutomationMode">
+                        ↻ Reset
+                    </button>
                 </div>
             </div>
 
-            <div class="automation-content">
-                <!-- Step Indicator -->
-                <div class="step-indicator" id="stepIndicator">
-                    <div class="step active" data-step="1">
-                        <div class="step-number">1</div>
-                        <div class="step-label">Scope</div>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="2">
-                        <div class="step-number">2</div>
-                        <div class="step-label">Settings</div>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="3">
-                        <div class="step-number">3</div>
-                        <div class="step-label">Control</div>
-                    </div>
-                </div>
+            <div class="manual-content" style="max-width: 100%; padding: 2rem;">
+                <!-- Left Panel: Batch Configuration (WIDER, SIDE-BY-SIDE) -->
+                <div class="manual-config-panel" style="flex: 0 0 750px; min-width: 750px; max-width: 750px;">
+                    <div class="glass-panel">
+                        <h3 class="panel-title" style="font-size: 1.2rem; margin-bottom: 0.7rem;">Configuration</h3>
 
-                <!-- Step 1: Scope Selection -->
-                <div class="wizard-step active" id="wizardStep1">
-                    <div class="glass-panel wizard-panel">
-                        <h3 class="panel-title">Select Scraping Scope</h3>
-
-                        <div class="scope-options">
-                            <label class="scope-option" data-scope="all">
-                                <input type="radio" name="automationScope" value="all" checked>
-                                <div class="scope-card">
-                                    <div class="scope-icon">🌐</div>
-                                    <div class="scope-title">All Leads in Project</div>
-                                    <div class="scope-desc">Scrape all available ZIP codes and categories</div>
-                                </div>
-                            </label>
-
-                            <label class="scope-option" data-scope="zips">
-                                <input type="radio" name="automationScope" value="zips">
-                                <div class="scope-card">
-                                    <div class="scope-icon">📍</div>
-                                    <div class="scope-title">Specific ZIP Codes</div>
-                                    <div class="scope-desc">Choose which ZIP codes to scrape</div>
-                                </div>
-                            </label>
-
-                            <label class="scope-option" data-scope="categories">
-                                <input type="radio" name="automationScope" value="categories">
-                                <div class="scope-card">
-                                    <div class="scope-icon">📂</div>
-                                    <div class="scope-title">Specific Categories</div>
-                                    <div class="scope-desc">Choose which business categories to scrape</div>
-                                </div>
-                            </label>
-
-                            <label class="scope-option" data-scope="custom">
-                                <input type="radio" name="automationScope" value="custom">
-                                <div class="scope-card">
-                                    <div class="scope-icon">⚙️</div>
-                                    <div class="scope-title">Custom Selection</div>
-                                    <div class="scope-desc">Pick specific ZIP + Category combinations</div>
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- ZIP Selection (Hidden until "zips" or "custom" selected) -->
-                        <div class="scope-detail" id="zipSelection" style="display: none;">
-                            <label class="config-label">Select ZIP Codes</label>
-                            <div class="multiselect-container">
-                                <input type="text" id="zipSearchInput" placeholder="Search ZIP codes..." class="glass-input">
-                                <div class="multiselect-options" id="zipOptions">
-                                    <!-- ZIP options will be loaded here -->
+                        <!-- Location + Radius in ONE COMPACT ROW -->
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 0.7rem;">
+                            <div style="flex: 1;">
+                                <label class="config-label" style="font-size: 0.7rem; margin-bottom: 0.25rem; display: block;">City</label>
+                                <input type="text" id="inputAutoCity" placeholder="Dover" class="glass-input" style="padding: 0.5rem 0.7rem; font-size: 0.9rem;">
+                            </div>
+                            <div style="flex: 0 0 70px;">
+                                <label class="config-label" style="font-size: 0.7rem; margin-bottom: 0.25rem; display: block;">State</label>
+                                <input type="text" id="inputAutoState" placeholder="FL" class="glass-input" maxlength="2" style="padding: 0.5rem 0.7rem; text-align: center; font-size: 0.9rem;">
+                            </div>
+                            <div style="flex: 0 0 140px;">
+                                <label class="config-label" style="font-size: 0.7rem; margin-bottom: 0.25rem; display: block;">Radius</label>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="range" id="inputAutoRadius" min="10" max="100" value="50" step="5" class="radius-slider" style="flex: 1;">
+                                    <span style="color: rgba(139, 92, 246, 1); font-weight: 600; font-size: 0.8rem; width: 40px;"><span id="autoRadiusValue">50</span>mi</span>
                                 </div>
                             </div>
-                            <div class="selected-items" id="selectedZips"></div>
                         </div>
 
-                        <!-- Category Selection (Hidden until "categories" or "custom" selected) -->
-                        <div class="scope-detail" id="categorySelection" style="display: none;">
-                            <label class="config-label">Select Categories</label>
-                            <div class="multiselect-container">
-                                <div class="multiselect-options" id="categoryOptions">
-                                    <label class="multiselect-option">
+                        <button class="btn-find-zips" id="btnFindAutoZips" style="width: 100%; margin-bottom: 0.7rem; padding: 0.6rem;">
+                            Find ZIP Codes
+                        </button>
+
+                        <!-- ZIPS + CATEGORIES SIDE BY SIDE (THE FIX!) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.7rem;">
+                            <!-- ZIP Selection -->
+                            <div id="autoZipSelectionSection" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <label class="config-label" style="margin: 0; font-size: 0.75rem;">ZIPs <span id="autoZipCount" style="color: rgba(139, 92, 246, 1);">(0)</span></label>
+                                    <button class="btn-select-all" id="btnSelectAllZips" style="padding: 0.25rem 0.6rem; font-size: 0.7rem;">All</button>
+                                </div>
+                                <div class="multiselect-box-compact" id="autoZipMultiselect" style="max-height: 110px; overflow-y: auto;"></div>
+                            </div>
+
+                            <!-- Category Selection -->
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <label class="config-label" style="margin: 0; font-size: 0.75rem;">Categories <span id="autoCategoryCount" style="color: rgba(139, 92, 246, 1);">(0)</span></label>
+                                    <button class="btn-select-all" id="btnSelectAllCategories" style="padding: 0.25rem 0.6rem; font-size: 0.7rem;">All</button>
+                                </div>
+                                <div class="multiselect-box-compact" id="autoCategoryMultiselect" style="max-height: 110px; overflow-y: auto;">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Real Estate Agents">
-                                        <span>Real Estate Agents</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Real Estate</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Property Managers">
-                                        <span>Property Managers</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Property Mgmt</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Home Inspectors">
-                                        <span>Home Inspectors</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Home Inspectors</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Construction Companies">
-                                        <span>Construction Companies</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Construction</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Roofing Contractors">
-                                        <span>Roofing Contractors</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Roofing</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="HVAC Services">
-                                        <span>HVAC Services</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">HVAC</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Plumbing Companies">
-                                        <span>Plumbing Companies</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Plumbing</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Landscaping Companies">
-                                        <span>Landscaping Companies</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Landscaping</span>
                                     </label>
-                                    <label class="multiselect-option">
+                                    <label class="custom-checkbox">
                                         <input type="checkbox" value="Cleaning Services">
-                                        <span>Cleaning Services</span>
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-label">Cleaning</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="wizard-actions">
-                            <button class="btn-primary" id="btnNextStep1">Next: Settings →</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Settings -->
-                <div class="wizard-step" id="wizardStep2" style="display: none;">
-                    <div class="glass-panel wizard-panel">
-                        <h3 class="panel-title">Automation Settings</h3>
-
-                        <div class="config-section">
-                            <label class="config-label">Max Pages per Search</label>
-                            <input type="number" id="autoMaxPages" value="2" min="1" max="10" class="glass-input">
-                            <span class="config-hint">More pages = more leads, but slower</span>
-                        </div>
-
-                        <div class="config-section">
-                            <label class="config-label">Delay Between Requests (ms)</label>
-                            <input type="number" id="autoDelay" value="1000" min="500" max="5000" step="100" class="glass-input">
-                            <span class="config-hint">Higher delay reduces chance of being blocked</span>
-                        </div>
-
-                        <div class="config-section">
-                            <label class="config-label">Retries per ZIP</label>
-                            <input type="number" id="autoRetries" value="3" min="1" max="5" class="glass-input">
-                            <span class="config-hint">Number of retry attempts on failure</span>
-                        </div>
-
-                        <div class="config-section">
-                            <label class="config-checkbox">
+                        <!-- Pages + Skip Checkbox in ONE ROW -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.7rem;">
+                            <label class="custom-checkbox">
                                 <input type="checkbox" id="autoSkipScraped" checked>
-                                <span>Skip already-scraped ZIP/Category combinations</span>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-label" style="font-size: 0.8rem;">Skip already scraped</span>
                             </label>
-                        </div>
-
-                        <div class="wizard-actions">
-                            <button class="btn-secondary" id="btnBackStep2">← Back</button>
-                            <button class="btn-primary" id="btnNextStep2">Next: Control →</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3: Control Panel -->
-                <div class="wizard-step" id="wizardStep3" style="display: none;">
-                    <div class="glass-panel wizard-panel">
-                        <h3 class="panel-title">Automation Control</h3>
-
-                        <div class="automation-summary">
-                            <div class="summary-item">
-                                <div class="summary-label">Scope</div>
-                                <div class="summary-value" id="summaryScope">All Leads</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Estimated Targets</div>
-                                <div class="summary-value" id="summaryTargets">0 combinations</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Max Pages</div>
-                                <div class="summary-value" id="summaryPages">2 per search</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="config-label" style="margin: 0; font-size: 0.75rem;">Pages</label>
+                                <div class="number-stepper-with-max">
+                                    <button class="stepper-btn" id="autoDecrementPages">−</button>
+                                    <input type="text" id="autoMaxPages" value="2" readonly class="stepper-value">
+                                    <button class="stepper-btn" id="autoIncrementPages">+</button>
+                                    <button class="stepper-btn-max" id="autoMaxPagesBtn">MAX</button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Control Buttons -->
-                        <div class="automation-controls">
-                            <button class="btn-automation-start" id="btnStartAutomation">
-                                <span class="btn-icon">🟢</span>
+                        <!-- Job Summary (Compact) -->
+                        <div style="margin-bottom: 0.7rem; padding: 0.6rem; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; text-align: center;" id="autoJobSummary" style="display: none;">
+                            <div style="font-size: 1.3rem; font-weight: 700; color: rgba(139, 92, 246, 1);">
+                                <span id="autoTotalJobs">0</span> jobs queued
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                                <span id="autoJobBreakdown">0 ZIPs × 0 Categories</span>
+                            </div>
+                        </div>
+
+                        <!-- Sound Toggle + Start Button -->
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0;">
+                            <div style="position: relative; flex: 0 0 auto;">
+                                <button class="btn-sound-toggle" id="btnSoundToggle" onclick="toggleCompletionSound()" style="padding: 0.7rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem;">
+                                    🔔
+                                </button>
+                                <div style="position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 0.65rem; color: rgba(172, 172, 172, 0.8); pointer-events: none;">
+                                    Completion sound
+                                </div>
+                            </div>
+                            <button class="btn-start-scraping" id="btnStartAutomation" disabled style="flex: 1; padding: 0.7rem;">
+                                <span class="btn-icon">▶</span>
                                 <span>Start Automation</span>
                             </button>
-                            <button class="btn-automation-pause" id="btnPauseAutomation" disabled style="display: none;">
-                                <span class="btn-icon">🟡</span>
-                                <span>Pause</span>
-                            </button>
-                            <button class="btn-automation-resume" id="btnResumeAutomation" disabled style="display: none;">
-                                <span class="btn-icon">🟢</span>
-                                <span>Resume</span>
-                            </button>
-                            <button class="btn-automation-stop" id="btnStopAutomation" disabled style="display: none;">
-                                <span class="btn-icon">🔴</span>
-                                <span>Stop</span>
-                            </button>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Status Display -->
-                        <div class="automation-status" id="automationStatus" style="display: none;">
-                            <div class="status-header">
-                                <div class="status-indicator"></div>
-                                <div class="status-text" id="automationStatusText">Running • ZIP 33584 | Category: Roofing | Page 1 of 2</div>
-                            </div>
-                            <div class="status-progress">
-                                <div class="progress-bar-wrapper">
-                                    <div class="progress-bar-fill" id="automationProgressBar" style="width: 0%"></div>
-                                </div>
-                                <div class="progress-info">
-                                    <span id="automationProgressText">0 of 0 completed</span>
-                                    <span id="automationLeadsCount">0 leads found</span>
-                                    <span id="automationTimeRemaining">Estimating...</span>
-                                </div>
+                <!-- Right Panel: Live Console (Takes remaining space) -->
+                <div class="manual-console-panel" style="flex: 1;">
+                    <div class="glass-panel console-panel">
+                        <div class="console-header">
+                            <h3 class="panel-title">Live Console</h3>
+                            <div class="console-status" id="autoConsoleStatus">
+                                <span class="status-dot status-idle"></span>
+                                <span class="status-text">Idle</span>
                             </div>
                         </div>
 
-                        <div class="wizard-actions">
-                            <button class="btn-secondary" id="btnBackStep3">← Back</button>
+                        <!-- Circular Timer (shown during automation) -->
+                        <div class="automation-timer" id="autoTimer" style="display: none;">
+                            <div class="timer-circle-container">
+                                <svg class="timer-circle" viewBox="0 0 120 120">
+                                    <circle class="timer-circle-bg" cx="60" cy="60" r="54"></circle>
+                                    <circle class="timer-circle-progress" cx="60" cy="60" r="54" id="autoTimerCircle"></circle>
+                                </svg>
+                                <div class="timer-content">
+                                    <div class="timer-elapsed" id="autoTimerElapsed">00:00</div>
+                                    <div class="timer-label">Elapsed</div>
+                                </div>
+                            </div>
+                            <div class="timer-stats">
+                                <div class="timer-stat">
+                                    <span class="timer-stat-label">ETA:</span>
+                                    <span class="timer-stat-value" id="autoTimerETA">--:--</span>
+                                </div>
+                                <div class="timer-stat">
+                                    <span class="timer-stat-label">Speed:</span>
+                                    <span class="timer-stat-value" id="autoTimerSpeed">-- leads/min</span>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Queue Preview (before starting) -->
+                        <div class="queue-preview" id="autoQueuePreview">
+                            <div class="console-line console-system">Configure settings to preview automation queue</div>
+                        </div>
+
+                        <!-- Live Console (during automation) -->
+                        <div class="console-output" id="autoConsoleOutput" style="display: none;">
+                            <!-- Live logs appear here during scraping -->
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="console-progress" id="autoConsoleProgress" style="display: none;">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar-fill" id="autoProgressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-stats">
+                                <span id="autoProgressText">Job 0 of 0</span>
+                                <span id="autoProgressLeads">0 leads</span>
+                            </div>
+                        </div>
+
+                        <!-- Control Buttons (during automation) -->
+                        <div class="automation-controls" id="autoControls" style="display: none;">
+                            <button class="btn-pause" id="btnPauseAutomation">
+                                <span>⏸ Pause</span>
+                            </button>
+                            <button class="btn-resume" id="btnResumeAutomation" style="display: none;">
+                                <span>▶ Resume</span>
+                            </button>
+                            <button class="btn-stop" id="btnStopAutomation">
+                                <span>⏹ Stop</span>
+                            </button>
+                        </div>
+
+                        <!-- View Leads Button (after completion) -->
+                        <button class="btn-view-leads" id="btnViewAutoLeads" style="display: none;">
+                            <span class="btn-icon">→</span>
+                            <span>View All Leads</span>
+                        </button>
                     </div>
                 </div>
             </div>

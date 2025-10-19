@@ -212,6 +212,61 @@ function setupEventListeners() {
 
   // Manual Mode: Reset console when navigating back
   document.getElementById('btnBackFromManual')?.addEventListener('click', resetManualMode);
+
+  // === AUTOMATION MODE EVENT LISTENERS ===
+
+  // Automation: Radius slider
+  document.getElementById('inputAutoRadius')?.addEventListener('input', (e) => {
+    document.getElementById('autoRadiusValue').textContent = e.target.value;
+  });
+
+  // Automation: Find ZIP Codes
+  document.getElementById('btnFindAutoZips')?.addEventListener('click', findAutoZIPs);
+
+  // Automation: Number stepper +/- buttons
+  document.getElementById('autoIncrementPages')?.addEventListener('click', () => {
+    const input = document.getElementById('autoMaxPages');
+    let val = parseInt(input.value) || 2;
+    if (val < 10) input.value = val + 1;
+  });
+  document.getElementById('autoDecrementPages')?.addEventListener('click', () => {
+    const input = document.getElementById('autoMaxPages');
+    let val = parseInt(input.value) || 2;
+    if (val > 1) input.value = val - 1;
+  });
+
+  // Automation: MAX button (sets to 10 pages)
+  document.getElementById('autoMaxPagesBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('autoMaxPages');
+    input.value = 10;
+  });
+
+  // Automation: Select All ZIPs
+  document.getElementById('btnSelectAllZips')?.addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('#autoZipMultiselect input[type="checkbox"]');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    updateAutoJobCounter();
+  });
+
+  // Automation: Select All Categories
+  document.getElementById('btnSelectAllCategories')?.addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('#autoCategoryMultiselect input[type="checkbox"]');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    updateAutoJobCounter();
+  });
+
+  // Automation: Update job counter when checkboxes change
+  document.querySelectorAll('#autoCategoryMultiselect input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateAutoJobCounter);
+  });
+
+  // Automation: Start Automation button
+  document.getElementById('btnStartAutomation')?.addEventListener('click', startAutomationMode);
+
+  // Automation: Reset button
+  document.getElementById('btnResetAutomationMode')?.addEventListener('click', resetAutomationMode);
 }
 
 // Global variable to store last scrape metadata
@@ -1502,4 +1557,337 @@ async function pollManualScrapingProgress() {
     }
   }, 800); // Poll every 0.8 seconds for smoother log streaming
 }
+
+// === AUTOMATION MODE FUNCTIONS ===
+
+let autoSelectedZips = [];
+
+async function findAutoZIPs() {
+  const city = document.getElementById('inputAutoCity').value.trim();
+  const state = document.getElementById('inputAutoState').value.trim().toUpperCase();
+  const radius = document.getElementById('inputAutoRadius').value;
+
+  if (!city || !state) {
+    showToast('Please enter both City and State', 'error');
+    return;
+  }
+
+  const findBtn = document.getElementById('btnFindAutoZips');
+  const consolePreview = document.getElementById('autoQueuePreview');
+  const consoleStatus = document.getElementById('autoConsoleStatus');
+
+  findBtn.disabled = true;
+  findBtn.innerHTML = '<span class="spinner"></span> Searching...';
+
+  // Update console
+  consolePreview.innerHTML = '<div class="console-line console-info">→ Searching for ZIPs within ' + radius + ' miles of ' + city + ', ' + state + '</div>';
+  consoleStatus.querySelector('.status-dot').classList.remove('status-idle');
+  consoleStatus.querySelector('.status-dot').classList.add('status-running');
+  consoleStatus.querySelector('.status-text').textContent = 'Searching';
+
+  try {
+    const response = await apiCall('/api/zip-lookup', 'POST', { city, state, radius });
+
+    if (!response.success) {
+      consolePreview.innerHTML += '<div class="console-line console-error">✗ Error: ' + response.error + '</div>';
+      consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+      consoleStatus.querySelector('.status-dot').classList.add('status-error');
+      consoleStatus.querySelector('.status-text').textContent = 'Error';
+      showToast('Error: ' + response.error, 'error');
+      findBtn.disabled = false;
+      findBtn.innerHTML = 'Find ZIP Codes';
+      return;
+    }
+
+    const zips = response.zips || [];
+    autoSelectedZips = zips;
+
+    // Log success to console
+    consolePreview.innerHTML += '<div class="console-line console-success">✓ Found ' + zips.length + ' ZIP codes</div>';
+    consolePreview.innerHTML += '<div class="console-line console-system">→ Ready to configure automation</div>';
+
+    // Populate ZIP multiselect
+    const zipMultiselect = document.getElementById('autoZipMultiselect');
+    zipMultiselect.innerHTML = zips.map(zip => `
+      <label class="custom-checkbox">
+        <input type="checkbox" value="${zip.zip}" onchange="updateAutoJobCounter()">
+        <span class="checkmark"></span>
+        <span class="checkbox-label">${zip.zip} - ${zip.city}</span>
+      </label>
+    `).join('');
+
+    // Show ZIP section
+    document.getElementById('autoZipSelectionSection').style.display = 'block';
+
+    // Update status
+    consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+    consoleStatus.querySelector('.status-dot').classList.add('status-idle');
+    consoleStatus.querySelector('.status-text').textContent = 'Ready';
+
+    showToast(`Found ${zips.length} ZIP codes`, 'success');
+
+  } catch (error) {
+    consolePreview.innerHTML += '<div class="console-line console-error">✗ Error: ' + error.message + '</div>';
+    consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+    consoleStatus.querySelector('.status-dot').classList.add('status-error');
+    consoleStatus.querySelector('.status-text').textContent = 'Error';
+    showToast('Error: ' + error.message, 'error');
+  } finally {
+    findBtn.disabled = false;
+    findBtn.innerHTML = 'Find ZIP Codes';
+  }
+}
+
+function updateAutoJobCounter() {
+  const zipCheckboxes = document.querySelectorAll('#autoZipMultiselect input[type="checkbox"]:checked');
+  const catCheckboxes = document.querySelectorAll('#autoCategoryMultiselect input[type="checkbox"]:checked');
+
+  const zipCount = zipCheckboxes.length;
+  const catCount = catCheckboxes.length;
+  const totalJobs = zipCount * catCount;
+
+  // Update counters
+  document.getElementById('autoZipCount').textContent = `(${zipCount})`;
+  document.getElementById('autoCategoryCount').textContent = `(${catCount})`;
+
+  // Update job summary
+  const jobSummary = document.getElementById('autoJobSummary');
+  if (totalJobs > 0) {
+    jobSummary.style.display = 'block';
+    document.getElementById('autoTotalJobs').textContent = totalJobs;
+    document.getElementById('autoJobBreakdown').textContent = `${zipCount} ZIPs × ${catCount} Categories`;
+  } else {
+    jobSummary.style.display = 'none';
+  }
+
+  // Enable/disable Start button
+  const startBtn = document.getElementById('btnStartAutomation');
+  startBtn.disabled = totalJobs === 0;
+}
+
+function resetAutomationMode() {
+  // Reset form
+  document.getElementById('inputAutoCity').value = '';
+  document.getElementById('inputAutoState').value = '';
+  document.getElementById('inputAutoRadius').value = 50;
+  document.getElementById('autoRadiusValue').textContent = 50;
+  document.getElementById('autoMaxPages').value = 2;
+
+  // Clear ZIP section
+  document.getElementById('autoZipSelectionSection').style.display = 'none';
+  document.getElementById('autoZipMultiselect').innerHTML = '';
+
+  // Uncheck all categories
+  document.querySelectorAll('#autoCategoryMultiselect input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+  // Hide job summary
+  document.getElementById('autoJobSummary').style.display = 'none';
+
+  // Disable Start button
+  document.getElementById('btnStartAutomation').disabled = true;
+
+  // Reset counters
+  document.getElementById('autoZipCount').textContent = '(0)';
+  document.getElementById('autoCategoryCount').textContent = '(0)';
+
+  showToast('Reset complete', 'info');
+}
+
+// Sound notification setting (stored in localStorage)
+let playSoundOnComplete = localStorage.getItem('playSoundOnComplete') !== 'false'; // Default true
+
+function toggleCompletionSound() {
+  playSoundOnComplete = !playSoundOnComplete;
+  localStorage.setItem('playSoundOnComplete', playSoundOnComplete);
+
+  const btn = document.getElementById('btnSoundToggle');
+  btn.textContent = playSoundOnComplete ? '🔔' : '🔕';
+  btn.style.opacity = playSoundOnComplete ? '1' : '0.5';
+
+  showToast(playSoundOnComplete ? 'Sound enabled' : 'Sound disabled', 'info');
+}
+
+// Update button state on load
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btnSoundToggle');
+  if (btn) {
+    btn.textContent = playSoundOnComplete ? '🔔' : '🔕';
+    btn.style.opacity = playSoundOnComplete ? '1' : '0.5';
+  }
+});
+
+function playCompletionSound() {
+  if (!playSoundOnComplete) return;
+
+  // Create a simple beep sound using Web Audio API
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.frequency.value = 800; // 800 Hz beep
+  oscillator.type = 'sine';
+
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+// Start Automation Mode
+async function startAutomationMode() {
+  const zipCheckboxes = document.querySelectorAll('#autoZipMultiselect input[type="checkbox"]:checked');
+  const catCheckboxes = document.querySelectorAll('#autoCategoryMultiselect input[type="checkbox"]:checked');
+  const maxPages = parseInt(document.getElementById('autoMaxPages').value) || 2;
+  const skipScraped = document.getElementById('autoSkipScraped').checked;
+
+  const selectedZips = Array.from(zipCheckboxes).map(cb => cb.value);
+  const selectedCategories = Array.from(catCheckboxes).map(cb => cb.value);
+
+  if (selectedZips.length === 0 || selectedCategories.length === 0) {
+    showToast('Please select at least one ZIP and one Category', 'error');
+    return;
+  }
+
+  const totalJobs = selectedZips.length * selectedCategories.length;
+  console.log('[Automation] Starting automation:', { zips: selectedZips, categories: selectedCategories, totalJobs, maxPages });
+
+  const startBtn = document.getElementById('btnStartAutomation');
+  const consoleOutput = document.getElementById('autoConsoleOutput');
+  const consoleStatus = document.getElementById('autoConsoleStatus');
+  const queuePreview = document.getElementById('autoQueuePreview');
+  const progressBar = document.getElementById('autoConsoleProgress');
+
+  // Update UI
+  startBtn.disabled = true;
+  startBtn.innerHTML = '<span class="spinner"></span> Running...';
+
+  queuePreview.style.display = 'none';
+  consoleOutput.style.display = 'block';
+  consoleOutput.innerHTML = '<div class="console-line console-system">Initializing automation...</div>';
+  progressBar.style.display = 'block';
+
+  consoleStatus.querySelector('.status-dot').classList.remove('status-idle');
+  consoleStatus.querySelector('.status-dot').classList.add('status-running');
+  consoleStatus.querySelector('.status-text').textContent = 'Running';
+
+  try {
+    // Call backend automation API
+    consoleOutput.innerHTML += `<div class="console-line console-info">→ Starting batch scrape: ${totalJobs} jobs (${selectedZips.length} ZIPs × ${selectedCategories.length} Categories)</div>`;
+
+    const response = await apiCall('/api/scrape/automation/start', 'POST', {
+      profileId: currentProfileId,
+      zips: selectedZips,
+      categories: selectedCategories,
+      maxPages: maxPages,
+      skipScraped: skipScraped
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to start automation');
+    }
+
+    consoleOutput.innerHTML += '<div class="console-line console-success">✓ Automation started</div>';
+
+    // Poll for progress
+    await pollAutomationProgress();
+
+  } catch (error) {
+    console.error('[Automation] Error:', error);
+    consoleOutput.innerHTML += `<div class="console-line console-error">✗ Error: ${error.message}</div>`;
+    consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+    consoleStatus.querySelector('.status-dot').classList.add('status-error');
+    consoleStatus.querySelector('.status-text').textContent = 'Error';
+
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Automation</span>';
+    showToast('Automation failed: ' + error.message, 'error');
+  }
+}
+
+// Poll Automation Progress
+async function pollAutomationProgress() {
+  const consoleOutput = document.getElementById('autoConsoleOutput');
+  const consoleStatus = document.getElementById('autoConsoleStatus');
+  const startBtn = document.getElementById('btnStartAutomation');
+  const progressBar = document.getElementById('autoProgressBar');
+  const progressText = document.getElementById('autoProgressText');
+  const progressLeads = document.getElementById('autoProgressLeads');
+
+  let previousLogCount = 0;
+
+  const interval = setInterval(async () => {
+    try {
+      const response = await apiCall('/api/scrape/status');
+
+      if (!response.success || !response.status) {
+        throw new Error('Failed to get status');
+      }
+
+      const status = response.status;
+      const progress = status.progress || 0;
+      const leads = status.total_leads || 0;
+      const logs = status.logs || [];
+      const currentJob = status.current_job || 0;
+      const totalJobs = status.total_jobs || 1;
+
+      // Update progress bar
+      progressBar.style.width = progress + '%';
+      progressText.textContent = `Job ${currentJob} of ${totalJobs}`;
+      progressLeads.textContent = `${leads} leads`;
+
+      // Display NEW logs only
+      if (logs.length > previousLogCount) {
+        const newLogs = logs.slice(previousLogCount);
+        newLogs.forEach(log => {
+          const logClass = log.type === 'error' ? 'console-error' :
+                          log.type === 'success' ? 'console-success' :
+                          log.type === 'system' ? 'console-system' : 'console-info';
+
+          consoleOutput.innerHTML += `<div class="console-line ${logClass}">${log.message}</div>`;
+        });
+        previousLogCount = logs.length;
+      }
+
+      // Auto-scroll console to bottom
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+      // Check if automation is complete
+      if (!status.active) {
+        clearInterval(interval);
+
+        progressBar.style.width = '100%';
+        consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+        consoleStatus.querySelector('.status-dot').classList.add('status-complete');
+        consoleStatus.querySelector('.status-text').textContent = 'Complete';
+
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Automation</span>';
+
+        consoleOutput.innerHTML += `<div class="console-line console-success">✓ Automation complete! Found ${leads} total leads</div>`;
+
+        // Play completion sound
+        playCompletionSound();
+
+        showToast(`Automation complete! Found ${leads} leads`, 'success');
+      }
+
+    } catch (error) {
+      console.error('[Poll] Error:', error);
+      clearInterval(interval);
+
+      consoleOutput.innerHTML += `<div class="console-line console-error">[ERROR] ${error.message}</div>`;
+      consoleStatus.querySelector('.status-dot').classList.remove('status-running');
+      consoleStatus.querySelector('.status-dot').classList.add('status-error');
+      consoleStatus.querySelector('.status-text').textContent = 'Error';
+
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<span class="btn-icon">▶</span><span>Start Automation</span>';
+    }
+  }, 1000);
+}
+
 
