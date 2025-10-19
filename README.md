@@ -156,9 +156,16 @@ The data will be **messy** (no AI used during scraping).
   - **Auto Profile**: "Auto Repair Shops", "Car Dealers", "Auto Parts Stores"
   - **Real Estate Profile**: "Real Estate Agents", "Property Managers", "Home Inspectors"
 
+### **Built-in CRM Database System**
+- 🗄️ **Complete Lead Database** - All leads automatically stored and organized
+- 🔍 **Advanced Search** - Search leads by zip code, city name, or category
+- 📤 **Export Functionality** - Export any search results to CSV/Excel
+- 🏷️ **Lead Flagging System** - Mark leads as "Contacted", "Archived", or "Disregarded"
+- 📊 **Lead Status Tracking** - Keep track of which leads you've reached out to
+- 📈 **Analytics Dashboard** - View lead statistics and conversion rates
+
 ### **Future Features (Coming Soon)**
 - 🤖 **Auto Gmail Sending** - Automatically send personalized emails to leads
-- 📊 **Advanced Analytics** - Track conversion rates and ROI per profile
 - 📱 **Mobile App** - Access your leads on the go
 
 ---
@@ -202,7 +209,17 @@ Shows total leads, breakdown by zip code.
 ### [3] List Available Categories
 Quick reference of YOUR custom categories for the current profile.
 
-### [4] Exit
+### [4] Search & Export Leads
+- Search leads by zip code, city, or category
+- Export search results to CSV/Excel
+- Filter and organize your lead database
+
+### [5] Manage Lead Status
+- Flag leads as "Contacted", "Archived", or "Disregarded"
+- Track your outreach progress
+- Keep your database organized
+
+### [6] Exit
 Closes the program.
 
 ---
@@ -245,24 +262,25 @@ Closes the program.
 ```
 Zips: 33527, 33594, 33612
 Category: Property Management Companies
-Result: 50 leads
+Result: 50 leads → All stored in database
 ```
 
 ### Week 2: Real Estate (SAME ZIPS!)
 ```
 Zips: 33527, 33594, 33612
 Category: Real Estate Agents
-Result: 45 new leads (different businesses!)
+Result: 45 new leads → Added to database
 ```
 
-### Week 3: HOA (SAME ZIPS AGAIN!)
+### Week 3: Lead Management & Outreach
 ```
-Zips: 33527, 33594, 33612
-Category: HOA Management
-Result: 30 new leads
+Search: "All leads in 33527"
+Export: 25 Property Management + 15 Real Estate = 40 leads
+Flag: Mark 10 as "Contacted" after phone calls
+Archive: 5 leads that weren't interested
 ```
 
-**Total: 125 leads from same 3 zips, 3 different categories!**
+**Total: 95 active leads, 10 contacted, 5 archived - all tracked in your CRM!**
 
 ---
 
@@ -274,6 +292,10 @@ Result: 30 new leads
 - Check stats regularly
 - Keep the database file safe
 - Create different profiles for different business types
+- Use the search function to find specific leads
+- Export leads before making calls
+- Flag leads as you contact them
+- Archive leads that aren't interested
 
 **DON'T:**
 - Delete `data/leads_tracker.db` (your safety net!)
@@ -285,7 +307,7 @@ Result: 30 new leads
 
 ## 🎉 That's It!
 
-**You now have Scraper G1000 - a production-ready universal lead scraping system that:**
+**You now have Scraper G1000 - a complete lead generation and CRM system that:**
 - ✅ Works for ANY business type
 - ✅ Asks you what to scrape (interactive menu)
 - ✅ Organizes everything automatically
@@ -293,6 +315,8 @@ Result: 30 new leads
 - ✅ Requires ZERO AI credits
 - ✅ Works forever
 - ✅ Profile system for multiple business types
+- ✅ Built-in CRM database with search and export
+- ✅ Lead flagging and status tracking
 - ✅ Auto Gmail sending (coming soon!)
 
 **Just double-click `START.bat` and follow the prompts!** 🚀
