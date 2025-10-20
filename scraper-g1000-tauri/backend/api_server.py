@@ -283,11 +283,69 @@ def get_leads(profile_id):
                     'website': lead[3],
                     'email': lead[4],
                     'category': lead[5] if len(lead) > 5 else 'N/A',
-                    'zipCode': lead[6] if len(lead) > 6 else 'N/A'
+                    'zipCode': lead[6] if len(lead) > 6 else 'N/A',
+                    'city': lead[7] if len(lead) > 7 else 'N/A',
+                    'status': lead[8] if len(lead) > 8 else 'New'
                 }
                 for i, lead in enumerate(leads)
             ]
         }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/leads/<profile_id>/<int:lead_id>/status', methods=['PUT'])
+def update_lead_status(profile_id, lead_id):
+    """Update a single lead's status"""
+    try:
+        data = request.json
+        new_status = data.get('status')
+        
+        if not new_status:
+            return jsonify({'success': False, 'error': 'Status required'}), 400
+            
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            return jsonify({'success': False, 'error': 'Profile not found'}), 404
+
+        db = LeadsDatabase(profile.get_database_path())
+        success = db.update_lead_status(lead_id, new_status)
+        
+        if success:
+            return jsonify({'success': True, 'message': f'Lead status updated to {new_status}'}), 200
+        else:
+            return jsonify({'success': False, 'error': 'Lead not found'}), 404
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/leads/<profile_id>/bulk-status', methods=['PUT'])
+def bulk_update_lead_status(profile_id):
+    """Update multiple leads' status"""
+    try:
+        data = request.json
+        lead_ids = data.get('leadIds', [])
+        new_status = data.get('status')
+        
+        if not lead_ids or not new_status:
+            return jsonify({'success': False, 'error': 'Lead IDs and status required'}), 400
+            
+        profile = profile_manager.get_profile(profile_id)
+        if not profile:
+            return jsonify({'success': False, 'error': 'Profile not found'}), 404
+
+        db = LeadsDatabase(profile.get_database_path())
+        updated_count = 0
+        
+        for lead_id in lead_ids:
+            if db.update_lead_status(lead_id, new_status):
+                updated_count += 1
+        
+        return jsonify({
+            'success': True, 
+            'updated': updated_count,
+            'message': f'{updated_count} leads updated to {new_status}'
+        }), 200
+            
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -319,10 +377,13 @@ def run_scrape_job(profile_id, zip_code, category, max_pages):
             for lead in leads:
                 db.add_lead(
                     name=lead['name'],
-                    phone_number=lead['phone_number'],
+                    phone=lead['phone_number'],
                     address=lead['address'],
                     website=lead['website'],
-                    email=lead['email']
+                    email=lead['email'],
+                    zip_code=zip_code,
+                    category=category,
+                    city=lead.get('city', '')
                 )
             profile_manager.update_profile_leads(profile_id, db.get_total_leads())
 
@@ -389,10 +450,13 @@ def run_automation_job(profile_id, zips, categories, max_pages, skip_scraped):
                     for lead in leads:
                         db.add_lead(
                             name=lead['name'],
-                            phone_number=lead['phone_number'],
+                            phone=lead['phone_number'],
                             address=lead['address'],
                             website=lead['website'],
-                            email=lead['email']
+                            email=lead['email'],
+                            zip_code=zip_code,
+                            category=category,
+                            city=lead.get('city', '')
                         )
 
                     scraping_state['total_leads'] += len(leads)

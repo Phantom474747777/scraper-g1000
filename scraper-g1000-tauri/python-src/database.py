@@ -31,7 +31,10 @@ class LeadsDatabase:
                 zip_code TEXT,
                 location TEXT,
                 scraped_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                source_file TEXT
+                source_file TEXT,
+                category TEXT,
+                city TEXT,
+                status TEXT DEFAULT 'New'
             )
         ''')
 
@@ -87,7 +90,8 @@ class LeadsDatabase:
     def add_lead(self, name: str, address: str, phone: str,
                  email: Optional[str] = None, website: Optional[str] = None,
                  zip_code: Optional[str] = None, category: Optional[str] = None,
-                 location: Optional[str] = None, source_file: Optional[str] = None) -> bool:
+                 location: Optional[str] = None, source_file: Optional[str] = None,
+                 city: Optional[str] = None) -> bool:
         """
         Add a lead to the database if it doesn't already exist
         Returns True if added, False if duplicate
@@ -97,19 +101,25 @@ class LeadsDatabase:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        # Check if category column exists, if not add it
+        # Check if category, city, and status columns exist, if not add them
         cursor.execute("PRAGMA table_info(leads)")
         columns = [col[1] for col in cursor.fetchall()]
         if 'category' not in columns:
             cursor.execute('ALTER TABLE leads ADD COLUMN category TEXT')
             conn.commit()
+        if 'city' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN city TEXT')
+            conn.commit()
+        if 'status' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN status TEXT DEFAULT "New"')
+            conn.commit()
 
         try:
             cursor.execute('''
                 INSERT INTO leads
-                (business_hash, name, address, phone, email, website, zip_code, category, location, source_file)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (business_hash, name, address, phone, email, website, zip_code, category, location, source_file))
+                (business_hash, name, address, phone, email, website, zip_code, category, location, source_file, city)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (business_hash, name, address, phone, email, website, zip_code, category, location, source_file, city))
 
             conn.commit()
             conn.close()
@@ -230,3 +240,42 @@ class LeadsDatabase:
             'by_location': by_location,
             'top_zip_codes': by_zip
         }
+
+    def get_all_leads(self):
+        """Get all leads from the database"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Check if status column exists, if not add it
+        cursor.execute("PRAGMA table_info(leads)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'status' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN status TEXT DEFAULT "New"')
+            conn.commit()
+        if 'city' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN city TEXT')
+            conn.commit()
+        
+        cursor.execute('SELECT * FROM leads ORDER BY id')
+        results = cursor.fetchall()
+        conn.close()
+        return results
+
+    def update_lead_status(self, lead_id: int, status: str) -> bool:
+        """Update a lead's status"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Check if status column exists, if not add it
+        cursor.execute("PRAGMA table_info(leads)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'status' not in columns:
+            cursor.execute('ALTER TABLE leads ADD COLUMN status TEXT DEFAULT "New"')
+            conn.commit()
+        
+        cursor.execute('UPDATE leads SET status = ? WHERE id = ?', (status, lead_id))
+        rows_affected = cursor.rowcount
+        conn.commit()
+        conn.close()
+        
+        return rows_affected > 0
