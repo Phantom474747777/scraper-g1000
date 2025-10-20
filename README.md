@@ -1,332 +1,181 @@
 # 🚀 Scraper G1000 - Universal Lead Generation System
 
-**The most powerful universal lead scraping system ever created.**
+**The most powerful universal lead scraping system with a beautiful modern GUI.**
 
 ## 🚀 Quick Start
 
-**Just double-click `START.bat` in File Explorer**
+**Just double-click `START-GUI.bat` in File Explorer**
 
-That's literally it. 🚀
+That's literally it. The app opens with a beautiful dark-themed interface! 🚀
 
 ---
 
 ## 🎯 What This Does
 
-**Scraper G1000** is a universal lead generation system that can scrape local business leads for **ANY** business type. It's completely customizable and works for any industry.
+**Scraper G1000** is a universal lead generation system that can scrape local business leads for **ANY** business type. It features a modern desktop GUI with professional styling and intuitive workflows.
 
-**Fully Customizable Categories:**
-- You define your own business categories
-- Type in whatever categories make sense for your business
-- No limits on how many categories you can add
-- Each profile can have completely different categories
-- Examples: "Real Estate Agents", "Property Managers", "HVAC Companies", "Local Restaurants", "Beauty Salons", "Auto Repair Shops" - literally anything!
+**Key Features:**
+- 🎨 **Beautiful Modern GUI** - Dark theme with glass effects and smooth animations
+- 🔄 **Toggle Actions** - Archive/Contact buttons that can be reversed
+- 📊 **Dashboard Analytics** - View lead statistics and breakdowns
+- 📤 **Export Functionality** - Export leads to CSV/Excel
+- 🏷️ **Lead Management** - Mark leads as contacted, archived, or new
+- 📱 **Bulk Operations** - Select multiple leads for batch actions
 
 ---
 
 ## 📋 How It Works
 
-### Step 1: Double-click `START.bat`
+### Step 1: Launch the App
+Double-click `START-GUI.bat` and the beautiful desktop app opens.
 
-### Step 2: Choose from menu:
-```
-🦗 CritterCaptures Lead Scraper
-============================================================
+### Step 2: Create or Select Profile
+- **First time?** Click "Create New Profile" and enter your business name
+- **Returning user?** Click on your existing profile to continue
 
-📋 MENU:
-  [1] Start New Scrape
-  [2] View Database Stats
-  [3] List Available Categories
-  [4] Exit
-============================================================
-```
+### Step 3: Choose Your Mode
+- **Manual Mode** - Hand-pick locations and categories for precise control
+- **View Leads** - Manage your existing leads and export them
 
-### Step 3: Enter zip codes:
-```
-📮 Enter ZIP codes to scrape:
-   (separate multiple with commas, e.g., 33527, 33594, 33612)
+### Step 4: Manual Scraping (if selected)
+1. Enter your city and state
+2. Adjust search radius (10-100 miles)
+3. Click "Find ZIP Codes" to discover nearby areas
+4. Select a ZIP code from the dropdown
+5. Choose a business category
+6. Click "Start Scraping" and watch the live console
+7. View your new leads when complete
 
-   Zip codes: 33527, 33594
-```
-
-### Step 4: Pick category:
-```
-📂 YOUR CUSTOM CATEGORIES:
-============================================================
-  [1] Property Management Companies
-  [2] Real Estate Agents
-  [3] Home Inspectors
-  [4] Construction Companies
-  [5] Roofing Contractors
-  [6] HVAC Services
-  [7] Plumbing Companies
-  [8] Landscaping Companies
-  [9] Cleaning Services
-============================================================
-
-🏷️  Select a category number (1-9):
-   Category: 1
-```
-
-*Note: These are YOUR custom categories that YOU defined when creating your business profile. Every profile can have completely different categories!*
-
-### Step 5: Press ENTER to start!
-
-The scraper runs automatically and saves everything to organized folders.
+### Step 5: Manage Your Leads
+- **View Dashboard** - See lead statistics and breakdowns
+- **Filter by ZIP/Category** - Find specific leads
+- **Toggle Lead Status** - Mark as contacted, archive, or unarchive
+- **Bulk Actions** - Select multiple leads for batch operations
+- **Export** - Download leads to CSV or Excel
 
 ---
 
-## 📁 Where Are My Leads?
+## 🎨 Modern UI Features
 
+### 🔄 Toggle Functionality
+- **Archive Button** → Changes to red "Unarchive" when archived
+- **Contact Button** → Changes to "Not Contacted" when contacted
+- **Bulk Unarchive** → Instantly unarchive multiple selected leads
+
+### 🎯 Professional Interface
+- **Dark Theme** with gradient backgrounds
+- **Glass Effects** and backdrop blur
+- **Toast Notifications** instead of ugly browser popups
+- **Smooth Animations** throughout the app
+- **Modal Dialogs** for profile creation and exports
+
+### 📊 Dashboard Analytics
+- **KPI Cards** showing total leads, contacted, archived counts
+- **ZIP Code Breakdown** with lead counts per area
+- **Category Statistics** showing leads by business type
+- **Clickable Cards** to filter and view specific lead groups
+
+---
+
+## 🗂️ Lead Management
+
+### Status System
+- **New** - Freshly scraped leads
+- **Contacted** - Leads you've reached out to
+- **Archived** - Leads you want to set aside
+
+### Actions Available
+- **Individual Actions** - Toggle status for single leads
+- **Bulk Actions** - Select multiple leads for batch operations
+- **Search & Filter** - Find leads by name, phone, location, or category
+- **Export Options** - Download current view, selected leads, or all leads
+
+### Data Organization
+All leads are automatically organized by:
+- ZIP code
+- Business category
+- Status (New/Contacted/Archived)
+- Scraping date
+
+---
+
+## 🔧 Technical Details
+
+**What it does:**
+- Scrapes YellowPages.com (no AI credits needed)
+- Extracts: name, phone, address, website, email, city
+- Saves to organized database with status tracking
+- Provides modern GUI for easy management
+
+**Database Features:**
+- SQLite database with automatic migrations
+- Prevents duplicate leads
+- Tracks lead status and history
+- Supports multiple business profiles
+
+**File Structure:**
 ```
-data/leads/
-├── property_management_companies/
-│   ├── lead_1_zip_33527/
-│   │   └── 33527_2025-10-15_143022.csv
-│   └── lead_2_zip_33594/
-│       └── 33594_2025-10-15_143045.csv
-│
-├── real_estate_agents/
-│   ├── lead_3_zip_33527/  ← SAME zip, different category!
-│   └── lead_4_zip_33594/
-│
-└── hoa_management/
-    └── lead_5_zip_33527/  ← SAME zip again!
+data/
+├── leads_tracker.db (main database)
+├── used_zips.json (scraping history)
+└── profiles/ (business profiles)
 ```
 
-**Each category gets its own folder.**
-**Lead numbers increment automatically (1, 2, 3...).**
+---
+
+## 💡 Pro Tips
+
+### Tip #1: Use the Dashboard
+The dashboard shows you exactly where your leads are coming from and helps you plan your scraping strategy.
+
+### Tip #2: Leverage Bulk Actions
+Select multiple leads and use bulk operations to efficiently manage large lead lists.
+
+### Tip #3: Export Regularly
+Export your leads to CSV/Excel for external CRM systems or backup purposes.
+
+### Tip #4: Use Toggle Actions
+Don't worry about mistakes - you can always unarchive or mark leads as "not contacted" if needed.
 
 ---
 
 ## 🔒 Safety Features
 
 ### ✅ Prevents Duplicate Leads
-Once a zip+category combo is scraped, it's **BLOCKED FOREVER**:
+Once a zip+category combo is scraped, it's automatically blocked from being scraped again.
 
-```
-⚠️  ALREADY SCRAPED!
-   📅 Date: 2025-10-15 14:30:22
-   📁 Folder: property_management_companies/lead_1_zip_33527
-   🚫 SKIPPING!
-```
+### ✅ Status Tracking
+Never lose track of which leads you've contacted or archived.
 
-### ✅ Allows Same Zip for Different Categories
-You CAN scrape the same zip multiple times - just pick a different category!
-
-Example:
-- ZIP 33527 + Property Management = ✅ Lead 1
-- ZIP 33527 + Real Estate Agents = ✅ Lead 2
-- ZIP 33527 + Property Management = ❌ BLOCKED (already done!)
-
-### ✅ Permanent Memory
-Database remembers everything forever:
-- Restart computer? Still remembers.
-- Months later? Still remembers.
-- Never sell duplicate leads!
-
----
-
-## 🧹 Cleaning the Data
-
-The data will be **messy** (no AI used during scraping).
-
-**To clean:**
-1. Open any CSV file
-2. Copy all data
-3. Paste into **ChatGPT Plus** or **Claude**
-4. Say: "Clean this business data CSV. Extract name, phone, address. Return clean CSV."
-5. Done!
-
-## 🔧 Profile System - Complete Customization
-
-**Scraper G1000** is designed to be completely customizable:
-
-### **Unlimited Profiles**
-- Create as many business profiles as you want
-- Each profile is completely independent
-- Switch between profiles easily
-
-### **Custom Categories for Each Profile**
-- Define your own business categories for each profile
-- Type in whatever categories make sense for your business
-- No limits on how many categories you can add
-- Examples:
-  - **Restaurant Profile**: "Local Restaurants", "Food Trucks", "Catering Companies"
-  - **Beauty Profile**: "Hair Salons", "Nail Salons", "Spas", "Barbershops"
-  - **Auto Profile**: "Auto Repair Shops", "Car Dealers", "Auto Parts Stores"
-  - **Real Estate Profile**: "Real Estate Agents", "Property Managers", "Home Inspectors"
-
-### **Built-in CRM Database System**
-- 🗄️ **Complete Lead Database** - All leads automatically stored and organized
-- 🔍 **Advanced Search** - Search leads by zip code, city name, or category
-- 📤 **Export Functionality** - Export any search results to CSV/Excel
-- 🏷️ **Lead Flagging System** - Mark leads as "Contacted", "Archived", or "Disregarded"
-- 📊 **Lead Status Tracking** - Keep track of which leads you've reached out to
-- 📈 **Analytics Dashboard** - View lead statistics and conversion rates
-
-### **Future Features (Coming Soon)**
-- 🤖 **Auto Gmail Sending** - Automatically send personalized emails to leads
-- 📱 **Mobile App** - Access your leads on the go
-
----
-
-## 💡 Pro Tips
-
-### Tip #1: Start with Big Cities
-Small towns have fewer results. Try:
-- Tampa area: `33612`, `33629`, `33618`
-- Brandon area: `33511`, `33510`
-- Plant City: `33563`, `33566`
-
-### Tip #2: Run All Categories
-Each category = different set of leads from same zips!
-- Day 1: Property Management
-- Day 2: Real Estate Agents
-- Day 3: HOA Management
-- Day 4: Construction Companies
-- Day 5: HVAC Services
-- etc.
-
-### Tip #3: Use the Stats Feature
-Check menu option [2] to see:
-- Total leads in database
-- Leads per zip code
-- Your progress
-
-### Tip #4: Scrape Regularly
-Run weekly or monthly for fresh leads. The database prevents duplicates automatically!
-
----
-
-## 📊 Menu Options Explained
-
-### [1] Start New Scrape
-Interactive wizard - asks for zips and category, then scrapes automatically.
-
-### [2] View Database Stats
-Shows total leads, breakdown by zip code.
-
-### [3] List Available Categories
-Quick reference of YOUR custom categories for the current profile.
-
-### [4] Search & Export Leads
-- Search leads by zip code, city, or category
-- Export search results to CSV/Excel
-- Filter and organize your lead database
-
-### [5] Manage Lead Status
-- Flag leads as "Contacted", "Archived", or "Disregarded"
-- Track your outreach progress
-- Keep your database organized
-
-### [6] Exit
-Closes the program.
-
----
-
-## ⚙️ Technical Details
-
-**What it does:**
-- Scrapes YellowPages.com (no AI credits needed)
-- Extracts: name, phone, address, website, email
-- Saves to organized CSV files
-- Tracks everything in SQLite database
-
-**Database location:**
-`data/leads_tracker.db`
-
-**DO NOT DELETE THIS FILE** - it's your duplicate protection!
-
----
-
-## 🔧 Troubleshooting
-
-**"No businesses found"**
-- Try bigger cities (Tampa instead of small towns)
-- Try different category
-- Some zips don't have all business types
-
-**"All duplicates skipped"**
-- You've already scraped this zip+category combo
-- Pick a different category OR different zips
-
-**Data looks messy**
-- That's normal! No AI = raw data
-- Upload to ChatGPT Plus to clean it
-
----
-
-## 📈 Example Workflow
-
-### Week 1: Property Management
-```
-Zips: 33527, 33594, 33612
-Category: Property Management Companies
-Result: 50 leads → All stored in database
-```
-
-### Week 2: Real Estate (SAME ZIPS!)
-```
-Zips: 33527, 33594, 33612
-Category: Real Estate Agents
-Result: 45 new leads → Added to database
-```
-
-### Week 3: Lead Management & Outreach
-```
-Search: "All leads in 33527"
-Export: 25 Property Management + 15 Real Estate = 40 leads
-Flag: Mark 10 as "Contacted" after phone calls
-Archive: 5 leads that weren't interested
-```
-
-**Total: 95 active leads, 10 contacted, 5 archived - all tracked in your CRM!**
-
----
-
-## ✅ Best Practices
-
-**DO:**
-- Run all available categories for maximum leads
-- Use multiple zips at once
-- Check stats regularly
-- Keep the database file safe
-- Create different profiles for different business types
-- Use the search function to find specific leads
-- Export leads before making calls
-- Flag leads as you contact them
-- Archive leads that aren't interested
-
-**DON'T:**
-- Delete `data/leads_tracker.db` (your safety net!)
-- Delete the `data/` folder
-- Worry about duplicates (system handles it)
-- Expect perfect data (clean with ChatGPT)
+### ✅ Data Persistence
+All your data is saved automatically - no risk of losing your leads.
 
 ---
 
 ## 🎉 That's It!
 
-**You now have Scraper G1000 - a complete lead generation and CRM system that:**
+**You now have Scraper G1000 - a complete lead generation system with:**
+- ✅ Beautiful modern GUI
 - ✅ Works for ANY business type
-- ✅ Asks you what to scrape (interactive menu)
-- ✅ Organizes everything automatically
-- ✅ Never duplicates leads
+- ✅ Toggle actions for easy lead management
+- ✅ Dashboard analytics and statistics
+- ✅ Bulk operations for efficiency
+- ✅ Export functionality
+- ✅ Professional UI/UX design
+- ✅ No ugly browser popups
 - ✅ Requires ZERO AI credits
 - ✅ Works forever
-- ✅ Profile system for multiple business types
-- ✅ Built-in CRM database with search and export
-- ✅ Lead flagging and status tracking
-- ✅ Auto Gmail sending (coming soon!)
 
-**Just double-click `START.bat` and follow the prompts!** 🚀
+**Just double-click `START-GUI.bat` and enjoy the modern interface!** 🚀
 
 ---
 
 ## 📞 Need Help?
 
-Check the menu option [3] to see all available categories.
+The app is designed to be intuitive, but if you need assistance:
+- Check the dashboard for lead statistics
+- Use the search function to find specific leads
+- Export your data regularly for backup
+- Use bulk actions for efficient lead management
 
-Check option [2] to see your database stats.
-
-Everything else is automatic!
+Everything is designed to be user-friendly with the modern GUI! 🎨
