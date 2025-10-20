@@ -287,6 +287,7 @@
                 </div>
                 <div class="bulk-actions-right">
                     <button class="btn-bulk" id="btnBulkContact">Mark Contacted</button>
+                    <button class="btn-bulk btn-not-contacted" id="btnBulkNotContacted">Not Contacted</button>
                     <button class="btn-bulk" id="btnBulkArchive">Archive</button>
                     <button class="btn-bulk" id="btnBulkUnarchive">Unarchive</button>
                 </div>
@@ -299,6 +300,7 @@
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Name</th>
                             <th>Phone</th>
+                            <th>Email</th>
                             <th>Category</th>
                             <th>City</th>
                             <th>ZIP</th>
@@ -308,7 +310,7 @@
                     </thead>
                     <tbody id="leadsTableBody">
                         <tr>
-                            <td colspan="7" class="loading">Loading leads...</td>
+                            <td colspan="9" class="loading">Loading leads...</td>
                         </tr>
                     </tbody>
                 </table>

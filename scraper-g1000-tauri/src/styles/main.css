@@ -389,6 +389,51 @@ body::before {
   border-bottom: 1px solid var(--border);
 }
 
+/* Custom Checkbox Styling - No ugly browser checkboxes! */
+.leads-table input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.leads-table input[type="checkbox"]:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.leads-table input[type="checkbox"]:checked {
+  background: rgba(139, 92, 246, 1);
+  border-color: rgba(139, 92, 246, 1);
+}
+
+.leads-table input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Fix phone number wrapping */
+.leads-table td[style*="white-space: nowrap"] {
+  white-space: nowrap;
+}
+
+/* Table horizontal scroll */
+.leads-table-container {
+  overflow-x: auto;
+}
+
 .leads-table tbody tr {
   transition: background 0.2s;
 }
@@ -625,14 +670,14 @@ body::before {
 }
 
 .btn-not-contacted {
-  background: rgba(156, 163, 175, 0.1);
-  border-color: rgba(156, 163, 175, 0.2);
-  color: rgba(156, 163, 175, 1);
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: rgba(239, 68, 68, 1);
 }
 
 .btn-not-contacted:hover:not(:disabled) {
-  background: rgba(156, 163, 175, 0.2);
-  border-color: rgba(156, 163, 175, 0.3);
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* ===== LEADS DASHBOARD REDESIGN ===== */
@@ -971,6 +1016,17 @@ body::before {
 }
 
 #btnBulkUnarchive:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+#btnBulkNotContacted {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: rgba(239, 68, 68, 1);
+}
+
+#btnBulkNotContacted:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: rgba(239, 68, 68, 0.3);
 }

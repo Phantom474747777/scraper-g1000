@@ -160,6 +160,7 @@ function setupEventListeners() {
 
   // Bulk actions
   document.getElementById('btnBulkContact')?.addEventListener('click', () => bulkUpdateStatus('Contacted'));
+  document.getElementById('btnBulkNotContacted')?.addEventListener('click', () => bulkUpdateStatus('New'));
   document.getElementById('btnBulkArchive')?.addEventListener('click', () => bulkUpdateStatus('Archived'));
   document.getElementById('btnBulkUnarchive')?.addEventListener('click', () => bulkUpdateStatus('New'));
 
@@ -290,14 +291,14 @@ async function viewFilteredLeads() {
 
   // Load leads with combined filter
   const tbody = document.getElementById('leadsTableBody');
-  tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading leads...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading leads...</td></tr>';
 
   try {
     // Fetch ALL leads
     const data = await apiCall(`/api/leads/${currentProfileId}`);
 
     if (!data.success || !data.leads || data.leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">No leads found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">No leads found</td></tr>';
       document.getElementById('leadsCount').textContent = '0';
       return;
     }
@@ -320,7 +321,7 @@ async function viewFilteredLeads() {
 
   } catch (error) {
     console.error('[ViewFiltered] Error:', error);
-    tbody.innerHTML = '<tr><td colspan="7" class="error">Failed to load leads</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="error">Failed to load leads</td></tr>';
   }
 }
 
@@ -642,7 +643,7 @@ async function showFilteredLeads(filter) {
 
   // Load leads with loading indicator
   const tbody = document.getElementById('leadsTableBody');
-  tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading leads...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading leads...</td></tr>';
 
   try {
     // ALWAYS fetch FRESH data from server
@@ -650,7 +651,7 @@ async function showFilteredLeads(filter) {
     console.log('[Filter] Fresh leads data:', data);
 
     if (!data.success || !data.leads || data.leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">No leads found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">No leads found</td></tr>';
       document.getElementById('leadsCount').textContent = '0';
       return;
     }
@@ -682,7 +683,7 @@ async function showFilteredLeads(filter) {
 
   } catch (error) {
     console.error('[Filter] Error:', error);
-    tbody.innerHTML = '<tr><td colspan="7" class="error">Failed to load leads</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="error">Failed to load leads</td></tr>';
   }
 }
 
@@ -696,7 +697,7 @@ function renderLeadsTable(leads, allLeads) {
     const message = isMultiFilter
       ? '⚠️ No leads found for this combination. You may need to scrape this ZIP + Category first.'
       : 'No leads match this filter';
-    tbody.innerHTML = `<tr><td colspan="8" class="empty-warning">${message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-warning">${message}</td></tr>`;
     document.getElementById('leadsCount').textContent = '0';
     return;
   }
@@ -705,7 +706,8 @@ function renderLeadsTable(leads, allLeads) {
     <tr>
       <td><input type="checkbox" data-id="${lead.id}"></td>
       <td>${lead.name}</td>
-      <td>${lead.phone}</td>
+      <td style="white-space: nowrap;">${lead.phone}</td>
+      <td>${lead.email || 'N/A'}</td>
       <td>${lead.category || 'N/A'}</td>
       <td>${lead.city || 'N/A'}</td>
       <td>${lead.zipCode || 'N/A'}</td>

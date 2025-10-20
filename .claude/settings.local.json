@@ -1,30 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" kill_all_python.py)",
-      "Bash(netstat:*)",
-      "Bash(findstr:*)",
-      "Bash(tskill:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" src/scraper_411.py)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -c \"from src.scraper_universal import scrape_with_selenium; leads = scrape_with_selenium(''33527'', ''Real Estate Agents'', 10); print(f''\\n\\n=== FINAL RESULTS ===''); print(f''Total: {len(leads)} leads''); print(''\\nSAMPLE:''); [print(f''{i}. {l[\"\"name\"\"]}\\n   Phone: {l[\"\"phone_number\"\"]}\\n   Address: {l[\"\"address\"\"]}'') for i,l in enumerate(leads[:3],1)] if leads else print(''NO LEADS'')\")",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -c \"from src.scraper_universal import scrape_with_selenium; leads = scrape_with_selenium(''33527'', ''Plumbers'', 15); print(f''\\n=== FOUND {len(leads)} PLUMBERS ===''); [print(f''{i}. {l[\"\"name\"\"]} - {l[\"\"phone_number\"\"]}'') for i,l in enumerate(leads[:5],1)]\")",
-      "Bash(dir:*)",
-      "Bash(awk:*)",
-      "Bash(git rm:*)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" backendapi_server.py 5050)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" backend/api_server.py 5050)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" serve.py)",
-      "Bash(npm run dev:*)",
-      "Bash(winget install:*)",
-      "Bash(curl -L -o \"%TEMP%\\vs_buildtools.exe\" \"https://aka.ms/vs/17/release/vs_buildtools.exe\")",
-      "Bash(curl:*)",
-      "Bash(start:*)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -m pip show pywebview)",
-      "Bash(START.bat)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" app_pywebview.py)",
-      "Bash(\"C:\\Users\\47\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" -c \"import webview; print(''PyWebView imported successfully''); webview.create_window(''Test'', ''https://www.google.com'', width=800, height=600); print(''Starting webview...''); webview.start(); print(''Webview closed'')\")"
+      "Bash(cmd.exe /c \"refreshenv & python --version\")",
+      "Bash(cmd.exe /c \"C:\\Users\\47 Industries\\AppData\\Local\\Programs\\Python\\Python311\\python.exe --version\")",
+      "Read(//c/Users/47 Industries/Downloads/**)",
+      "Bash(\"/c/Users/47 Industries/Downloads/python-installer.exe\" /quiet InstallAllUsers=0 PrependPath=1 Include_test=0)",
+      "Bash(\"/c/Users/47 Industries/AppData/Local/Programs/Python/Python311/python.exe\" --version)",
+      "Bash(\"/c/Users/47 Industries/AppData/Local/Programs/Python/Python311/python.exe\" scraper-g1000.py)",
+      "Bash(git add -A)"
     ],
     "deny": [],
     "ask": []

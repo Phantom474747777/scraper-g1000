@@ -9,6 +9,6 @@ echo.
 echo Starting application...
 echo.
 
-"C:\Users\47\AppData\Local\Programs\Python\Python311\python.exe" scraper-g1000.py
+"C:\Users\47 Industries\AppData\Local\Programs\Python\Python311\python.exe" scraper-g1000.py
 
 pause

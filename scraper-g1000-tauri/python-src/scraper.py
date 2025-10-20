@@ -125,9 +125,14 @@ def extract_business_from_html(html_content: str) -> List[dict]:
             business['website'] = website_elem.get('href', 'N/A')
         else:
             business['website'] = 'N/A'
-        
-        # Email is rarely on listing pages
-        business['email'] = 'N/A'
+
+        # Extract email using regex from page text
+        email = 'N/A'
+        result_text = result.get_text()
+        email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', result_text)
+        if email_match:
+            email = email_match.group(0)
+        business['email'] = email
         
         # Only add if we have at least a name
         if business.get('name'):

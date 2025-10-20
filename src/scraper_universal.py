@@ -173,12 +173,18 @@ def scrape_with_selenium(zip_code: str, category: str, max_results: int = 50) ->
                         if addr_match:
                             address = addr_match.group(0)
 
+                        # Extract email using regex
+                        email = 'N/A'
+                        email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', context_text)
+                        if email_match:
+                            email = email_match.group(0)
+
                         all_businesses.append({
                             'name': name,
                             'phone_number': phone,
                             'address': address,
                             'website': 'N/A',
-                            'email': 'N/A'
+                            'email': email
                         })
                         extracted += 1
                         print(f"[EXTRACT {extracted}] {name} - {phone}")
