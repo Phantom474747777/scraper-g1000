@@ -10,10 +10,14 @@
 
 **Just double-click:** `BUILD-DESKTOP-APP.bat`
 
-This creates `ScraperG1000.exe` - a real desktop app you can:
+The script will:
+1. ⚡ Generate a custom lightning bolt icon
+2. 📦 Build ScraperG1000.exe
+3. 🖥️ Put the app on your desktop automatically
+
+After 2-5 minutes, you'll have a desktop icon you can:
 - Double-click to launch
 - Pin to taskbar
-- Create desktop shortcut
 - Run like any other Windows app
 
 **See:** `HOW-TO-BUILD-EXE.md` for details

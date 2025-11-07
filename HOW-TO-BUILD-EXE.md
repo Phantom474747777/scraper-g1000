@@ -1,25 +1,26 @@
 # 🚀 How to Build Desktop App
 
-## Super Simple - Just 2 Steps!
+## Super Simple - Just 1 Step!
 
 ### Step 1: Run the Build Script
 Double-click: **`BUILD-DESKTOP-APP.bat`**
 
 That's it! The script will:
-1. Install PyInstaller
-2. Build ScraperG1000.exe
-3. Put it in the `dist/` folder
-
-### Step 2: Use Your App
-Go to `dist/` folder and you'll see: **`ScraperG1000.exe`**
-
-Right-click it and:
-- **"Send to > Desktop (create shortcut)"** - Put icon on desktop
-- **"Pin to taskbar"** - Keep it in your taskbar
+1. Generate a cool lightning bolt icon
+2. Install PyInstaller and dependencies
+3. Build ScraperG1000.exe with the icon
+4. **Automatically put the app on your desktop**
+5. You're done!
 
 ---
 
 ## That's All!
+
+After the build finishes:
+- ✅ Check your desktop
+- ✅ You'll see "Scraper G1000" with a lightning bolt icon
+- ✅ Double-click to launch
+- ✅ Pin to taskbar if you want
 
 Now you have a **REAL desktop app** you just double-click!
 

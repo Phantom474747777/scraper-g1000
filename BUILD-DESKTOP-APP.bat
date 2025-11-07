@@ -7,29 +7,43 @@ echo ========================================
 echo   BUILDING SCRAPER G1000 DESKTOP APP
 echo ========================================
 echo.
-echo This will create ScraperG1000.exe
-echo A standalone desktop application!
+echo This will:
+echo  1. Generate a cool lightning bolt icon
+echo  2. Build ScraperG1000.exe with the icon
+echo  3. Put the app on your desktop
 echo.
 pause
 
 echo.
-echo [1/3] Installing PyInstaller...
-python -m pip install pyinstaller --quiet
+echo [1/5] Installing dependencies...
+python -m pip install Pillow pyinstaller pywin32 winshell --quiet --upgrade
 
-echo [2/3] Building executable...
+echo.
+echo [2/5] Generating custom icon...
+python generate_icon.py
+
+echo.
+echo [3/5] Building executable with icon...
 python build_exe.py
 
 echo.
-echo [3/3] Build complete!
+echo [4/5] Creating desktop shortcut...
+python create_shortcut.py
+
+echo.
+echo [5/5] Build complete!
 echo.
 echo ========================================
 echo   SUCCESS!
 echo ========================================
 echo.
-echo Your app is ready: dist\ScraperG1000.exe
+echo Check your desktop! You should see:
+echo   "Scraper G1000" with a lightning bolt icon
 echo.
-echo Right-click ScraperG1000.exe and:
-echo  - Send to Desktop (create shortcut)
-echo  - Pin to taskbar
+echo Just double-click it to launch!
+echo.
+echo You can also:
+echo  - Pin it to taskbar
+echo  - Pin to Start Menu
 echo.
 pause
