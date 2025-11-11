@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 Scraper G1000 - Desktop Application
-Launches Flask backend + PyWebView window
+Launches Flask backend + PyWebView window SILENTLY
 """
 import sys
 import os
 import threading
 import time
 import webview
+import logging
 
 # Add current directory to Python path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -18,23 +19,24 @@ BACKEND_PORT = 5050
 BACKEND_URL = f"http://localhost:{BACKEND_PORT}"
 
 def start_flask_server():
-    """Start Flask backend in a thread"""
-    print("[Scraper G1000] Starting Flask backend...")
+    """Start Flask backend in a thread - SILENTLY"""
+    # Disable Flask logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
     flask_app.run(host='127.0.0.1', port=BACKEND_PORT, debug=False, threaded=True, use_reloader=False)
 
 def wait_for_backend(max_retries=10):
-    """Wait for Flask backend to be ready"""
+    """Wait for Flask backend to be ready - SILENTLY"""
     import urllib.request
 
     for i in range(max_retries):
         try:
             urllib.request.urlopen(f"{BACKEND_URL}/health", timeout=1)
-            print("[Scraper G1000] Backend ready!")
             return True
         except:
             time.sleep(1)
 
-    print("[Scraper G1000] Backend failed to start!")
     return False
 
 class API:
@@ -74,24 +76,15 @@ class API:
                 with open(save_path, 'wb') as f:
                     f.write(file_bytes)
 
-                print(f"[Export] Saved file to: {save_path}")
                 return {'success': True, 'path': save_path}
             else:
-                print("[Export] User cancelled save dialog")
                 return {'success': False, 'error': 'User cancelled'}
 
         except Exception as e:
-            print(f"[Export] Error saving file: {e}")
-            import traceback
-            traceback.print_exc()
             return {'success': False, 'error': str(e)}
 
 def main():
-    """Main application entry point"""
-    print("=" * 60)
-    print("   Scraper G1000 - Business Lead Generation")
-    print("=" * 60)
-    print()
+    """Main application entry point - SILENT MODE"""
 
     # Start Flask backend in background thread
     backend_thread = threading.Thread(target=start_flask_server, daemon=True)
@@ -99,14 +92,9 @@ def main():
 
     # Wait for backend to be ready
     if not wait_for_backend():
-        print("[ERROR] Could not start backend server!")
         sys.exit(1)
 
     # Create PyWebView window
-    print("[Scraper G1000] Launching desktop application...")
-
-    # Copy UI files to temp location for PyWebView to serve
-    import shutil
     from pathlib import Path
 
     # Use scraper-g1000-tauri/src as the UI source
@@ -132,19 +120,13 @@ def main():
         js_api=api  # Expose API to JavaScript
     )
 
-    # Start the GUI loop
+    # Start the GUI loop - SILENT MODE
     webview.start(debug=False)
-
-    print("\n[Scraper G1000] Application closed")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n[Scraper G1000] Interrupted by user")
         sys.exit(0)
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-        traceback.print_exc()
         sys.exit(1)

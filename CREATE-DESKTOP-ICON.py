@@ -134,7 +134,7 @@ print("[2/4] Creating launcher script...")
 launcher_bat = os.path.join(app_dir, "launch_app.bat")
 launcher_content = f"""@echo off
 cd /d "{app_dir}"
-start "" "{python_exe}" scraper-g1000.py
+start "" /B pythonw "{python_exe.replace('python.exe', 'pythonw.exe')}" scraper-g1000.py
 exit
 """
 
