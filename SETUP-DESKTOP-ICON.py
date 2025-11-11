@@ -28,6 +28,14 @@ launcher_path = os.path.join(desktop, "Scraper G1000.bat")
 with open(launcher_path, 'w') as f:
     f.write(launcher_content)
 
+# Copy icon to desktop folder if it exists
+icon_source = os.path.join(app_dir, "scraper_icon.ico")
+if os.path.exists(icon_source):
+    import shutil
+    icon_dest = os.path.join(os.path.dirname(launcher_path), "scraper_icon.ico")
+    shutil.copy(icon_source, icon_dest)
+    print("✓ Icon copied to desktop folder")
+
 print("=" * 60)
 print("SUCCESS!")
 print("=" * 60)
