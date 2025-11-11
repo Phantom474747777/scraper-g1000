@@ -4,6 +4,7 @@ Run this once and the app appears on your desktop
 """
 import os
 from pathlib import Path
+import sys
 
 # Get current directory (where the app is)
 app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -11,10 +12,13 @@ app_dir = os.path.dirname(os.path.abspath(__file__))
 # Get desktop path
 desktop = os.path.join(os.path.expanduser("~"), "Desktop")
 
-# Create the launcher script
+# Get Python executable path (the one currently running this script)
+python_exe = sys.executable
+
+# Create the launcher script with FULL Python path
 launcher_content = f"""@echo off
 cd /d "{app_dir}"
-start "" python scraper-g1000.py
+start "" "{python_exe}" scraper-g1000.py
 exit
 """
 
