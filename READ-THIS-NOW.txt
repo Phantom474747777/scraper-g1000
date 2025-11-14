@@ -1,0 +1,65 @@
+================================================================
+SCRAPER G1000 - FINAL SOLUTION
+================================================================
+
+Your batch files keep closing instantly. Here's the fix:
+
+================================================================
+OPTION 1: Create Log File (EASIEST)
+================================================================
+
+Double-click: CREATE-CRASH-LOG.bat
+
+This will:
+- Create CRASH-LOG.txt with all errors
+- Auto-open the log file in Notepad
+- Window can close - we don't care, the log is saved
+
+Look for CRASH-LOG.txt in the folder and SEND IT TO ME.
+
+================================================================
+OPTION 2: Run Diagnostic Script
+================================================================
+
+Double-click: RUN-DIAGNOSTIC.bat
+
+This creates FULL-DIAGNOSTIC.txt with complete system analysis.
+SEND ME THIS FILE.
+
+================================================================
+OPTION 3: Manual Command Prompt (GUARANTEED TO WORK)
+================================================================
+
+Read: MANUAL-INSTRUCTIONS.txt
+
+This shows you how to:
+1. Open Command Prompt yourself
+2. Navigate to the folder
+3. Run the app manually
+4. See all errors directly
+
+This CANNOT fail because you're doing it manually.
+
+================================================================
+WHICH ONE SHOULD I USE?
+================================================================
+
+Try them in this order:
+
+1. CREATE-CRASH-LOG.bat
+2. RUN-DIAGNOSTIC.bat
+3. Follow MANUAL-INSTRUCTIONS.txt
+
+One of these WILL create a log file you can send me.
+
+================================================================
+THE FILES YOU'LL GET
+================================================================
+
+CRASH-LOG.txt        → Created by CREATE-CRASH-LOG.bat
+FULL-DIAGNOSTIC.txt  → Created by RUN-DIAGNOSTIC.bat
+manual-error-log.txt → Created by manual method
+
+Send me whichever file gets created.
+
+================================================================
