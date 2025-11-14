@@ -1,0 +1,85 @@
+========================================
+  TRY THESE SOLUTIONS IN ORDER
+========================================
+
+You have 7 different ways to launch the app and see errors.
+Try them ONE AT A TIME in this order:
+
+----------------------------------------
+STEP 1: DIAGNOSE-PROBLEM.bat
+----------------------------------------
+This will:
+- Check if Python is installed
+- Test all imports
+- Run the app and save output to DIAGNOSTIC-OUTPUT.txt
+- Automatically open the error log
+
+**TRY THIS FIRST**
+
+
+----------------------------------------
+STEP 2: SOLUTION-2-LOG-FILE.bat
+----------------------------------------
+This will:
+- Run the app
+- Save ALL output to ERROR.txt
+- Open ERROR.txt in Notepad
+- You can read the full error
+
+
+----------------------------------------
+STEP 3: SOLUTION-6-WRAPPER.bat
+----------------------------------------
+This will:
+- Use a Python wrapper that catches ALL errors
+- Show detailed error messages
+- Save error to ERROR_LOG_DATE_TIME.txt
+- Window stays open until you press Enter
+
+
+----------------------------------------
+STEP 4: SOLUTION-3-PERSISTENT-CMD.bat
+----------------------------------------
+This will:
+- Open a NEW command window
+- Run the app in that window
+- Window CANNOT close automatically
+
+
+----------------------------------------
+STEP 5: SOLUTION-4-POWERSHELL.bat
+----------------------------------------
+This will:
+- Use PowerShell instead of CMD
+- Window stays open
+
+
+----------------------------------------
+STEP 6: SOLUTION-5-DOUBLE-PAUSE.bat
+----------------------------------------
+This will:
+- Run the app
+- Pause 3 times before closing
+
+
+----------------------------------------
+STEP 7: SOLUTION-1-SIMPLE.bat
+----------------------------------------
+This will:
+- Pipe output through 'more'
+- Pause before closing
+
+
+========================================
+  RECOMMENDATION
+========================================
+
+1. Run: DIAGNOSE-PROBLEM.bat
+2. Send me the contents of DIAGNOSTIC-OUTPUT.txt
+
+OR
+
+1. Run: SOLUTION-2-LOG-FILE.bat
+2. Send me the contents of ERROR.txt
+
+This will tell me EXACTLY what's wrong.
