@@ -1,0 +1,77 @@
+================================================================
+IMPORTANT: READ THIS FIRST
+================================================================
+
+You are probably clicking a DESKTOP SHORTCUT that points to the
+wrong location or an old version.
+
+DO NOT use the desktop icon yet.
+
+================================================================
+STEP-BY-STEP INSTRUCTIONS
+================================================================
+
+STEP 1: PULL THE LATEST CODE
+-----------------------------
+1. Open your scraper-g1000 folder
+   (wherever you cloned the GitHub repo)
+
+2. Right-click inside the folder → "Git Bash Here"
+   OR open Command Prompt and navigate to the folder
+
+3. Run this command:
+   git pull
+
+   This downloads all my fixes from GitHub.
+
+
+STEP 2: VERIFY THE FILES ARE THERE
+-----------------------------------
+Look in the folder. You should see:
+- START-GUI.bat
+- INSTALL-DEPENDENCIES.bat
+- CREATE-CRASH-LOG.bat
+- scraper-g1000.py
+
+If you DON'T see these files, you're in the wrong folder
+or you haven't pulled the latest code.
+
+
+STEP 3: INSTALL DEPENDENCIES (ONE TIME ONLY)
+---------------------------------------------
+1. Find INSTALL-DEPENDENCIES.bat in the folder
+2. Double-click it
+3. Wait for it to finish (may take 2-5 minutes)
+4. It will say "INSTALLATION COMPLETE" when done
+
+
+STEP 4: RUN THE APP
+-------------------
+1. Find START-GUI.bat in the folder
+2. Double-click it
+3. The app should launch
+
+
+STEP 5: IF IT STILL DOESN'T WORK
+---------------------------------
+1. Find CREATE-CRASH-LOG.bat in the folder
+2. Double-click it
+3. It creates CRASH-LOG.txt
+4. Open CRASH-LOG.txt and send me the contents
+
+
+================================================================
+IMPORTANT NOTES
+================================================================
+
+- DO NOT use the desktop icon/shortcut yet
+- GO TO THE ACTUAL FOLDER where the code is
+- PULL THE LATEST CODE with "git pull" first
+- The files I created ARE THERE after you pull
+
+If you can't find the folder, check:
+- C:\Users\47 Industries\Desktop\scraper-g1000
+- C:\Users\47 Industries\Documents\scraper-g1000
+- Or wherever you originally cloned the GitHub repo
+
+================================================================
