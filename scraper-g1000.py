@@ -7,12 +7,42 @@ import sys
 import os
 import threading
 import time
-import webview
+
+print("[Startup] Python interpreter started")
+print(f"[Startup] Python version: {sys.version}")
+print(f"[Startup] Current directory: {os.getcwd()}")
+print()
+
+# Test imports one by one to identify failures
+print("[Startup] Testing imports...")
+
+try:
+    import webview
+    print("[Startup] ✓ webview imported")
+except ImportError as e:
+    print(f"[ERROR] Failed to import webview: {e}")
+    print()
+    print("Fix: Run INSTALL-DEPENDENCIES.bat")
+    print()
+    input("Press Enter to exit...")
+    sys.exit(1)
 
 # Add current directory to Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from backend.api_server import app as flask_app
+try:
+    from backend.api_server import app as flask_app
+    print("[Startup] ✓ Flask backend imported")
+except ImportError as e:
+    print(f"[ERROR] Failed to import Flask backend: {e}")
+    print()
+    print("Fix: Run INSTALL-DEPENDENCIES.bat")
+    print()
+    input("Press Enter to exit...")
+    sys.exit(1)
+
+print("[Startup] All imports successful")
+print()
 
 BACKEND_PORT = 5050
 BACKEND_URL = f"http://localhost:{BACKEND_PORT}"
@@ -142,9 +172,26 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n[Scraper G1000] Interrupted by user")
+        input("\nPress Enter to exit...")
         sys.exit(0)
     except Exception as e:
-        print(f"\n[ERROR] {e}")
+        print("\n" + "=" * 60)
+        print("   FATAL ERROR")
+        print("=" * 60)
+        print()
+        print(f"Error: {e}")
+        print()
+        print("Full traceback:")
+        print()
         import traceback
         traceback.print_exc()
+        print()
+        print("=" * 60)
+        print()
+        print("Common fixes:")
+        print("  1. Run: INSTALL-DEPENDENCIES.bat")
+        print("  2. Check logs folder for details")
+        print("  3. Make sure port 5050 is not in use")
+        print()
+        input("Press Enter to exit...")
         sys.exit(1)
