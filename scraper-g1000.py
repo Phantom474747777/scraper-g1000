@@ -5,14 +5,53 @@ Launches Flask backend + PyWebView window
 """
 import sys
 import os
-import threading
-import time
-import webview
+
+# Write startup log immediately
+try:
+    with open('startup.log', 'w') as f:
+        f.write(f"Starting Scraper G1000...\n")
+        f.write(f"Python: {sys.version}\n")
+        f.write(f"CWD: {os.getcwd()}\n\n")
+except:
+    pass
+
+try:
+    import threading
+    import time
+except ImportError as e:
+    with open('startup.log', 'a') as f:
+        f.write(f"ERROR importing standard library: {e}\n")
+    raise
+
+try:
+    import webview
+    with open('startup.log', 'a') as f:
+        f.write(f"✓ webview imported\n")
+except ImportError as e:
+    with open('startup.log', 'a') as f:
+        f.write(f"✗ ERROR: pywebview not installed: {e}\n")
+        f.write(f"\nFIX: pip install pywebview\n")
+    print(f"ERROR: Missing package 'pywebview'")
+    print(f"Run: pip install pywebview")
+    input("Press Enter to exit...")
+    sys.exit(1)
 
 # Add current directory to Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from backend.api_server import app as flask_app
+try:
+    from backend.api_server import app as flask_app
+    with open('startup.log', 'a') as f:
+        f.write(f"✓ backend imported\n")
+except ImportError as e:
+    with open('startup.log', 'a') as f:
+        f.write(f"✗ ERROR importing backend: {e}\n")
+        import traceback
+        f.write(traceback.format_exc())
+    print(f"ERROR: Could not import backend: {e}")
+    print(f"\nCheck startup.log for details")
+    input("Press Enter to exit...")
+    sys.exit(1)
 
 BACKEND_PORT = 5050
 BACKEND_URL = f"http://localhost:{BACKEND_PORT}"
@@ -142,9 +181,25 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n[Scraper G1000] Interrupted by user")
+        with open('startup.log', 'a') as f:
+            f.write("\nApplication interrupted by user\n")
         sys.exit(0)
     except Exception as e:
-        print(f"\n[ERROR] {e}")
+        error_msg = f"\n[ERROR] {e}"
+        print(error_msg)
         import traceback
-        traceback.print_exc()
+        tb = traceback.format_exc()
+        print(tb)
+
+        # Write to log file
+        with open('startup.log', 'a') as f:
+            f.write(f"\n{'='*60}\n")
+            f.write(f"FATAL ERROR\n")
+            f.write(f"{'='*60}\n")
+            f.write(f"{error_msg}\n\n")
+            f.write(tb)
+            f.write(f"\n{'='*60}\n")
+
+        print("\nError logged to startup.log")
+        input("Press Enter to exit...")
         sys.exit(1)
