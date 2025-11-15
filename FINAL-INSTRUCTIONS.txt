@@ -1,0 +1,71 @@
+========================================
+  SCRAPER G1000 - FINAL SETUP
+========================================
+
+I completely redid everything from scratch.
+
+Deleted:
+- All 35+ diagnostic files
+- All confusing instructions
+- All the junk I created
+
+Kept:
+- START-GUI.bat (simple launcher)
+- INSTALL-DEPENDENCIES.bat (package installer)
+- scraper-g1000.py (with error logging)
+- Your blue SG logo
+- All app files
+
+========================================
+  WHAT TO DO NOW
+========================================
+
+Step 1: Pull Latest Code
+-------------------------
+In GitHub Desktop:
+  - Click "Fetch origin"
+  - Click "Pull origin"
+
+Step 2: Install Packages (ONE TIME ONLY)
+-----------------------------------------
+In your scraper-g1000 folder:
+  - Double-click: INSTALL-DEPENDENCIES.bat
+  - Wait 2-3 minutes
+  - It will say "Done!"
+
+Step 3: Launch the App
+-----------------------
+  - Double-click: START-GUI.bat
+  - App should open
+
+Step 4: If It Crashes
+----------------------
+Look for a file called: startup.log
+
+Send me the contents of that file.
+It will show the EXACT error.
+
+========================================
+  HOW IT WORKS NOW
+========================================
+
+START-GUI.bat:
+  1. Tries to find Python (3 different ways)
+  2. Runs scraper-g1000.py
+  3. Window stays open if there's an error
+
+scraper-g1000.py:
+  - Writes startup.log immediately
+  - Shows which packages loaded successfully
+  - Shows which packages failed
+  - Waits for you to press Enter if error
+
+========================================
+  THAT'S IT
+========================================
+
+Just 2 files you care about:
+  1. INSTALL-DEPENDENCIES.bat (run once)
+  2. START-GUI.bat (run to open app)
+
+If crash → check startup.log
